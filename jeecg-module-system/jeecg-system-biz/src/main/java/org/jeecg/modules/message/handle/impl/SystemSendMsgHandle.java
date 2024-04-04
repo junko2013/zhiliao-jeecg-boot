@@ -108,7 +108,7 @@ public class SystemSendMsgHandle implements ISendMsgHandle {
         announcement.setSendTime(new Date());
         //系统消息
         announcement.setMsgCategory("2");
-        announcement.setDelFlag(String.valueOf(CommonConstant.DEL_FLAG_0));
+        announcement.setDelFlag(CommonConstant.DEL_FLAG_0);
         sysAnnouncementMapper.insert(announcement);
         // 2.插入用户通告阅读标记表记录
         String userId = toUser;

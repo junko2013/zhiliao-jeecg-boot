@@ -39,8 +39,8 @@ public class MucPermissionServiceImpl extends BaseServiceImpl<MucPermissionMappe
     @Resource
     private XMPPService xmppService;
     @Override
-    public MucPermission findByManager(Integer managerId) {
-        return mucPermissionMapper.findByManager(managerId);
+    public MucPermission findByManager(Integer mucId,Integer managerId) {
+        return mucPermissionMapper.findByManager(mucId,managerId);
     }
 
     @Override
@@ -48,6 +48,7 @@ public class MucPermissionServiceImpl extends BaseServiceImpl<MucPermissionMappe
         MucPermission permission = mucPermissionMapper.findDefaultOfMuc(mucId);
         if(permission==null){
             permission = new MucPermission();
+            permission.setManagerId(0);
             permission.setMucId(mucId);
             permission.setAddManager(false);
             permission.setAddMember(true);
@@ -76,7 +77,7 @@ public class MucPermissionServiceImpl extends BaseServiceImpl<MucPermissionMappe
             if (member == null || member.getRole() != MucMember.Role.Manager.getCode()) {
                 return fail("非该群成员或非管理员");
             }
-            return success(findByManager(member.getId()));
+            return success(findByManager(mucId,member.getId()));
         }catch (Exception e){
             return fail();
         }
@@ -114,10 +115,10 @@ public class MucPermissionServiceImpl extends BaseServiceImpl<MucPermissionMappe
         if(q.getUpdate()!=null&&q.getUpdate()==1){
             MucPermission permission = new MucPermission();
             BeanUtils.copyProperties(q,permission);
-            if(q.getManagerId()==0){
+            if(q.getManagerId()==null){
                 permission.setId(findDefaultOfMuc(q.getMucId()).getId());
             }else{
-                permission.setId(findByManager(q.getManagerId()).getId());
+                permission.setId(findByManager(q.getMucId(),q.getManagerId()).getId());
             }
             updateById(permission);
             //发送修改群管理权限的单聊消息

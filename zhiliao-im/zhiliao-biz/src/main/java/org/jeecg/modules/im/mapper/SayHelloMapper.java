@@ -22,10 +22,9 @@ import java.util.List;
  */
 @Mapper
 public interface SayHelloMapper extends BaseMapper<SayHello> {
-    MyPage<SayHello> pagination(@Param("pg") MyPage<SayHello> pg, @Param("q") QSayHello q);
+    MyPage<SayHello> pagination(MyPage<SayHello> pg, @Param("q") QSayHello q);
 
     List<SayHello> findAllSend(Integer userId);
     List<SayHello> findAllReceive(Integer userId);
     SayHello findLatest(Integer userId,Integer toUserId);
-    SayHello findById(Integer userId,Integer id);
 }

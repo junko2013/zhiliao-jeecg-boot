@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 /**
  * <p>
@@ -31,20 +32,20 @@ public class SayHelloReply extends BaseModel<SayHelloReply> {
      */
     private Integer helloId;
 
+    //发送人
+    private Integer senderId;
+
     /**
      * 回复内容
      */
     private String msg;
 
     /**
-     * 是请求方发送的
-     */
-    private Boolean isSend;
-
-    /**
      * 发送时间
      */
     private Long tsCreate;
+    //已读时间
+    private Long tsRead;
 
     @TableField(exist = false)
     private User sender;

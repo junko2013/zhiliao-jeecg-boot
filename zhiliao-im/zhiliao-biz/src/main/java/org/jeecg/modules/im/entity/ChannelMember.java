@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
+
 /**
  * <p>
  * 频道成员
@@ -30,10 +32,12 @@ public class ChannelMember extends BaseModel<ChannelMember> {
     /**
      * 是管理员
      */
+    @Dict(dicCode = "yon")
     private Boolean isManager;
 
     /**
      * 是创建者
      */
+    @Dict(dicCode = "yon")
     private Boolean isCreator;
 }

@@ -49,6 +49,10 @@ public class MucConfig extends BaseModel<MucConfig> {
      */
     private Integer revokeNotice;
     /**
+     * 成员修改昵称通知 0：不通知，1：全部通知，2：通知群主管理员及本人
+     */
+    private Integer modifyNicknameNotice;
+    /**
      * 消息撤回时限
      */
     private Integer revokeDuration;

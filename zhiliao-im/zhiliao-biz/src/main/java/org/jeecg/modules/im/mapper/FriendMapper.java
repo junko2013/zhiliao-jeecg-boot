@@ -20,10 +20,10 @@ import java.util.List;
  */
 @Mapper
 public interface FriendMapper extends BaseMapper<Friend> {
-    MyPage<Friend> pagination(@Param("pg") MyPage<Friend> pg, @Param("q") QFriend q);
+    MyPage<Friend> pagination(MyPage<Friend> pg, @Param("q") QFriend q);
 
     List<Friend> findAll(QFriend q);
 
     Friend findByIdOfUser(Friend friend);
-    Friend findOne(Integer userId,Integer toUserId);
+    Friend findOne(Integer userId,Integer toUserId,Integer serverId);
 }

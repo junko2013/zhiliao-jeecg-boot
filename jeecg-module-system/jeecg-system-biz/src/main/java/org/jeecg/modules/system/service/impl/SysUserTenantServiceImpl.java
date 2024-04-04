@@ -95,7 +95,7 @@ public class SysUserTenantServiceImpl extends ServiceImpl<SysUserTenantMapper, S
     }
 
     @Override
-    public void updateUserTenantStatus(String id, String tenantId, String userTenantStatus) {
+    public void updateUserTenantStatus(String id, String tenantId, Integer userTenantStatus) {
         if (oConvertUtils.isEmpty(tenantId)) {
             throw new JeecgBootException("租户数据为空");
         }
@@ -188,7 +188,7 @@ public class SysUserTenantServiceImpl extends ServiceImpl<SysUserTenantMapper, S
     }
 
     @Override
-    public Long getUserCount(Integer tenantId, String tenantStatus) {
+    public Long getUserCount(Integer tenantId, Integer tenantStatus) {
         return userTenantMapper.getUserCount(tenantId,tenantStatus);
     }
 }

@@ -63,7 +63,7 @@ public class MyStickerItemServiceImpl extends BaseServiceImpl<MyStickerItemMappe
     }
 
     @Override
-    public Result<Object> addStickerItem(Integer stickerItemId) {
+    public Result<Object> addStickerItem(Integer userId,Integer stickerItemId) {
         StickerItem stickerItem = stickerItemMapper.selectById(stickerItemId);
         if(stickerItem==null||stickerItem.getIsLocked()){
             return fail("贴纸不存在或被禁用");
@@ -75,7 +75,7 @@ public class MyStickerItemServiceImpl extends BaseServiceImpl<MyStickerItemMappe
         star.setOrigin(stickerItem.getOrigin());
         star.setThumb(stickerItem.getThumb());
         star.setLottie(stickerItem.getLottie());
-        star.setUserId(getCurrentUserId());
+        star.setUserId(userId);
         if(save(star)){
             return fail("添加失败");
         }

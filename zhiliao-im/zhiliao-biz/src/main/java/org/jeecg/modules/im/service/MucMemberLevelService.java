@@ -2,7 +2,9 @@ package org.jeecg.modules.im.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
+import org.jeecg.modules.im.entity.MucMemberLevel;
 import org.jeecg.modules.im.entity.MucMemberLevel;
 import org.jeecg.modules.im.entity.query_helper.QMucMemberLevel;
 
@@ -15,6 +17,7 @@ import org.jeecg.modules.im.entity.query_helper.QMucMemberLevel;
  * @since 2021-01-20
  */
 public interface MucMemberLevelService extends IService<MucMemberLevel> {
-    IPage<MucMemberLevel> pagination(MyPage<MucMemberLevel> page, QMucMemberLevel q);
+    Result<Object> createOrUpdate(MucMemberLevel ctg);
+    Result<Object> del(String ids);
 
 }

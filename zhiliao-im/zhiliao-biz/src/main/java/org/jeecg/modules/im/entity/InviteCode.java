@@ -44,9 +44,12 @@ public class InviteCode extends BaseModel<InviteCode> {
     //使用次数
     private Integer times;
     //启用
+    @Dict(dicCode = "yon")
     private Boolean isEnable;
 
     private Integer userId;
+
+    private Integer serverId;
 
 //    0:不启用，1：选填，2：必填
 

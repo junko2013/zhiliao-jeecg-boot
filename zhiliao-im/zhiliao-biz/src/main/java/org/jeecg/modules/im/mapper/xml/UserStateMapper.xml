@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.im.mapper.UserStateMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.im.entity.UserState">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="is_diy" property="isDiy" />
+        <result column="content" property="content" />
+        <result column="ts_create" property="tsCreate" />
+        <result column="ts_valid" property="tsValid" />
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, is_diy, content, ts_create, ts_valid
+    </sql>
+
+</mapper>

@@ -20,8 +20,6 @@ import java.util.List;
  */
 @Mapper
 public interface GifAlbumMapper extends BaseMapper<GifAlbum> {
-    MyPage<GifAlbum> pagination(@Param("pg") MyPage<GifAlbum> pg, @Param("q") QGifAlbum q);
-    //查询未分组
-    GifAlbum findUngroup();
-    List<GifAlbum> findAll();
+    MyPage<GifAlbum> pagination(MyPage<GifAlbum> pg, @Param("q") QGifAlbum q);
+    List<GifAlbum> findAll(Integer serverId);
 }

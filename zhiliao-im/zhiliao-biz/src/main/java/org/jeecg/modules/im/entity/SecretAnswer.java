@@ -1,4 +1,5 @@
 package org.jeecg.modules.im.entity;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
@@ -31,5 +32,8 @@ public class SecretAnswer extends BaseModel<SecretAnswer> {
     private Integer userId;
 
     private Long tsCreate;
+
+    @TableField(exist = false)
+    private User user;
 
 }

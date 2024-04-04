@@ -14,7 +14,7 @@ import org.jeecg.modules.im.entity.query_helper.QMucPermission;
  * @since 2023-03-27
  */
 public interface MucPermissionService extends IService<MucPermission> {
-    MucPermission findByManager(Integer managerId);
+    MucPermission findByManager(Integer mucId,Integer managerId);
     MucPermission findDefaultOfMuc(Integer mucId);
 
     Integer deleteOne(Integer mucId, Integer managerId);

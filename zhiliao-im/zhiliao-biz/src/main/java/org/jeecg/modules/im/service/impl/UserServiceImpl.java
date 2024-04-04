@@ -5,10 +5,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authc.AuthenticationException;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.util.JwtUtilApp;
+import org.jeecg.common.util.Kv;
 import org.jeecg.common.util.RedisUtil;
+import org.jeecg.common.util.encryption.AesEncryptUtil;
 import org.jeecg.modules.im.base.constant.ConstantZhiLiao;
 import org.jeecg.modules.im.base.constant.MsgType;
 import org.jeecg.modules.im.base.exception.BusinessException;
@@ -65,7 +68,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     @Resource
     private UserSettingService userSettingService;
     @Resource
-    private ClientConfigService clientConfigService;
+    private ServerConfigService serverConfigService;
     @Resource
     private FriendService friendService;
     @Resource
@@ -194,6 +197,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
 
     //手机号注册
     @Override
+    @Transactional
     public Result<Object> register(QUser user, String verifyCode,String inviteCode) {
         Result<Object> result = inviteCodeService.checkCode(inviteCode);
         if(!result.isSuccess()){
@@ -214,7 +218,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     public Result<Object> registerByMobile(QUser user, String code,InviteCode inviteCode){
         user.setResource(User.Resource.MOBILE_REG.getCode());
         if (userMapper.findByMobile(user.getMobile()) != null) {
-            return fail("该手机号已被注册");
+            return fail("手机号已被注册");
         }
         //校验短信验证码
         VerifyCode verifyCode = verifyCodeService.findLatestByMobileAndType(user.getMobile(), VerifyCode.Type.Register.name());
@@ -222,7 +226,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             return fail("验证码错误");
         }
         if (ToolDateTime.getDateSecondSpace(verifyCode.getTsCreate(), getTs()) > Integer.parseInt(paramService.getByName(Param.Name.verify_code_invalid_minutes, 15 * 60 + ""))) {
-            return fail("验证码失效,请重新获取");
+            return fail("验证码已失效，请重新获取");
         }
         return registerUser(user,LoginLog.Way.Mobile,inviteCode);
     }
@@ -238,7 +242,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             return fail("验证码错误");
         }
         if (ToolDateTime.getDateSecondSpace(verifyCode.getTsCreate(), getTs()) > Integer.parseInt(paramService.getByName(Param.Name.verify_code_invalid_minutes, 15 * 60 + ""))) {
-            return fail("验证码失效,请重新获取");
+            return fail("验证码已失效，请重新获取");
         }
         return registerUser(user,LoginLog.Way.Email,inviteCode);
     }
@@ -246,12 +250,11 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     public Result<Object> registerByUsername(QUser user,InviteCode inviteCode){
         user.setResource(User.Resource.USERNAME_REG.getCode());
         if (userMapper.findByUsername(user.getUsername()) != null) {
-            return fail("该用户名已存在");
+            return fail("账号已存在");
         }
         return registerUser(user,LoginLog.Way.Username,inviteCode);
     }
     //注册用户
-    @Transactional(rollbackFor = Exception.class)
     Result<Object> registerUser(QUser u,LoginLog.Way way,InviteCode inviteCode){
         try {
             User user = new User();
@@ -260,7 +263,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             user.setSalt(PasswordEncoder.createSalt(32));
             //手机号未注册的通过验证码登录时，密码是空的,设置为初始密码
             if(StringUtils.isBlank(user.getPassword())){
-                ClientConfig config = clientConfigService.get();
+                ServerConfig config = getServerConfig();
                 user.setPassword(isEmpty(config.getDefaultPassword())?"888888":config.getDefaultPassword());
                 user.setPasswordIsInit(true);
             }
@@ -276,6 +279,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             user.setRegNo(getTotalUser()+1);
             //默认昵称
             user.setTsCreate(getTs());
+            user.setServerId(getServerId());
             if (!save(user)) {
                 throw new BusinessException("保存用户失败");
             }
@@ -286,7 +290,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             if (!userInfoService.save(info)) {
                 throw new BusinessException("保存用户失败");
             }
-            ClientConfig config = clientConfigService.get();
+            ServerConfig config = getServerConfig();
             UserSetting setting = new UserSetting();
             setting.setUserId(user.getId());
             setting.setAccountSearch(config.getAccountSearch());
@@ -309,7 +313,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
                 throw new BusinessException("保存用户设置失败");
             }
             //查找设备
-            Device device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(), user.getId());
+            Device device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(),getDeviceDetail(), user);
             device.setIsOnline(true);
             device.setPlatform(getDevicePlatform());
             device.setClientVer(getClientVer());
@@ -317,6 +321,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             device.setDetail(getDeviceDetail());
             device.setJpushId(getJPushId());
             device.setSysVer(getDeviceSystemVersion());
+            device.setIsPhysic(getDeviceIsPhysic());
             //保存注册日志
             LoginLog registerLog = new LoginLog();
             registerLog.setDeviceId(device.getId());
@@ -333,6 +338,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             registerLog.setIsRegister(true);
             registerLog.setTsCreate(getTs());
             registerLog.setWay(way.name());
+            registerLog.setServerId(user.getServerId());
             if (!loginLogService.save(registerLog)) {
                 throw new BusinessException("保存注册日志失败");
             }
@@ -341,22 +347,23 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             myInviteCode.setUserId(user.getId());
             myInviteCode.setTsCreate(getTs());
             myInviteCode.setCode(InvitationCodeUtil.gen(user.getTsCreate(),6));
+            myInviteCode.setServerId(user.getServerId());
             inviteCodeService.save(myInviteCode);
             //注册xmpp用户
             boolean result = xmppService.registerUser(user.getId(), user.getPassword(),user.getNickname());
             if (!result) {
-                throw new BusinessException("注册xmpp用户失败");
+                throw new BusinessException("注册失败,请重试");
             }
             //添加默认好友
             List<User> defaultUsers = findDefaultAddUsers();
-            batchAddFriend(user.getId(),defaultUsers);
+            batchAddFriend(user,defaultUsers);
             //邀请码
             if(inviteCode!=null){
                 inviteCode.setTimes(inviteCode.getTimes()+1);
                 inviteCode.setTsLast(getTs());
                 inviteCodeService.updateById(inviteCode);
                 if(!isEmpty(inviteCode.getUserToAdd())){
-                    batchAddFriend(user.getId(),getByIds(inviteCode.getUserToAdd()));
+                    batchAddFriend(user,getByIds(inviteCode.getUserToAdd()));
                 }
                 if(!isEmpty(inviteCode.getMucToJoin())){
                     batchJoinMuc(user.getId(),mucService.getByIds(inviteCode.getMucToJoin()));
@@ -366,25 +373,28 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
                 invitation.setUserId(user.getId());
                 invitation.setTsCreate(getTs());
                 invitation.setInviterId(inviteCode.getUserId());
+                invitation.setServerId(user.getServerId());
                 invitationService.save(invitation);
             }
             //关注系统号
-            batchFollowSys(user.getId(),findSysUser());
+            batchFollowSys(user,findSysUser());
             //返回token
-            String token = JwtUtilApp.sign(user.getId(), user.getPassword(),user.getAccount());
-            device.setToken(token);
+            String accessToken = JwtUtilApp.getAccessToken(user.getId(), user.getPassword(),user.getAccount());
+            String refreshToken = JwtUtilApp.getRefreshToken(user.getId(), user.getPassword());
+            device.setToken(accessToken);
             deviceService.updateById(device);
             Kv data = Kv.create();
-            data.put("token",token);
+            data.put("accessToken",accessToken);
+            data.put("refreshToken",refreshToken);
             data.put("user",getBasicInfoById(user.getId()));
             return success(data);
         } catch (Exception e) {
-            log.error("用户名注册用户异常：user={},e={}", u, e);
+            log.error("用户名注册用户异常：user={}", u, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());
             }
-            return fail("注册失败，请稍后再试");
+            return fail("注册失败,请重试");
         }
     }
 
@@ -398,39 +408,45 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         return list(query);
     }
     @Override
-    public int batchAddFriend(Integer userId, List<User> users){
+    public int batchAddFriend(User user, List<User> users){
         int count = 0;
         for (User defaultUser : users) {
-            Result addResult = friendService.addFriend(defaultUser.getId(), userId,true);
+            Result addResult = friendService.addFriend(defaultUser, user,true);
             if(addResult.isSuccess()) {
-                addResult = friendService.addFriend(userId,defaultUser.getId(), false);
+                addResult = friendService.addFriend(user,defaultUser, false);
                 if(addResult.isSuccess()){
                     count++;
                     //发送欢迎语
-                    sendWelcomes(defaultUser,userId);
+                    sendWelcomes(defaultUser,user.getId());
                 }
             }
         }
         return count;
     }
     @Override
-    public int batchFollowSys(Integer userId, List<User> users){
+    public int batchFollowSys(User user, List<User> users){
         if(users.isEmpty()){
             return 0;
         }
         int count = 0;
         for (User sysUser : users) {
-            Result followResult = friendService.followUser(userId,sysUser.getId(),true);
+            Result followResult = friendService.followUser(user,sysUser,true);
             if(followResult.isSuccess()){
                 count++;
                 //发送欢迎语
                 if(!isEmpty(sysUser.getWelcomes())){
-                    sendWelcomes(sysUser,userId);
+                    sendWelcomes(sysUser,user.getId());
                 }
             }
         }
         return count;
     }
+
+    @Override
+    public int updateOffline(long ts) {
+        return userMapper.updateOffline(ts);
+    }
+
     //发送欢迎语
     private void sendWelcomes(User fromUser,Integer toUserId){
         User toUser = findById(toUserId);
@@ -473,7 +489,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     public Result<Object> resetPwdByMobile(String mobile, String password, String code) {
         User user = userMapper.findByMobile(mobile);
         if (user == null) {
-            return fail("该手机号未注册");
+            return fail("手机号未注册");
         }
         //校验短信验证码
         VerifyCode verifyCode = verifyCodeService.findLatestByMobileAndType(mobile, VerifyCode.Type.FindPwd.name());
@@ -481,7 +497,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             return fail("验证码错误");
         }
         if (ToolDateTime.getDateSecondSpace(verifyCode.getTsCreate(), getTs()) > Integer.parseInt(paramService.getByName(Param.Name.verify_code_invalid_minutes, 15 * 60 + ""))) {
-            return fail("验证码失效,请重新获取");
+            return fail("验证码已失效，请重新获取");
         }
         //更新用户密码
         try {
@@ -490,10 +506,10 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             user.setSalt(PasswordEncoder.createSalt(32));
             user.setPassword(ToolPassword.getEncPassword(user.getSalt(), password));
             if (!updateById(user)) {
-                return fail("重置失败，请重试");
+                return fail();
             }
             //注销已登录的设备
-            int count = deviceService.clearAllTokenOfUser(user.getId());
+            int count = deviceService.clearAllToken(user.getId());
             log.info("用户重置密码时注销设备数量：{}",count);
             //修改xmpp账号密码
             boolean result = xmppService.modifyXmppPassword(user.getId(),oldPwd, user.getPassword());
@@ -502,7 +518,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             }
             return success(user.getId());
         } catch (Exception e) {
-            log.error("密码找回重置密码异常：user={},e={}", user, e);
+            log.error("密码找回重置密码异常：user={}", user, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());
@@ -520,11 +536,11 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             if (user == null) {
                 user = userMapper.findByUsername(account);
                 if (user == null) {
-                    return fail("账号不存在,请注册");
+                    return fail("账号不存在");
                 }
             }
         }
-        if(!secretAnswerService.check(account,questions).isSuccess()){
+        if(!secretAnswerService.check(user.getId(),account,questions).isSuccess()){
             return fail("密保问题校验失败");
         }
         //更新用户密码
@@ -534,10 +550,10 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             user.setSalt(PasswordEncoder.createSalt(32));
             user.setPassword(ToolPassword.getEncPassword(user.getSalt(), password));
             if (!updateById(user)) {
-                return fail("重置失败，请重试");
+                return fail();
             }
             //注销已登录的设备
-            int count = deviceService.clearAllTokenOfUser(user.getId());
+            int count = deviceService.clearAllToken(user.getId());
             log.info("用户重置密码时注销设备数量：{}",count);
             //修改xmpp账号密码
             boolean result = xmppService.modifyXmppPassword(user.getId(),oldPwd, user.getPassword());
@@ -546,7 +562,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             }
             return success(user.getId());
         } catch (Exception e) {
-            log.error("密码找回重置密码异常：user={},e={}", user, e);
+            log.error("密码找回重置密码异常：user={}", user, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());
@@ -602,13 +618,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         if(user.getPasswordIsInit()){
             return fail("该账号的密码为初始密码，请通过短信验证码登录，并尽快修改密码后再使用！");
         }
-        Device device = null;
-        if(!isEmpty(getDeviceDetail())){
-            device = deviceService.findByDetail(getDeviceDetail(),user.getId());
-        }
-        if(device==null){
-            device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(), user.getId());
-        }
+        Device device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(), getDeviceDetail(),user);
         if(device==null||device.getTsDisabled()>0){
             return fail(ConstantZhiLiao.ACCOUNT_LOCKED,"当前设备已被禁用");
         }
@@ -616,6 +626,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             if(isEmpty(user.getPassword())){
                 return fail("此账号未设置密码，请通过短信验证码进行登录");
             }
+            //密码解密
+            password = AesEncryptUtil.desEncrypt(password);
             ///密码校验
             if (!ToolPassword.checkPassword(user.getSalt(), user.getPassword(), password)) {
                 return fail("账号或密码错误");
@@ -629,8 +641,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
 
             return success(loginSuccess(user,loginLog,device));
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("用户登录异常：user={},e={}", user, e);
+            log.error("用户登录异常：user={}", user, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());
@@ -651,7 +662,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             if (user == null) {
                 user = userMapper.findByUsername(account);
                 if (user == null) {
-                    return fail("账号不存在,请注册");
+                    return fail("账号不存在");
                 }
             }
             loginLog.setWay(LoginLog.Way.Account.name());
@@ -660,13 +671,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             if (user.getTsLocked()>0) {
                 return fail(ConstantZhiLiao.ACCOUNT_LOCKED,"账号已被锁定");
             }
-            Device device = null;
-            if(!isEmpty(getDeviceDetail())){
-                device = deviceService.findByDetail(getDeviceDetail(),user.getId());
-            }
-            if(device==null){
-                device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(), user.getId());
-            }
+            Device device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(),getDeviceDetail(), user);
             if(device==null||device.getTsDisabled()>0){
                 return fail(ConstantZhiLiao.ACCOUNT_LOCKED,"当前设备已被禁用");
             }
@@ -675,8 +680,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             }
             return success(loginSuccess(user,loginLog,device));
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("用户登录异常：user={},e={}", user, e);
+            log.error("用户登录异常：user={}", user, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());
@@ -702,15 +706,15 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             return fail("验证码错误");
         }
         if (ToolDateTime.getDateSecondSpace(verifyCode.getTsCreate(), getTs()) > Integer.parseInt(paramService.getByName(Param.Name.verify_code_invalid_minutes, 15 * 60 + ""))) {
-            return fail("验证码失效,请重新获取");
+            return fail("验证码已失效，请重新获取");
         }
         //未注册的直接注册并告知前台需设置密码后才能用
         if (user == null) {
-//            return fail("该手机号未注册");
+//            return fail("手机号未注册");
             QUser u = new QUser();
             u.setMobile(mobile);
             String nickname = NameUtil.getName();
-            ClientConfig config = clientConfigService.get();
+            ServerConfig config = getServerConfig();
             if(config.getNicknameUnique()){
                 while(getCountOfNickname(nickname)>0){
                     nickname = NameUtil.getName();
@@ -726,13 +730,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         if (user.getTsLocked() > 0) {
             return fail(ConstantZhiLiao.ACCOUNT_LOCKED, "账号已被锁定");
         }
-        Device device = null;
-        if(!isEmpty(getDeviceDetail())){
-            device = deviceService.findByDetail(getDeviceDetail(),user.getId());
-        }
-        if(device==null){
-            device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(), user.getId());
-        }
+        Device device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(),getDeviceDetail(), user);
         if(device==null||device.getTsDisabled()>0){
             return fail(ConstantZhiLiao.ACCOUNT_LOCKED,"当前设备已被禁用");
         }
@@ -742,7 +740,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         try {
             return success(loginSuccess(user,loginLog,device));
         } catch (Exception e) {
-            log.error("短信验证码登录异常：user={},e={}", user, e);
+            log.error("短信验证码登录异常：user={}", user, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());
@@ -757,10 +755,12 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result<Object> tokenLogin(Boolean isScan) {
-        String accessToken = request.getHeader(CommonConstant.X_ACCESS_TOKEN);
+    public Result<Object> tokenLogin(String token,Boolean isScan) {
+        Integer userId = JwtUtilApp.verify(token);
+        if(null==userId){
+            throw new AuthenticationException("invalid");
+        }
         try {
-            Integer userId = JwtUtilApp.getUserIdByToken(accessToken);
             User user = findById(userId);
             if (user == null) {
                 return fail("账号不存在");
@@ -768,13 +768,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             if (user.getTsLocked()>0) {
                 return fail(ConstantZhiLiao.ACCOUNT_LOCKED,"账号已被锁定");
             }
-            Device device = null;
-            if(!isEmpty(getDeviceDetail())){
-                device = deviceService.findByDetail(getDeviceDetail(),user.getId());
-            }
-            if(device==null){
-                device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(), user.getId());
-            }
+            Device device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(),getDeviceDetail(), user);
             if(device==null){
                 return fail("设备未登录过");
             }
@@ -782,14 +776,14 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
                 return fail(ConstantZhiLiao.ACCOUNT_LOCKED,"当前设备已被禁用");
             }
             //自动登录时校验设备token
-            if(!equals(accessToken,device.getToken())&&(isScan==null||!isScan)){
-                return fail("令牌过期，请重新登录！");
+            if(!equals(token,device.getToken())&&(isScan==null||!isScan)){
+                return fail("令牌已过期，请重新登录！");
             }
             LoginLog loginLog = new LoginLog();
             loginLog.setWay(isScan!=null&&isScan?LoginLog.Way.Scan.name():LoginLog.Way.AutoLogin.name());
             return  success(loginSuccess(user,loginLog,device));
         } catch (Exception e) {
-            log.error("自动登录异常：token={},e={}", accessToken, e);
+            log.error("自动登录异常：token={}", token, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());
@@ -807,6 +801,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         device.setDetail(getDeviceDetail());
         device.setName(getDeviceName());
         device.setSysVer(getDeviceSystemVersion());
+        device.setIsPhysic(getDeviceIsPhysic());
         device.setJpushId(getJPushId());
         //将其他相同jpushid的设备清空jpushid
         Result result = deviceService.cleanJpushId(device.getJpushId(),device.getId());
@@ -826,14 +821,17 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         loginLog.setIp(getIp());
         loginLog.setIpInfo(getIpInfo());
         loginLog.setTsCreate(getTs());
+        loginLog.setServerId(getServerId());
 
         if (!loginLogService.save(loginLog)) {
             throw new BusinessException("保存登录日志失败");
         }
 
         //返回token
-        String token = JwtUtilApp.sign(user.getId(), user.getPassword(),user.getAccount());
-        device.setToken(token);
+        String accessToken = JwtUtilApp.getAccessToken(user.getId(), user.getPassword(),user.getAccount());
+        String refreshToken = JwtUtilApp.getRefreshToken(user.getId(), user.getPassword());
+
+        device.setToken(accessToken);
         deviceService.updateById(device);
 
         device.setLoginLog(loginLogService.findLatestByDeviceId(device.getId()));
@@ -846,24 +844,25 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         xmppService.sendMsgToSelf(messageBean);
 
         Kv data = Kv.create();
-        data.put("token",token);
+        data.put("accessToken",accessToken);
+        data.put("refreshToken",refreshToken);
         data.put("user",getBasicInfoById(user.getId()));
         return data;
     }
 
     @Override
-    public Result<Object> updateInfo(QUser param) {
-        User user = getCurrentUser();
+    public Result<Object> updateInfo(Integer userId,QUser param) {
+        User user = findById(userId);
         UserInfo info = userInfoService.findBasicByUserId(user.getId());
         try {
             //修改昵称
             if (!isEmpty(param.getNickname()) && !user.getNickname().equals(param.getNickname())) {
                 int nicknameLen = ToolString.getNicknameLength(param.getNickname());
-                if (nicknameLen == 0 || nicknameLen > 36) {
-                    return fail("昵称为1~36个字符,由字母、数字、中文和特殊符号组成");
+                if (nicknameLen == 0 || nicknameLen > 10) {
+                    return fail("昵称为1~10个字符,由字母、数字和符号组成");
                 }
                 //昵称唯一
-                ClientConfig config = clientConfigService.get();
+                ServerConfig config = getServerConfig();
                 if (config.getNicknameUnique() && getCountOfNickname(param.getNickname()) > 0) {
                     return fail("昵称已存在");
                 }
@@ -951,10 +950,11 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         if(equals(oldPwd,newPwd)){
             return fail("新密码不能与旧密码相同！");
         }
-        if(!ToolPassword.checkPassword(user.getSalt(),user.getPassword(),oldPwd)){
-            return fail("旧密码错误");
-        }
         try{
+            oldPwd = AesEncryptUtil.desEncrypt(oldPwd);
+            if(!ToolPassword.checkPassword(user.getSalt(),user.getPassword(),oldPwd)){
+                return fail("旧密码错误");
+            }
             String oldXmppPwd = user.getPassword();
             user.setSalt(PasswordEncoder.createSalt(32));
             user.setPassword(ToolPassword.getEncPassword(user.getSalt(),newPwd));
@@ -962,7 +962,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
                 return fail();
             }
             //注销已登录的设备
-            int count = deviceService.clearAllTokenOfUser(user.getId());
+            int count = deviceService.clearAllToken(user.getId());
             log.info("更新用户密码时注销设备数量：{}",count);
             //更新xmpp账号密码
             boolean result = xmppService.modifyXmppPassword(user.getId(), oldXmppPwd, user.getPassword());
@@ -984,8 +984,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
 
     @Override
     public Result<Object> search(Integer userId,String keyword,Integer type) {
-        ClientConfig clientConfig = clientConfigService.get();
-        return success(userMapper.search(userId,keyword,type,clientConfig.getAccountSearch(),clientConfig.getMobileSearch(),clientConfig.getNicknameSearch(),clientConfig.getUsernameSearch(),clientConfig.getNicknameSearchExact()));
+        ServerConfig serverConfig = getServerConfig();
+        return success(userMapper.search(userId,keyword,type, serverConfig.getAccountSearch(), serverConfig.getMobileSearch(), serverConfig.getNicknameSearch(), serverConfig.getUsernameSearch(), serverConfig.getNicknameSearchExact()));
     }
 
     @Override
@@ -998,7 +998,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             updateById(user);
             String platform = resource.split("-")[0];
             String deviceNo = resource.substring(resource.indexOf("-")+1);
-            Device device = deviceService.findByPlatform(deviceNo,platform,user.getId());
+            Device device = deviceService.findByPlatform(deviceNo,platform,null,user);
             device.setIsOnline(true);
             device.setTsOnline(getTs());
 
@@ -1030,7 +1030,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             }
             String platform = resource.split("-")[0];
             String deviceNo = resource.substring(resource.indexOf("-")+1);
-            Device device = deviceService.findByPlatform(deviceNo,platform,user.getId());
+            Device device = deviceService.findByPlatform(deviceNo,platform,null,user);
             device.setIsOnline(false);
             device.setTsOffline(getTs());
             deviceService.updateById(device);
@@ -1045,30 +1045,23 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             messageBean.setType(MsgType.deviceOnline.getType());
             xmppService.sendMsgToSelf(messageBean);
         } catch (Exception e) {
-            e.printStackTrace();
             log.error(e.getMessage());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
     }
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result<Object> logout()  {
+    public Result<Object> logout(Integer userId)  {
         try {
             String token = request.getHeader("X-Access-Token");
-            User user = getCurrentUser();
+            User user = findById(userId);
             if(user!=null) {
                 log.info(" 用户:  "+user.getNickname()+"->"+user.getAccount()+",退出成功！ ");
                 //清空用户登录Token缓存
                 redisUtil.del(CommonConstant.PREFIX_USER_TOKEN_API + token);
                 //查找设备
                 //查找设备
-                Device device = null;
-                if(!isEmpty(getDeviceDetail())){
-                    device = deviceService.findByDetail(getDeviceDetail(),user.getId());
-                }
-                if(device==null){
-                    device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(), user.getId());
-                }
+                Device device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(), getDeviceDetail(),user);
 //                device.setIsOnline(false);
 //                device.setTsOffline(getTs());
                 device.setToken(null);
@@ -1076,7 +1069,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
 //                device.setLoginLog(loginLogService.findLatestByDeviceId(device.getId()));
 //
 //                MessageBean messageBean = new MessageBean();
-//                messageBean.setUserId(getCurrentUserId());
+//                messageBean.setUserId(userId);
 //                device.setDetail("");
 //                device.setToken("");
 //                Kv data = Kv.by("device",device);
@@ -1101,6 +1094,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     }
 
     @Override
+    @Transactional
     public Result<Object> consoleCreateOrUpdate(User user) {
         if (user.getId() == null) {
             return consoleCreate(user);
@@ -1144,6 +1138,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     public Result<Object> consoleMute(Integer id,Long tsMute) {
         try {
             User user = findById(id);
+            user.setTsMuteBegin(getTs());
             user.setTsMute(tsMute);
             updateById(user);
             MessageBean messageBean = new MessageBean();
@@ -1225,7 +1220,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> consoleCreate(User user) {
         if (userMapper.findByMobile(user.getMobile()) != null) {
-            return fail("该手机号已被注册");
+            return fail("手机号已被注册");
         }
         if(!ToolString.regExpVali(Pattern.compile("^[a-zA-Z0-9_]{1,16}$"),user.getAccount())){
             return fail("账号不符合要求");
@@ -1250,10 +1245,10 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             if (!userInfoService.save(info)) {
                 throw new BusinessException("保存用户失败");
             }
-            ClientConfig config = clientConfigService.get();
+            ServerConfig config = getServerConfig();
             int nicknameLen = ToolString.getNicknameLength(user.getNickname());
-            if (nicknameLen==0||nicknameLen>36) {
-                return fail("昵称为1~36个字符,由字母、数字、中文和特殊符号组成");
+            if (nicknameLen==0||nicknameLen>10) {
+                return fail("昵称为1~10个字符,由字母、数字和符号组成");
             }
             //昵称唯一
             if(config.getNicknameUnique()&&getCountOfNickname(user.getNickname())>0){
@@ -1283,16 +1278,16 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             //注册xmpp用户
             boolean result = xmppService.registerUser(user.getId(), user.getPassword(),user.getNickname());
             if (!result) {
-                throw new BusinessException("注册xmpp用户失败");
+                throw new BusinessException("注册失败,请重试");
             }
             return success();
         } catch (Exception e) {
-            log.error("手机号注册用户异常：user={},e={}", user, e);
+            log.error("手机号注册用户异常：user={}", user, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());
             }
-            return fail("注册失败，请稍后再试");
+            return fail("注册失败,请重试");
         }
     }
 
@@ -1302,23 +1297,30 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
 
     @Override
     public Result<Object> setPayPassword(User user, String oldPwd, String pwd) {
-        //如已设置，则校验
-        if(StringUtils.isNotBlank(user.getPayPassword())){
-            if(!ToolPassword.checkPassword(user.getPaySalt(),user.getPayPassword(),oldPwd)){
-                return fail("旧密码错误");
+        try {
+            //如已设置，则校验
+            if (StringUtils.isNotBlank(user.getPayPassword())) {
+                oldPwd = AesEncryptUtil.desEncrypt(oldPwd);
+                if (!ToolPassword.checkPassword(user.getPaySalt(), user.getPayPassword(), oldPwd)) {
+                    return fail("旧密码错误");
+                }
             }
+            //密码加盐
+            user.setPaySalt(PasswordEncoder.createSalt(32));
+            pwd = AesEncryptUtil.desEncrypt(pwd);
+            user.setPayPassword(ToolPassword.getEncPassword(user.getPaySalt(), pwd));
+            updateById(user);
+            //发送用户资料更新给其他设备
+            MessageBean messageBean = new MessageBean();
+            messageBean.setUserId(user.getId());
+            messageBean.setContent(JSONObject.toJSONString(getBasicInfoWithoutSettingById(user.getId())));
+            messageBean.setType(MsgType.updateInfo.getType());
+            xmppService.sendMsgToSelf(messageBean);
+            return success();
+        }catch (Exception e){
+            log.error("update pay password error",e);
+            return fail();
         }
-        //密码加盐
-        user.setPaySalt(PasswordEncoder.createSalt(32));
-        user.setPayPassword(ToolPassword.getEncPassword(user.getPaySalt(), pwd));
-        updateById(user);
-        //发送用户资料更新给其他设备
-        MessageBean messageBean = new MessageBean();
-        messageBean.setUserId(user.getId());
-        messageBean.setContent(JSONObject.toJSONString(getBasicInfoWithoutSettingById(user.getId())));
-        messageBean.setType(MsgType.updateInfo.getType());
-        xmppService.sendMsgToSelf(messageBean);
-        return success();
     }
 
     @Override
@@ -1365,7 +1367,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             if(!isEmpty(user.getMobile())){
                 temp = userMapper.findByMobile(user.getMobile());
                 if (temp != null&&temp.getId()-user.getId()!=0) {
-                    return fail("该手机号已被注册");
+                    return fail("手机号已被注册");
                 }
             }
             if(!isEmpty(user.getAccount())){
@@ -1379,10 +1381,10 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             }
             if(!isEmpty(user.getNickname())){
                 int nicknameLen = ToolString.getNicknameLength(user.getNickname());
-                if (nicknameLen==0||nicknameLen>36) {
-                    return fail("昵称为1~36个字符,由字母、数字、中文和特殊符号组成");
+                if (nicknameLen==0||nicknameLen>10) {
+                    return fail("昵称为1~10个字符,由字母、数字和符号组成");
                 }
-                ClientConfig config = clientConfigService.get();
+                ServerConfig config = getServerConfig();
                 //昵称唯一
                 if(config.getNicknameUnique()&&getCountOfNicknameExceptUserId(user.getNickname(),user.getId())>0){
                     return fail("昵称已存在");
@@ -1397,7 +1399,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
                 user.setSalt(PasswordEncoder.createSalt(32));
                 user.setPassword(ToolPassword.getEncPassword(user.getSalt(), user.getPassword()));
                 //注销已登录的设备
-                int count = deviceService.clearAllTokenOfUser(user.getId());
+                int count = deviceService.clearAllToken(user.getId());
                 log.info("后台更新用户密码时注销设备数量：{}",count);
                 //更新xmpp账号密码
                 boolean result = xmppService.modifyXmppPassword(user.getId(), oldPwd, user.getPassword());

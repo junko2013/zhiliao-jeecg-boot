@@ -30,31 +30,31 @@ public class SysTableWhiteList {
      */
     @TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "主键id")
-    private java.lang.String id;
+    private String id;
     /**
      * 允许的表名
      */
     @Excel(name = "允许的表名", width = 15)
     @ApiModelProperty(value = "允许的表名")
-    private java.lang.String tableName;
+    private String tableName;
     /**
      * 允许的字段名，多个用逗号分割
      */
     @Excel(name = "允许的字段名", width = 15)
     @ApiModelProperty(value = "允许的字段名")
-    private java.lang.String fieldName;
+    private String fieldName;
     /**
      * 状态，1=启用，0=禁用
      */
     @Excel(name = "状态", width = 15)
     @ApiModelProperty(value = "状态")
-    private java.lang.String status;
+    private Integer status;
     /**
      * 创建人
      */
     @Excel(name = "创建人", width = 15)
     @ApiModelProperty(value = "创建人")
-    private java.lang.String createBy;
+    private String createBy;
     /**
      * 创建时间
      */
@@ -68,7 +68,7 @@ public class SysTableWhiteList {
      */
     @Excel(name = "更新人", width = 15)
     @ApiModelProperty(value = "更新人")
-    private java.lang.String updateBy;
+    private String updateBy;
     /**
      * 更新时间
      */

@@ -18,5 +18,5 @@ import org.jeecg.modules.im.entity.query_helper.QStickerItem;
  */
 @Mapper
 public interface StickerItemMapper extends BaseMapper<StickerItem> {
-    MyPage<StickerItem> pagination(@Param("pg") MyPage<StickerItem> pg, @Param("q") QStickerItem q);
+    MyPage<StickerItem> pagination(MyPage<StickerItem> pg, @Param("q") QStickerItem q);
 }

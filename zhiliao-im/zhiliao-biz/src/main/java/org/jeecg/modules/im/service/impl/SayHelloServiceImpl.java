@@ -1,9 +1,11 @@
 package org.jeecg.modules.im.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.constant.MsgType;
 import org.jeecg.modules.im.base.exception.BusinessException;
+import org.jeecg.common.util.Kv;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.*;
 import org.jeecg.modules.im.entity.query_helper.QSayHello;
@@ -18,6 +20,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -38,7 +41,7 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
     @Resource
     private UserSettingService userSettingService;
     @Resource
-    private ClientConfigService clientConfigService;
+    private ServerConfigService serverConfigService;
     @Resource
     private SayHelloService sayHelloService;
     @Resource
@@ -61,33 +64,33 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
                 return fail("您不能添加自己");
             }
             //判断来源
-            ClientConfig clientConfig = clientConfigService.get();
+            ServerConfig serverConfig = getServerConfig();
             if(resource==Friend.AddType.Account.getCode()){
-                if(!clientConfig.getAccountAdd()){
+                if(!serverConfig.getAccountAdd()){
                     return fail("已关闭通过账号添加好友");
                 }
             }else if(resource==Friend.AddType.Mobile.getCode()){
-                if(!clientConfig.getAccountAdd()){
+                if(!serverConfig.getAccountAdd()){
                     return fail("已关闭通过手机号添加好友");
                 }
             }else if(resource==Friend.AddType.Nickname.getCode()){
-                if(!clientConfig.getAccountAdd()){
+                if(!serverConfig.getAccountAdd()){
                     return fail("已关闭通过昵称添加好友");
                 }
             }else if(resource==Friend.AddType.Username.getCode()){
-                if(!clientConfig.getAccountAdd()){
+                if(!serverConfig.getAccountAdd()){
                     return fail("已关闭通过用户名添加好友");
                 }
             }else if(resource==Friend.AddType.Card.getCode()){
-                if(!clientConfig.getAccountAdd()){
+                if(!serverConfig.getAccountAdd()){
                     return fail("已关闭通过名片添加好友");
                 }
             }else if(resource==Friend.AddType.Muc.getCode()){
-                if(!clientConfig.getAccountAdd()){
+                if(!serverConfig.getAccountAdd()){
                     return fail("已关闭通过群聊添加好友");
                 }
             }else if(resource==Friend.AddType.Scan.getCode()){
-                if(!clientConfig.getAccountAdd()){
+                if(!serverConfig.getAccountAdd()){
                     return fail("已关闭通过扫码添加好友");
                 }
             }
@@ -191,8 +194,11 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
                 //我发送通过好友请求
                 MessageBean messageBean = new MessageBean();
                 messageBean.setUserId(user.getId());
+                messageBean.setToUserId(toUser.getId());
+                messageBean.setContent(Kv.by("id",sayHello.getId()).set("ts",getTs()).toJson());
                 messageBean.setType(MsgType.passFriendAddRequest.getType());
                 xmppService.sendMsgToSelf(messageBean);
+                xmppService.sendMsgToOne(messageBean);
                 return success("成功添加对方为好友！");
             }
             if (friend.getStatus() == Friend.Status.Friend.getCode()) {
@@ -205,7 +211,7 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
                 //打过招呼了，状态是有效的，并且是等待中的
                 if(sayHello!=null&&sayHello.getIsValid()&&sayHello.getStatus()==SayHello.Status.Waiting.getCode()){
                     SayHelloReply sayHelloReply = new SayHelloReply();
-                    sayHelloReply.setIsSend(true);
+                    sayHelloReply.setSenderId(user.getId());
                     sayHelloReply.setTsCreate(getTs());
                     sayHelloReply.setHelloId(sayHello.getId());
                     sayHelloReply.setMsg(who);
@@ -226,11 +232,21 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
                 //打过招呼了，状态是有效的，并且是等待中的
                 if(sayHello!=null&&sayHello.getIsValid()&&sayHello.getStatus()==SayHello.Status.Waiting.getCode()){
                     SayHelloReply sayHelloReply = new SayHelloReply();
-                    sayHelloReply.setIsSend(true);
+                    sayHelloReply.setSenderId(user.getId());
                     sayHelloReply.setTsCreate(getTs());
                     sayHelloReply.setHelloId(sayHello.getId());
                     sayHelloReply.setMsg(who);
                     sayHelloReplyService.save(sayHelloReply);
+                    //发送一条打招呼回复
+                    MessageBean messageBean = new MessageBean();
+                    messageBean.setUserId(user.getId());
+                    messageBean.setToUserId(toUser.getId());
+                    messageBean.setContent(JSONObject.toJSONString(sayHelloReply));
+                    messageBean.setType(MsgType.sayHelloReply.getType());
+                    //给对方
+                    xmppService.sendMsgToOne(messageBean);
+                    //给自己
+                    xmppService.sendMsgToSelf(messageBean);
                 }else{
                     sayHello = new SayHello();
                     sayHello.setFromId(userId);
@@ -241,6 +257,16 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
                     sayHello.setIsValid(true);
                     sayHello.setStatus(SayHello.Status.Waiting.getCode());
                     sayHelloService.save(sayHello);
+                    //发送一条打招呼给对方
+                    MessageBean messageBean = new MessageBean();
+                    messageBean.setUserId(user.getId());
+                    messageBean.setToUserId(toUser.getId());
+                    messageBean.setContent(JSONObject.toJSONString(sayHello));
+                    messageBean.setType(MsgType.sayHello.getType());
+                    //给对方
+                    xmppService.sendMsgToOne(messageBean);
+                    //给自己
+                    xmppService.sendMsgToSelf(messageBean);
                 }
                 friend.setStatus(Friend.Status.Ask.getCode());
                 friendService.updateById(friend);
@@ -249,7 +275,7 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
                 return fail("发送失败");
             }
         }catch (Exception e){
-            log.error("发送请求加好友异常:{0}",e);
+            log.error("发送请求加好友异常",e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return fail("发送请求加好友失败，请重试");
         }
@@ -264,10 +290,10 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
             User user = userService.findById(userId);
             User toUser = userService.findById(toUserId);
             if (toUser == null) {
-                return fail("该公众号不存在");
+                return fail("该服务号不存在");
             }
             if (toUser.getTsLocked()>0) {
-                return fail("该公众号已被禁用");
+                return fail("该服务号已被禁用");
             }
             Friend friend = friendService.findOne(userId, toUserId);
             //判断是否被对方拉黑
@@ -295,7 +321,7 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
                 return fail("关注失败");
             }
         }catch (Exception e){
-            log.error("处理好友请求异常:{0}",e);
+            log.error("处理好友请求异常",e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return fail("请求加好友失败，请重试");
         }
@@ -316,7 +342,11 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
     }
     @Override
     public SayHello findById(Integer userId,Integer id){
-        return sayHelloMapper.findById(userId,id);
+        SayHello sayHello = getById(id);
+        if(!userId.equals(sayHello.getFromId())){
+            return null;
+        }
+        return sayHello;
     }
 
     @Override
@@ -357,15 +387,15 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
             if (toUserSetting.getMaxFriend() > 0 && friendService.getCountOfUser(toUser.getId()) >= toUserSetting.getMaxFriend()) {
                 return fail("你的好友数量已达上限");
             }
+            sayHello.setTsDeal(getTs());
+            sayHello.setStatus(isAccept?SayHello.Status.Accept.getCode():SayHello.Status.Reject.getCode());
+            if(!updateById(sayHello)){
+                throw new BusinessException("处理请求失败");
+            }
+            Friend friend = friendService.findOne(sayHello.getFromId(), sayHello.getToId());
+            Friend friend2 = friendService.findOne(sayHello.getToId(), sayHello.getFromId());
             //接受
             if (isAccept) {
-                sayHello.setTsDeal(getTs());
-                sayHello.setStatus(SayHello.Status.Accept.getCode());
-                if(!updateById(sayHello)){
-                    throw new BusinessException("更新请求失败");
-                }
-                Friend friend = friendService.findOne(sayHello.getFromId(), sayHello.getToId());
-                Friend friend2 = friendService.findOne(sayHello.getToId(), sayHello.getFromId());
                 friend.setStatus(Friend.Status.Friend.getCode());
                 friend.setAddType(sayHello.getResource());
                 friend.setTsFriend(getTs());
@@ -385,14 +415,37 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
                 messageBean.setUserName(toUser.getNickname());
                 messageBean.setToUserId(fromUser.getId());
                 messageBean.setToUserName(fromUser.getNickname());
+                messageBean.setContent(Kv.by("id",sayHello.getId()).set("ts",getTs()).toJson());
                 messageBean.setType(MsgType.passFriendAddRequest.getType());
                 xmppService.sendMsgToOne(messageBean);
                 return success("成功添加对方为好友！");
             }
-            //拒绝
-            return fail("处理失败，请重试");
+            //拒绝 变为陌生人
+            friend.setStatus(Friend.Status.Stranger.getCode());
+            friend.setAddType(Friend.AddType.Not.getCode());
+            friend.setTsFriend(0L);
+            if(!friendService.updateById(friend)){
+                throw new BusinessException("更新正向好友失败");
+            }
+
+            friend2.setStatus(Friend.Status.Stranger.getCode());
+            friend2.setAddType(Friend.AddType.Not.getCode());
+            friend2.setTsFriend(0L);
+            if(!friendService.updateById(friend2)){
+                throw new BusinessException("更新反向好友失败");
+            }
+            //被添加方发送拒绝给添加方
+            MessageBean messageBean = new MessageBean();
+            messageBean.setUserId(toUser.getId());
+            messageBean.setUserName(toUser.getNickname());
+            messageBean.setToUserId(fromUser.getId());
+            messageBean.setToUserName(fromUser.getNickname());
+            messageBean.setContent(Kv.by("id",sayHello.getId()).set("ts",getTs()).toJson());
+            messageBean.setType(MsgType.rejectFriendAddRequest.getType());
+            xmppService.sendMsgToOne(messageBean);
+            return success("成功添加对方为好友！");
         }catch (Exception e){
-            log.error("处理好友请求异常:{0}",e);
+            log.error("处理好友请求异常",e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return fail("处理失败，请重试");
         }
@@ -415,26 +468,36 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
             if (!sayHello.getStatus().equals(SayHello.Status.Waiting.getCode())) {
                 return fail("请求已处理过");
             }
-            boolean isSend = false;
-            //当前用户是请求者
+            //当前用户是请求者，且最新3条回复都是当前用户发的
             if(sayHello.getFromId().equals(userId)){
-                isSend = true;
                 //判断对方是否已回复
-                if(sayHelloReplyService.findByHelloId(id,false).isEmpty()){
+                boolean hasReply = false;
+                List<SayHelloReply> list = sayHelloReplyService.findLatestNByHelloId(id,2);
+                if(list.isEmpty()){
+                    hasReply = true;
+                }else {
+                    for (SayHelloReply sayHelloReply : list) {
+                        if (!Objects.equals(sayHelloReply.getSenderId(), userId)) {
+                            hasReply = true;
+                            break;
+                        }
+                    }
+                }
+                if(!hasReply){
                     return fail("请等待对方回复");
                 }
             }
             SayHelloReply reply = new SayHelloReply();
-            reply.setIsSend(isSend);
+            reply.setSenderId(userId);
             reply.setHelloId(id);
             reply.setMsg(msg);
             reply.setTsCreate(getTs());
             if(!sayHelloReplyService.save(reply)){
                 return fail("发送回复失败");
             }
-            return success();
+            return success(reply);
         }catch (Exception e){
-            log.error("回复加好友请求异常:{0}",e);
+            log.error("回复加好友请求异常",e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return fail("回复失败，请重试");
         }

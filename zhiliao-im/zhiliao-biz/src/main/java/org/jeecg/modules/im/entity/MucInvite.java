@@ -1,11 +1,9 @@
 package org.jeecg.modules.im.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 /**
  * <p>
@@ -53,21 +51,34 @@ public class MucInvite extends BaseModel<MucInvite> {
     /**
      * 状态，0：待处理，1：验证通过，2：拒绝
      */
+    @Dict(dicCode = "muc_invite_status")
     private Integer status;
+    /**
+     * 方式，0：手动邀请，1：邀请链接
+     */
+    @Dict(dicCode = "muc_invite_way")
+    private Integer way;
 
     /**
      * 有效的
      */
+    @Dict(dicCode = "yon")
     private Boolean isValid;
     /**
      * 需要验证
      */
+    @Dict(dicCode = "yon")
     private Boolean isNeedVerify;
 
     /**
      * 处理时间
      */
     private Long tsDeal;
+
+    @TableLogic
+    private Integer delFlag;
+
+    private Integer serverId;
 
     @TableField(exist = false)
     private MucMember inviterMember;
@@ -77,7 +88,7 @@ public class MucInvite extends BaseModel<MucInvite> {
     private MucMember handlerMember;
 
     public enum Status{
-        Waiting(0),Accept(1),Reject(2),Invalid(3);
+        Waiting(0),Accept(1),Reject(2);
         private int code;
         Status(int code){
             this.code = code;

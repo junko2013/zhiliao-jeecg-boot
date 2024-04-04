@@ -14,11 +14,13 @@
         <result column="detail" property="detail"/>
         <result column="client_ver" property="clientVer"/>
         <result column="token" property="token"/>
+        <result column="is_physic" property="isPhysic"/>
         <result column="ts_create" property="tsCreate"/>
         <result column="ts_online" property="tsOnline"/>
         <result column="ts_offline" property="tsOffline"/>
         <result column="login_times" property="loginTimes"/>
         <result column="ts_disabled" property="tsDisabled"/>
+        <result column="ts_ping" property="tsPing"/>
         <result column="jpush_id" property="jpushId"/>
         <association property="loginLog">
             <id column="l_id" property="id"/>
@@ -29,11 +31,11 @@
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, user_id, platform, token,is_online,no,name,sys_ver,detail,client_ver,ts_create,ts_offline,ts_online,ts_disabled,jpush_id
+        id, user_id, platform, token,is_online,no,name,sys_ver,detail,client_ver,is_physic,ts_create,ts_offline,ts_online,ts_disabled,jpush_id,ts_ping
     </sql>
 
     <select id="pagination" resultMap="BaseResultMap">
-        select d.id,d.user_id,d.platform,d.token,d.is_online,d.no,d.name,d.sys_ver,d.detail,d.client_ver,d.ts_create,d.ts_online,d.ts_offline,count(l.id) login_times,d.ts_disabled,jpush_id
+        select d.id,d.user_id,d.platform,d.token,d.is_online,d.no,d.name,is_physic,d.sys_ver,d.detail,d.client_ver,d.ts_create,d.ts_online,d.ts_offline,count(l.id) login_times,d.ts_disabled,ts_ping,jpush_id
         from im_device d left join im_login_log l on d.id = l.device_id
         <where> 1=1
             <if test="q.name!=null and q.name !=''">
@@ -54,8 +56,11 @@
             <if test="q.isOnline!=null">
                 and is_online = #{q.isOnline}
             </if>
-            <if test="q.ts_create!=null">
-                and d.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.isPhysic!=null">
+                and is_physic = #{q.isPhysic}
+            </if>
+            <if test="q.tsCreate!=null">
+                and d.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
         group by d.id
@@ -65,9 +70,9 @@
     </select>
 
     <select id="findAll" resultMap="BaseResultMap">
-        select d.id,d.user_id,d.platform,d.is_online,d.no,d.name,d.sys_ver,d.client_ver,d.ts_create,d.ts_online,d.ts_offline,d.token
+        select d.id,d.user_id,d.platform,d.is_online,d.no,d.name,d.sys_ver,d.client_ver,is_physic,d.ts_create,d.ts_online,d.ts_offline,d.token
         from im_device d
-        where d.user_id = #{userId}  AND client_ver !=0 and ts_disabled = 0
+        where d.user_id = #{userId}  AND client_ver !=0 and ts_disabled = 0 and name is not null
     </select>
     <select id="findCanOfflinePush" resultMap="BaseResultMap">
         select * from im_device where user_id = #{userId} and token is not null and jpush_id is not null
@@ -81,23 +86,12 @@
     <select id="findByPlatform" resultMap="BaseResultMap">
         select * from im_device where user_id = #{userId} and platform = #{platform} and no = #{no}
     </select>
+
     <select id="findByDetail" resultMap="BaseResultMap">
         select * from im_device where user_id = #{userId} and detail =#{detail}
     </select>
-    <select id="getCountOfUser" resultType="java.lang.Integer">
-        select count(*) from im_device where user_id = #{userId}
-    </select>
-    <select id="getOnlineCountOfUser" resultType="java.lang.Integer">
-        select count(*) from im_device where user_id = #{userId} and is_online is true
-    </select>
-
-
-    <select id="getOnlineCount" resultType="java.lang.Integer">
-        select count(*) from im_device where is_online is true
-    </select>
-
-    <select id="getTotal" resultType="java.lang.Integer">
-        select count(*) from im_device
+    <select id="findByIdOfUser" resultMap="BaseResultMap">
+        select * from im_device where user_id = #{userId} and no =#{no}
     </select>
 
     <update id="clearToken">
@@ -107,7 +101,10 @@
     <update id="cleanJpushId">
         update im_device set jpush_id = null where id != #{id}
     </update>
-    <update id="clearAllTokenOfUser">
+    <update id="clearAllToken">
         update im_device set token = null where user_id = #{userId}
+    </update>
+    <update id="updateOffline">
+        update im_device set ts_offline = #{ts}, is_online = false where ts_ping &lt; #{ts} and is_online is true
     </update>
 </mapper>

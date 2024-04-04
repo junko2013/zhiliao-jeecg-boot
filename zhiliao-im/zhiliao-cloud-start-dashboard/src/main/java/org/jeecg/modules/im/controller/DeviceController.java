@@ -8,7 +8,6 @@ import org.jeecg.modules.im.entity.Device;
 import org.jeecg.modules.im.entity.query_helper.QDevice;
 import org.jeecg.modules.im.service.DeviceService;
 import org.jeecg.modules.im.service.LoginLogService;
-import org.jeecg.modules.im.service.base.BaseBackController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

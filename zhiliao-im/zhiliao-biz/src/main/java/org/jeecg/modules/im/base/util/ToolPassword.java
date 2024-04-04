@@ -30,6 +30,14 @@ public class ToolPassword {
         return encoder.encode(password);
     }
 
+    public static void main(String[] args) {
+        String salt = PasswordEncoder.createSalt(32);
+        System.out.println(salt);
+        String password = ToolPassword.getEncPassword(salt,"junko2013");
+        System.out.println(password);
+        System.out.println(checkPassword(salt,password,"junko2013"));
+    }
+
     public static String getPassword(String password) {
         return DigestUtils.md5Hex(password + config_password_key);
     }

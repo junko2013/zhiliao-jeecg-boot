@@ -7,6 +7,8 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Link;
 import org.jeecg.modules.im.entity.query_helper.QLink;
 
+import java.util.List;
+
 /**
  * <p>
  *  服务类
@@ -21,4 +23,6 @@ public interface LinkService extends IService<Link> {
 
     Link findById(String id);
     Result<Object> del(String ids);
+
+    List<Link> findByServerId(Integer serverId);
 }

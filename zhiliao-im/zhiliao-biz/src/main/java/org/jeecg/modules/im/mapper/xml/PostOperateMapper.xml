@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.im.mapper.PostOperateMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.im.entity.PostOperate">
+        <id column="id" property="id" />
+        <result column="ts_create" property="tsCreate" />
+        <result column="ts_like" property="tsLike" />
+        <result column="ts_dislike" property="tsDislike" />
+        <result column="ts_star" property="tsStar" />
+        <result column="user_id" property="userId" />
+        <result column="post_id" property="postId" />
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, ts_create, ts_like,ts_dislike, ts_star, user_id, post_id
+    </sql>
+
+</mapper>

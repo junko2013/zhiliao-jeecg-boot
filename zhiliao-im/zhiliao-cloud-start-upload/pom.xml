@@ -14,12 +14,12 @@
     <dependencies>
         <dependency>
             <groupId>org.jeecgframework.boot</groupId>
-            <artifactId>zhiliao-biz</artifactId>
+            <artifactId>zhiliao-api</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.jeecgframework.boot</groupId>
-            <artifactId>zhiliao-api</artifactId>
+            <artifactId>zhiliao-biz</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
@@ -29,22 +29,50 @@
     </dependencies>
 
     <build>
-        <!-- 打包名称 -->
-        <finalName>${project.artifactId}</finalName>
+        <finalName>zhiliao-upload</finalName>
         <plugins>
+            <!-- 指定启动类，将依赖打成外部jar包 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>${maven-source-plugin.version}</version>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>org.jeecg.ZhiLiaoUploadApplication</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <!-- 拷贝依赖到jar外面的lib目录 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>attach-sources</id>
+                        <id>copy-lib</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
+                        <configuration>
+                            <outputDirectory>target/lib</outputDirectory>
+                            <excludeTransitive>false</excludeTransitive>
+                            <stripVersion>false</stripVersion>
+                            <includeScope>compile</includeScope>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 </project>

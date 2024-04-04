@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
+
 /**
  * <p>
  * 群聊投票项
@@ -31,6 +33,7 @@ public class VoteItem extends BaseModel<VoteItem> {
     /**
      * 测验模式下只有一个选项是正确的
      */
+    @Dict(dicCode = "yon")
     private Boolean isCorrect;
 
 

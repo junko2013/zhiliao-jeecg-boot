@@ -10,7 +10,7 @@ import com.aliyuncs.profile.DefaultProfile;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.exception.BusinessException;
-import org.jeecg.modules.im.base.util.Kv;
+import org.jeecg.common.util.Kv;
 import org.jeecg.modules.im.base.tools.ToolDateTime;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Param;
@@ -77,7 +77,7 @@ public class VerifyCodeServiceImpl extends BaseServiceImpl<VerifyCodeMapper, Ver
                     throw new BusinessException("短信通道未启用");
             }
         } catch (Exception e) {
-            log.error("发送短信验证码异常：mobile={},type={},e={}", mobile, type, e);
+            log.error("发送短信验证码异常：mobile={},type={}", mobile, type, e);
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());
             }
@@ -100,7 +100,7 @@ public class VerifyCodeServiceImpl extends BaseServiceImpl<VerifyCodeMapper, Ver
         try {
             return fail();
         } catch (Exception e) {
-            log.error("发送邮箱验证码异常：email={},type={},e={}", email, type, e);
+            log.error("发送邮箱验证码异常：email={},type={}", email, type, e);
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());
             }
@@ -148,7 +148,7 @@ public class VerifyCodeServiceImpl extends BaseServiceImpl<VerifyCodeMapper, Ver
                 return success((Object) code);
             }
         } catch (Exception e) {
-            log.error("阿里云发送验证码异常：mobile={},type={},code={},e={}", mobile, type, code, e);
+            log.error("阿里云发送验证码异常：mobile={},type={},code={}", mobile, type, code, e);
             throw new Exception();
         }
     }
@@ -179,7 +179,7 @@ public class VerifyCodeServiceImpl extends BaseServiceImpl<VerifyCodeMapper, Ver
             return fail("验证码错误");
         }
         if (ToolDateTime.getDateSecondSpace(code.getTsCreate(), getTs()) > Integer.parseInt(paramService.getByName(Param.Name.verify_code_invalid_minutes, 15 * 60 + ""))) {
-            return fail("验证码失效,请重新获取");
+            return fail("验证码已失效，请重新获取");
         }
         return success();
     }
@@ -191,7 +191,7 @@ public class VerifyCodeServiceImpl extends BaseServiceImpl<VerifyCodeMapper, Ver
             return fail("验证码错误");
         }
         if (ToolDateTime.getDateSecondSpace(code.getTsCreate(), getTs()) > Integer.parseInt(paramService.getByName(Param.Name.verify_code_invalid_minutes, 15 * 60 + ""))) {
-            return fail("验证码失效,请重新获取");
+            return fail("验证码已失效，请重新获取");
         }
         return success();
     }

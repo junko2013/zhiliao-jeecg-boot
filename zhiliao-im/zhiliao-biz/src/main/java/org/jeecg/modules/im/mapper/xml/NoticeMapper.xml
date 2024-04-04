@@ -7,13 +7,21 @@
         <id column="id" property="id" />
         <result column="title" property="title" />
         <result column="content" property="content" />
-        <result column="is_top" property="isTop" />
-        <result column="is_show" property="isShow" />
+        <result column="ts_pin" property="tsPin" />
+        <result column="ts_create" property="tsCreate" />
+        <result column="status" property="status" />
+        <result column="type" property="type" />
+        <result column="show_type" property="showType" />
         <result column="view_times" property="viewTimes" />
+        <result column="del_flag" property="delFlag" />
+        <result column="server_id" property="serverId" />
+        <result column="user_id" property="userId" />
+        <result column="is_urgent" property="isUrgent" />
+        <result column="ts_read" property="tsRead" />
     </resultMap>
-    <!-- 通用查询结果列 -->
-    <sql id="Base_Column_List">
-        id, title, content, is_top, is_show, view_times
-    </sql>
-
+    <select id="findAll" resultMap="BaseResultMap">
+        select id,title,content,status,del_flag,type,show_type,ts_pin,ts_create,ts_read,is_urgent,view_times from im_notice
+        where user_id = #{q.userId} or (server_id = #{q.serverId} and user_id = 0)
+        order by ts_pin desc,is_urgent is true desc,ts_create desc
+    </select>
 </mapper>

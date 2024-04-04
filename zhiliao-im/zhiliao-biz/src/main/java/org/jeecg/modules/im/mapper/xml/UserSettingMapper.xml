@@ -45,7 +45,7 @@
         id, user_id, is_nickname_can_modify, mobile_search, account_search, username_search, nickname_search, is_no_add_friend,
         max_muc_create,max_muc_join,max_muc_manage,max_friend,max_friend_per_day,
         nickname_add,mobile_add,account_add,username_add,card_add,muc_add,scan_add,
-        is_no_be_add_friend, is_no_join_muc,allow_send_red_pack,allow_transfer,enable_video_call,enable_voice_call,
+        is_no_be_add_friend, is_no_join_muc,allow_send_red_pack,allow_transfer,enable_video_call,
         msg_notify,msg_preview,msg_sound,muc_msg_notify,muc_msg_preview,muc_msg_sound,app_inner_alert,app_inner_vibration,app_inner_preview,
 online_visibility
     </sql>

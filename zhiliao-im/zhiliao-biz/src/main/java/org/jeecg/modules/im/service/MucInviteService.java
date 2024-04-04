@@ -1,12 +1,14 @@
 package org.jeecg.modules.im.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.MucInvite;
-import org.jeecg.modules.im.entity.MucInvite;
 import org.jeecg.modules.im.entity.query_helper.QMucInvite;
+
+import java.util.List;
 
 /**
  * <p>
@@ -17,8 +19,8 @@ import org.jeecg.modules.im.entity.query_helper.QMucInvite;
  * @since 2021-03-06
  */
 public interface MucInviteService extends IService<MucInvite> {
-    IPage<MucInvite> pagination(MyPage<MucInvite> page, QMucInvite q);
-    
+    IPage<MucInvite> paginationApi(MyPage<MucInvite> page, QMucInvite q);
+
     //邀请人发送进群邀请
     Result<Object> send(Integer fromId, Integer mucId, Integer toId);
     //被邀请人直接通过
@@ -29,4 +31,11 @@ public interface MucInviteService extends IService<MucInvite> {
     Result<Object> inviteBatch(Integer userId, Integer mucId, String userIds);
 
     int invalidOfUserByMuc(Integer userId, Integer mucId);
+
+    Result<Object> del(String ids);
+
+    List<MucInvite> queryLogicDeleted();
+    List<MucInvite> queryLogicDeleted(LambdaQueryWrapper<MucInvite> wrapper);
+    boolean revertLogicDeleted(List<String> ids);
+    boolean removeLogicDeleted(List<String> ids);
 }

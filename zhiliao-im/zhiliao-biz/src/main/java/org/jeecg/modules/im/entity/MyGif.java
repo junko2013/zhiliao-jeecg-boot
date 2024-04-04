@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
+
 /**
  * <p>
  * 我的gif
@@ -38,8 +40,11 @@ public class MyGif extends BaseModel<MyGif> {
     private Long tsLastSend;
     //置顶时间
     private Long tsPin;
+    private int width;
+    private int height;
 
     @TableField(exist = false)
+    @Dict(dicCode = "yon")
     private Boolean isLocked;
     @TableField(exist = false)
     private String emoji;

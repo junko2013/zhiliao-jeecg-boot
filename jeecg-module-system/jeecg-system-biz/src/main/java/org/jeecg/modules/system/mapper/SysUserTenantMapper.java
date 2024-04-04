@@ -158,7 +158,7 @@ public interface SysUserTenantMapper extends BaseMapper<SysUserTenant> {
      * @param tenantStatus
      * @return
      */
-    Long getUserCount(Integer tenantId, String tenantStatus);
+    Long getUserCount(Integer tenantId, Integer tenantStatus);
     
     /**
      * 根据租户id和名称获取用户数据

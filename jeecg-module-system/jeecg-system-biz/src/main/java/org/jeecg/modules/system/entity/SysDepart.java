@@ -68,10 +68,10 @@ public class SysDepart implements Serializable {
 	private String memo;
 	/**状态（1启用，0不启用）*/
 	@Dict(dicCode = "depart_status")
-	private String status;
+	private Integer status;
 	/**删除状态（0，正常，1已删除）*/
 	@Dict(dicCode = "del_flag")
-	private String delFlag;
+	private Integer delFlag;
 	/**对接企业微信的ID*/
 	private String qywxIdentifier;
 	/**创建人*/
@@ -87,7 +87,7 @@ public class SysDepart implements Serializable {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private Date updateTime;
 	/**租户ID*/
-	private java.lang.Integer tenantId;
+	private Integer tenantId;
 
 	/**是否有叶子节点: 1是0否*/
 	private Integer izLeaf;

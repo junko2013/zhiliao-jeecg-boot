@@ -30,4 +30,6 @@ public class Invitation extends BaseModel<Invitation> {
 
     private Long tsCreate;
 
+    private Integer serverId;
+
 }

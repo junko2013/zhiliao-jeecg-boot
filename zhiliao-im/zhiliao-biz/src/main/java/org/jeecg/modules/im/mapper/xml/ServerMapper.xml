@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.im.mapper.ServerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.im.entity.Server">
+        <id column="id" property="id" />
+        <result column="no" property="no" />
+        <result column="name" property="name" />
+        <result column="ts_create" property="tsCreate" />
+        <result column="status" property="status" />
+        <result column="access_token" property="accessToken" />
+        <result column="ws_url" property="wsUrl" />
+        <result column="ts_stop" property="tsStop" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="del_flag" property="delFlag" />
+        <association property="tenant" javaType="org.jeecg.modules.im.entity.Tenant">
+            <id column="t_id" property="id" />
+            <id column="t_name" property="name" />
+        </association>
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, no, name, ts_create, status, access_token,ws_url, ts_stop, tenant_id,del_flag
+    </sql>
+
+    <select id="pagination" resultMap="BaseResultMap">
+        SELECT
+            s.id, no, s.name, s.ts_create, s.status, access_token,ws_url, ts_stop, tenant_id,s.del_flag,
+            t.name t_name,t.id t_id
+        from im_server s
+        left join sys_tenant t on t.id = s.tenant_id
+        <where>
+            s.del_flag = 0
+            <if test="q.no!=null and q.no!=''">
+                and no=#{q.no}
+            </if>
+            <if test="q.name!=null and q.name!=''">
+                and s.name=#{q.name}
+            </if>
+            <if test="q.status!=null">
+                and s.status=#{q.status}
+            </if>
+            <if test="q.tenantId!=null">
+                and tenant_id=#{q.tenantId}
+            </if>
+        </where>
+        <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">
+            order by ${q.column} ${q.order}
+        </if>
+    </select>
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> from im_server
+        <where>
+            <if test="q.tenantId!=null and q.tenantId!=''">
+                and tenant_id=#{q.tenantId}
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="findByNo" resultType="org.jeecg.modules.im.entity.Server">
+        SELECT * FROM im_server where no = #{no}
+    </select>
+    <select id="selectLogicDeleted" resultType="org.jeecg.modules.im.entity.Server">
+        SELECT * FROM im_server ${ew.customSqlSegment}
+    </select>
+
+    <update id="revertLogicDeleted">
+        UPDATE
+        im_server
+        SET
+        del_flag = 0
+        WHERE
+        del_flag = 1
+        AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="deleteLogicDeleted">
+        DELETE FROM im_server WHERE del_flag = 1 AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

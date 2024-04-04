@@ -1,10 +1,14 @@
 package org.jeecg.modules.im.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.jeecg.modules.im.base.vo.MyPage;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.modules.im.entity.Adver;
+import org.jeecg.modules.im.entity.Adver;
 import org.jeecg.modules.im.entity.Adver;
 import org.jeecg.modules.im.entity.query_helper.QAdver;
+
+import java.util.List;
 
 /**
  * <p>
@@ -15,5 +19,15 @@ import org.jeecg.modules.im.entity.query_helper.QAdver;
  * @since 2021-01-19
  */
 public interface AdverService extends IService<Adver> {
-    IPage<Adver> pagination(MyPage<Adver> page, QAdver q);
+    List<Adver> findAll(QAdver q);
+
+    Result<Object> createOrUpdate(Adver adver);
+    Result<Object> del(String ids);
+
+    List<Adver> queryLogicDeleted();
+    List<Adver> queryLogicDeleted(LambdaQueryWrapper<Adver> wrapper);
+    boolean revertLogicDeleted(List<String> ids);
+    boolean removeLogicDeleted(List<String> ids);
+
+    Adver findLatest(Integer serverId);
 }

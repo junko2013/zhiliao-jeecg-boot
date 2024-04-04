@@ -33,7 +33,7 @@ spring:
   redis:
     database: 0
     host: jeecg-boot-redis
-    password:
+    password: junko2013
     port: 6379
   rabbitmq:
     host: jeecg-boot-rabbitmq
@@ -97,7 +97,7 @@ jeecg:
     logRetentionDays: 30
   redisson:
     address: jeecg-boot-redis:6379
-    password:
+    password: junko2013
     type: STANDALONE
     enabled: true
 logging:

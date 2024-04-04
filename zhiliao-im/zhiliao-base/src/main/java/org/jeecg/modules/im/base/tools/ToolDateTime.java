@@ -5,6 +5,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -12,6 +14,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 /**
@@ -419,8 +423,13 @@ public abstract class ToolDateTime {
 	 * @return
 	 */
 	public static int getDateDaySpace(Date start, Date end) {
-		int day = (int) ((end.getTime() - start.getTime()) / (60 * 60 * 24 * 1000));
-		return day;
+        return (int) ((end.getTime() - start.getTime()) / (60 * 60 * 24 * 1000));
+	}
+
+	public static LocalDate convertToLocalDateViaInstant(Date dateToConvert) {
+		return dateToConvert.toInstant()
+				.atZone(ZoneId.systemDefault())
+				.toLocalDate();
 	}
 
 	/**
@@ -505,9 +514,21 @@ public abstract class ToolDateTime {
 
 		return list;
 	}
+	public static List<Date> getDatesBefore(Date end, int days) {
+		List<Date> list = new ArrayList<Date>();
+		for (int i = 0; i < days; i++) {
+			Date date = getDateByDatePlusDays(end,i*-1);
+			list.add(startDateByDay(date,0));
+		}
+		return list;
+	}
 
 	public static void main(String[] args) throws ParseException {
-		System.out.println(ToolDateTime.getStartTimeOfDate(ToolDateTime.getDateByDatePlusDays(new Date(), -365)));
+//		System.out.println(ToolDateTime.getStartTimeOfDate(ToolDateTime.getDateByDatePlusDays(new Date(), -365)));
+//		System.out.println(getCurrentDay());
+//		System.out.println(getDateSplit(new Date(),getDateByDatePlusDays(new Date(),-15),15));
+//		System.out.println(getDatesBefore(new Date(),15).size());
+		System.out.println(getDateDaySpace(getMonthFirstDay(new Date()),new Date()));
 	}
 
 	/**
@@ -729,6 +750,18 @@ public abstract class ToolDateTime {
 	public static Date getEndTimeOfToday(){
 		return getEndTimeOfDate(new Date());
 	}
+	//获取当前月份
+	public static String getCurrentMonth(){
+		DateTime now = new DateTime();
+		DateTimeFormatter fmt = DateTimeFormat.forPattern("MMMM");
+		return now.toString(fmt);
+	}
+	//获取当前几号
+	public static String getCurrentDay(){
+		DateTime now = new DateTime();
+		return now.dayOfMonth().getAsShortText();
+	}
+
 	//获取某天的结束时间
 	public static Date getStartTimeOfDate(Date date){
 		if(date==null){
@@ -812,20 +845,18 @@ public abstract class ToolDateTime {
 	 * @return
 	 * @throws ParseException
 	 */
-	public static Date getYesterDay() throws ParseException {
+	public static Date getYesterday() throws ParseException {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar date = Calendar.getInstance();
 		date.set(Calendar.DATE, date.get(Calendar.DATE) - 1);
-		Date yesterDay = simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
-		return yesterDay;
+        return simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
 	}
 	public static Date getPreviousDay(Date date) throws ParseException {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar theDate = Calendar.getInstance();
 		theDate.set(Calendar.DATE, theDate.get(Calendar.DATE) - 1);
 		theDate.set(Calendar.MONTH,theDate.get(Calendar.MONTH)-1);
-		Date yesterDay = simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
-		return yesterDay;
+        return simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
 	}
 
 	/**
@@ -837,8 +868,7 @@ public abstract class ToolDateTime {
 	public static Date getToDay() throws ParseException {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar date = Calendar.getInstance();
-		Date today = simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
-		return today;
+        return simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
 	}
 
 
@@ -852,8 +882,7 @@ public abstract class ToolDateTime {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar date = Calendar.getInstance();
 		date.set(Calendar.DATE, date.get(Calendar.DATE) + 1);
-		Date tomorrow = simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
-		return tomorrow;
+        return simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
 	}
 
 	/**
@@ -867,8 +896,7 @@ public abstract class ToolDateTime {
 		Calendar date = Calendar.getInstance();
 		date.add(Calendar.MONTH, 0);
 		date.set(Calendar.DAY_OF_MONTH, 1);
-		Date thisMonth = simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
-		return thisMonth;
+        return simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
 	}
 
 	/**
@@ -883,8 +911,7 @@ public abstract class ToolDateTime {
 		calendar.setTime(date);
 		calendar.add(Calendar.MONTH, 0);
 		calendar.set(Calendar.DAY_OF_MONTH, 1);
-		Date thisMonth = simpleDateFormat.parse(simpleDateFormat.format(calendar.getTime()));
-		return thisMonth;
+        return simpleDateFormat.parse(simpleDateFormat.format(calendar.getTime()));
 	}
 
 	/**
@@ -898,8 +925,7 @@ public abstract class ToolDateTime {
 		Calendar date = Calendar.getInstance();
 		date.add(Calendar.MONTH, -1);
 		date.set(Calendar.DAY_OF_MONTH, 1);
-		Date thisMonth = simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
-		return thisMonth;
+        return simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
 	}
 
 	/**
@@ -912,8 +938,7 @@ public abstract class ToolDateTime {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar date = Calendar.getInstance();
 		date.set(Calendar.DAY_OF_MONTH, date.getActualMaximum(Calendar.DAY_OF_MONTH));
-		Date thisMonth = simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
-		return thisMonth;
+        return simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
 	}
 
 	/**
@@ -927,8 +952,7 @@ public abstract class ToolDateTime {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
 		calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-		Date thisMonth = simpleDateFormat.parse(simpleDateFormat.format(calendar.getTime()));
-		return thisMonth;
+        return simpleDateFormat.parse(simpleDateFormat.format(calendar.getTime()));
 	}
 
 	/**
@@ -944,8 +968,7 @@ public abstract class ToolDateTime {
 		Calendar date = Calendar.getInstance();
 		date.setTime(beginDate);
 		date.set(Calendar.DATE, date.get(Calendar.DATE) + day);
-		Date endDate = simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
-		return endDate;
+        return simpleDateFormat.parse(simpleDateFormat.format(date.getTime()));
 	}
 
 	public static boolean isSameDay(Date date1, Date date2) {
@@ -959,11 +982,10 @@ public abstract class ToolDateTime {
 				.get(Calendar.YEAR);
 		boolean isSameMonth = isSameYear
 				&& cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH);
-		boolean isSameDate = isSameMonth
+
+        return isSameMonth
 				&& cal1.get(Calendar.DAY_OF_MONTH) == cal2
 				.get(Calendar.DAY_OF_MONTH);
-
-		return isSameDate;
 	}
 
 	/**

@@ -36,6 +36,8 @@ public class UserNickname extends BaseModel<UserNickname> {
      */
     private Long tsAudit;
 
+    private Integer serverId;
+
     @TableField(exist = false)
     private User user;
 }

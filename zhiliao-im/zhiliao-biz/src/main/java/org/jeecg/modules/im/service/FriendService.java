@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Friend;
+import org.jeecg.modules.im.entity.User;
 import org.jeecg.modules.im.entity.query_helper.QFriend;
 
 import java.util.List;
@@ -30,13 +31,9 @@ public interface FriendService extends IService<Friend> {
     //删除某个用户的好友
     Result<Object> deleteOne(Integer userId, Integer toUserId);
     //添加好友
-    Result<Object> addFriend(Integer userId, Integer toUserId,boolean saveSayHello);
+    Result<Object> addFriend(User user, User toUser, boolean saveSayHello);
     //关注用户
-    Result<Object> followUser(Integer userId, Integer toUserId,boolean saveSayHello);
+    Result<Object> followUser(User user, User toUser,boolean saveSayHello);
     //控制台直接加好友
-    Result<Object> consoleAddFriend(Integer userId, Integer toUserId,boolean saveSayHello);
-    //拉黑
-    Result<Object> setBlack(Integer userId, Integer toUserId, boolean isBlack);
-    //阅后即焚
-    Result<Object> setReadDel(Integer userId, Integer toUserId, boolean isReadDel);
+    Result<Object> consoleAddFriend(User user, User toUser,boolean saveSayHello);
 }

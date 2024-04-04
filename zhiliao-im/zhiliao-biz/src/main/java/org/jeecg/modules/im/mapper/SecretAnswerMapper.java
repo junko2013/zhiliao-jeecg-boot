@@ -19,6 +19,6 @@ import org.jeecg.modules.im.entity.query_helper.QSecretAnswer;
  */
 @Mapper
 public interface SecretAnswerMapper extends BaseMapper<SecretAnswer> {
-    MyPage<SecretAnswer> pagination(@Param("pg") MyPage<SecretAnswer> pg, @Param("q") QSecretAnswer q);
+    MyPage<SecretAnswer> pagination(MyPage<SecretAnswer> pg, @Param("q") QSecretAnswer q);
 
 }

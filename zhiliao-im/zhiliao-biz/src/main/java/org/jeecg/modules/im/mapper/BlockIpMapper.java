@@ -20,7 +20,7 @@ import java.util.List;
  */
 @Mapper
 public interface BlockIpMapper extends BaseMapper<BlockIp> {
-    MyPage<BlockIp> pagination(@Param("pg") MyPage<BlockIp> pg, @Param("q") QBlockIp q);
+    MyPage<BlockIp> pagination(MyPage<BlockIp> pg, @Param("q") QBlockIp q);
     BlockIp findByIp(String ip);
     List<BlockIp> findByIp2(long ip);
     List<BlockIp> findByIp3(String ip);

@@ -14,8 +14,10 @@ import org.jeecg.modules.im.anotation.NoNeedUserToken;
 import org.jeecg.modules.im.base.constant.ConstantWeb;
 import org.jeecg.modules.im.base.exception.BusinessException;
 import org.jeecg.modules.im.base.util.IPUtil;
+import org.jeecg.modules.im.entity.Device;
 import org.jeecg.modules.im.entity.User;
 import org.jeecg.modules.im.service.BlockIpService;
+import org.jeecg.modules.im.service.DeviceService;
 import org.jeecg.modules.im.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -45,6 +47,8 @@ public class UploadInterceptor implements HandlerInterceptor {
     private RedisUtil redisUtil;
     @Resource
     private ISysBaseAPI sysBaseApi;
+    @Resource
+    private DeviceService deviceService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -69,7 +73,20 @@ public class UploadInterceptor implements HandlerInterceptor {
         if (oConvertUtils.isEmpty(token)) {
             token = request.getParameter("token");
         }
-        checkUserTokenIsEffect(token);
+        //管理后台
+        if(oConvertUtils.isNotEmpty(token)){
+            checkAdminTokenIsEffect(token);
+            return true;
+        }
+        //用户端
+        String deviceDetail = request.getHeader(ConstantWeb.DEVICE_DETAIL);
+        String devicePlatform = request.getHeader(ConstantWeb.DEVICE_PLATFORM);
+        String deviceNo = request.getHeader(ConstantWeb.DEVICE_NO);
+        String authHeader = request.getHeader(CommonConstant.AUTHORIZATION);
+        if (!oConvertUtils.isEmpty(authHeader)&&authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+            checkUserTokenIsEffect(token,deviceDetail,deviceNo,devicePlatform);
+        }
         return true;
     }
 
@@ -79,22 +96,29 @@ public class UploadInterceptor implements HandlerInterceptor {
      *
      * @param token
      */
-    public void checkUserTokenIsEffect(String token) throws AuthenticationException {
+    public void checkUserTokenIsEffect(String token,String deviceDetail,String deviceNo,String devicePlatform) throws AuthenticationException {
         // 解密获得userId，用于和数据库进行对比
-        Integer userId = JwtUtilApp.getUserIdByToken(token);
+        Integer userId = JwtUtilApp.verify(token);
         if (userId == null) {
-            checkAdminTokenIsEffect(token);
-        }else {
-            // 查询用户信息
-            log.debug("———校验token是否有效————checkUserTokenIsEffect——————— " + token);
-            User user = userService.findById(userId);
-            if (user == null) {
-                throw new AuthenticationException("用户不存在");
-            }
-            // 判断用户状态
-            if (user.getTsLocked() > 0) {
-                throw new AuthenticationException("账号已被锁定");
-            }
+            throw new AuthenticationException("invalid");
+        }
+
+        // 查询用户信息
+        log.debug("———校验token是否有效————checkUserTokenIsEffect——————— "+ token);
+        User user = userService.findById(userId);
+        if (user == null) {
+            throw new AuthenticationException("用户不存在");
+        }
+        // 判断用户状态
+        if (user.getTsLocked()>0) {
+            throw new AuthenticationException("账号已被锁定");
+        }
+        Device device = deviceService.findByPlatform(deviceNo, devicePlatform,deviceDetail, user);
+        if(device==null){
+            throw new AuthenticationException("设备未登录过");
+        }
+        if(device.getTsDisabled()>0){
+            throw new AuthenticationException("当前设备已被禁用");
         }
     }
 

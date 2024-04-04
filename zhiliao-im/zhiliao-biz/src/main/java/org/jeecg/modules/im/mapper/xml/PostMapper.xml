@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.im.mapper.PostMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.im.entity.Post">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="content" property="content" />
+        <result column="ts_create" property="tsCreate" />
+        <result column="address" property="address" />
+        <result column="status" property="status" />
+        <result column="del_flag" property="tsDelete" />
+        <result column="ts_pin" property="tsPin" />
+        <result column="visibility" property="visibility" />
+        <result column="user_ids" property="userIds" />
+        <result column="server_id" property="serverId" />
+        <association property="user" javaType="org.jeecg.modules.im.entity.User">
+            <result column="u_id" property="id"/>
+            <result column="u_nickname" property="nickname"/>
+            <result column="u_account" property="account"/>
+            <result column="u_small_avatar" property="smallAvatar"/>
+        </association>
+        <collection property="users" ofType="org.jeecg.modules.im.entity.User">
+            <result column="vu_id" property="id"/>
+            <result column="vu_nickname" property="nickname"/>
+            <result column="vu_account" property="account"/>
+            <result column="vu_small_avatar" property="smallAvatar"/>
+        </collection>
+        <collection property="operates" ofType="org.jeecg.modules.im.entity.PostOperate">
+            <result column="o_id" property="id"/>
+            <result column="o_user_id" property="userId"/>
+            <result column="o_post_id" property="postId"/>
+            <result column="o_ts_create" property="tsCreate"/>
+            <result column="o_ts_like" property="tsLike"/>
+            <result column="o_ts_dislike" property="tsDislike"/>
+            <result column="o_ts_star" property="tsStar"/>
+            <association property="user" javaType="org.jeecg.modules.im.entity.User">
+                <result column="ou_id" property="id"/>
+                <result column="ou_nickname" property="nickname"/>
+                <result column="ou_account" property="account"/>
+                <result column="ou_small_avatar" property="smallAvatar"/>
+            </association>
+        </collection>
+        <collection property="items" ofType="org.jeecg.modules.im.entity.PostItem">
+            <result column="i_id" property="id"/>
+            <result column="i_origin" property="origin" />
+            <result column="i_thumb" property="thumb" />
+            <result column="i_url" property="url" />
+            <result column="i_w" property="w" />
+            <result column="i_h" property="h" />
+            <result column="i_size" property="size" />
+            <result column="i_type" property="type" />
+            <result column="i_order_no" property="orderNo" />
+            <result column="i_duration" property="duration" />
+            <result column="i_ts_create" property="tsCreate" />
+        </collection>
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        user_id, content, address, status, del_flag, ts_pin,visibility,user_ids
+    </sql>
+
+    <select id="pagination" resultMap="BaseResultMap">
+        SELECT p.id,p.ts_create,<include refid="Base_Column_List" />,
+        u.id u_id,u.nickname u_nickname,u.account u_account,u.small_avatar u_small_avatar,
+        vu.id vu_id,vu.nickname vu_nickname,vu.account vu_account,vu.small_avatar vu_small_avatar,
+        o.user_id o_user_id,o.post_id o_post_id,o.ts_create o_ts_create,o.ts_like o_ts_like,o.ts_dislike o_ts_dislike,o.ts_star o_ts_star,
+        ou.id ou_id,ou.nickname ou_nickname,ou.account ou_account,ou.small_avatar ou_small_avatar,
+        i.id i_id, i.origin i_origin, i.thumb i_thumb, i.url i_url, i.w i_w, i.h i_h, i.size i_size, i.type i_type, i.order_no i_order_no, i.duration i_duration,i.ts_create i_ts_create
+        from im_post p
+        left join im_user u on u.id = p.user_id
+        left join im_user vu on FIND_IN_SET(vu.id,p.user_ids)
+        left join im_post_operate o on o.post_id = p.id
+        left join im_user ou on ou.id = p.user_id
+        left join im_post_item i on i.post_id = p.id
+        <where>
+            <if test="q.userSearch!=null and q.userSearch!=''">
+                and(u.nickname like concat('%',#{q.userSearch},'%') or u.account like concat('%',#{q.userSearch},'%') or u.username like concat('%',#{q.userSearch},'%') or u.mobile like concat('%',#{q.userSearch},'%'))
+            </if>
+            <if test="q.userId!=null and q.userId!=''">
+                and user_id=#{q.userId}
+            </if>
+            <if test="q.serverId!=null">
+                and p.server_id=#{q.serverId}
+            </if>
+            <if test="q.tsCreate!=null">
+                and p.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
+            </if>
+        </where>
+        <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">
+            order by ${q.column} ${q.order}
+        </if>
+    </select>
+
+    <select id="selectLogicDeleted" resultType="org.jeecg.modules.im.entity.Post">
+        SELECT * FROM im_post ${ew.customSqlSegment}
+    </select>
+
+    <update id="revertLogicDeleted">
+        UPDATE
+        im_post
+        SET
+        del_flag = 0
+        WHERE
+        del_flag = 1
+        AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="deleteLogicDeleted">
+        DELETE FROM im_post WHERE del_flag = 1 AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </delete>
+
+
+</mapper>

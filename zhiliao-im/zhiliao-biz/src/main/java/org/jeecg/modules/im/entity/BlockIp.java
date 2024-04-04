@@ -53,6 +53,8 @@ public class BlockIp extends BaseModel<BlockIp> {
 
     private Long tsCreate;
 
+    private Integer serverId;
+
     public enum Type{
         单个,区间,地址段,国家
     }

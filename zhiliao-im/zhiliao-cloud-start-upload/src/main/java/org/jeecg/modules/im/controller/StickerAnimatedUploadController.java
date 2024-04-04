@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.anotation.NoNeedUserToken;
 import org.jeecg.modules.im.service.UploadService;
+import org.jeecg.modules.im.service.UploadStickerService;
 import org.jeecg.modules.im.service.base.BaseUploadCtrl;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +21,7 @@ import javax.annotation.Resource;
 public class StickerAnimatedUploadController extends BaseUploadCtrl {
 
     @Resource
-    private UploadService uploadService;
+    private UploadStickerService uploadStickerService;
 
 
     @PostMapping({"","/"})
@@ -35,7 +36,7 @@ public class StickerAnimatedUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的文件");
         }
         try {
-            return uploadService.saveStickerAnimatedPack(multipartFile);
+            return uploadStickerService.saveStickerAnimatedPack(getCurrentUserId(),getAdmin(),multipartFile);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("贴纸包上传失败", e);
@@ -49,7 +50,7 @@ public class StickerAnimatedUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的文件");
         }
         try {
-            return uploadService.saveStickerAnimated(multipartFile, stickerId);
+            return uploadStickerService.saveStickerAnimated(getCurrentUserId(),getAdmin(),multipartFile, stickerId);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("贴纸上传失败", e);
@@ -65,7 +66,7 @@ public class StickerAnimatedUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的文件");
         }
         try {
-            return uploadService.saveStickerAnimatedBatch(multipartFile, stickerId);
+            return uploadStickerService.saveStickerAnimatedBatch(getCurrentUserId(),getAdmin(),multipartFile, stickerId);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("批量导入失败", e);

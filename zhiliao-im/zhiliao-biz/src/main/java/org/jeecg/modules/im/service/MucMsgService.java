@@ -22,7 +22,7 @@ public interface MucMsgService extends IService<MucMsg> {
 
     List<MucMsg> pageApi(QMucMsg q);
     //清空某个群的聊天记录
-    Result<Object> clearAll(Integer mucId);
+    Result<Object> deleteLogic(Integer mucId);
     //删除某人的群聊记录
     Result<Object> delByUserOfMuc(Integer userId,Integer mucId);
     //删除某人的所有群聊记录
@@ -30,4 +30,7 @@ public interface MucMsgService extends IService<MucMsg> {
     //删除某群指定的多条消息
     Result<Object> delByIds(Integer mucId,String msgIds);
 
+    MucMsg findByStanzaId(String stanzaId);
+
+    Result<Object> updateTsReceive(String stanzaId, Long ts);
 }

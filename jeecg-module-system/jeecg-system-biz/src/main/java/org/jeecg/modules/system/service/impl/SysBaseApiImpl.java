@@ -462,7 +462,7 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		announcement.setSendStatus(CommonConstant.HAS_SEND);
 		announcement.setSendTime(new Date());
 		announcement.setMsgCategory(CommonConstant.MSG_CATEGORY_2);
-		announcement.setDelFlag(String.valueOf(CommonConstant.DEL_FLAG_0));
+		announcement.setDelFlag(CommonConstant.DEL_FLAG_0);
 		sysAnnouncementMapper.insert(announcement);
 		// 2.插入用户通告阅读标记表记录
 		String userId = toUser;
@@ -543,7 +543,7 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		}
 	
 		announcement.setMsgCategory(CommonConstant.MSG_CATEGORY_2);
-		announcement.setDelFlag(String.valueOf(CommonConstant.DEL_FLAG_0));
+		announcement.setDelFlag(CommonConstant.DEL_FLAG_0);
 		announcement.setBusId(busId);
 		announcement.setBusType(busType);
 		announcement.setOpenType(SysAnnmentTypeEnum.getByType(busType).getOpenType());
@@ -1241,7 +1241,7 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		announcement.setSendStatus(CommonConstant.HAS_SEND);
 		announcement.setSendTime(new Date());
 		announcement.setMsgCategory(setMsgCategory);
-		announcement.setDelFlag(String.valueOf(CommonConstant.DEL_FLAG_0));
+		announcement.setDelFlag(CommonConstant.DEL_FLAG_0);
 		sysAnnouncementMapper.insert(announcement);
 		// 2.插入用户通告阅读标记表记录
 		String userId = toUser;
@@ -1289,7 +1289,7 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 		announcement.setSendStatus(CommonConstant.HAS_SEND);
 		announcement.setSendTime(new Date());
 		announcement.setMsgCategory(setMsgCategory);
-		announcement.setDelFlag(String.valueOf(CommonConstant.DEL_FLAG_0));
+		announcement.setDelFlag(CommonConstant.DEL_FLAG_0);
 		announcement.setBusId(busId);
 		announcement.setBusType(busType);
 		announcement.setOpenType(SysAnnmentTypeEnum.getByType(busType).getOpenType());

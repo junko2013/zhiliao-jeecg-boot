@@ -17,7 +17,10 @@ import java.util.List;
  * @since 2021-03-03
  */
 public interface SayHelloReplyService extends IService<SayHelloReply> {
-    List<SayHelloReply> findByHelloId(Integer helloId,Boolean isSend);
+    //查询打招呼的最新n条回复
+    List<SayHelloReply> findLatestNByHelloId(Integer helloId,Integer n);
     IPage<SayHelloReply> pagination(MyPage<SayHelloReply> page, QSayHelloReply q);
 
+    //回复已读 userId标记为记录非当前用户发的回复
+    void read(int helloId, Long ts,int userId);
 }

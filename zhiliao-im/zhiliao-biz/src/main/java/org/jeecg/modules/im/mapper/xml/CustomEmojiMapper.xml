@@ -8,20 +8,54 @@
         <result column="user_id" property="userId" />
         <result column="origin" property="origin" />
         <result column="thumb" property="thumb" />
+        <result column="height" property="height" />
+        <result column="width" property="width" />
         <result column="ts_create" property="tsCreate" />
         <result column="ts_send" property="tsSend" />
-        <result column="ts_locked" property="tsLocked" />
+        <result column="status" property="status" />
+        <result column="del_flag" property="delFlag" />
         <result column="keyword" property="keyword" />
         <result column="ts_pin" property="tsPin" />
+        <result column="server_id" property="serverId" />
+        <association property="user" javaType="org.jeecg.modules.im.entity.User">
+            <id column="u_id" property="id"/>
+            <result column="u_nickname" property="nickname"/>
+            <result column="u_account" property="account"/>
+            <result column="u_small_avatar" property="smallAvatar"/>
+            <result column="u_is_online" property="isOnline"/>
+            <result column="u_ts_create" property="tsCreate"/>
+            <association property="info" javaType="org.jeecg.modules.im.entity.UserInfo">
+                <id column="ui_id" property="id" />
+                <result column="ui_province" property="province" />
+                <result column="ui_city" property="city" />
+                <result column="ui_district" property="district" />
+                <result column="ui_country" property="country" />
+                <result column="ui_gender" property="gender" />
+            </association>
+        </association>
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, user_id, origin, thumb, ts_create,ts_send,ts_pin,keyword,ts_locked
+        id, user_id, origin, thumb,height,width, ts_create,ts_send,ts_pin,keyword,status,del_flag
     </sql>
 
+    <select id="pagination" resultMap="BaseResultMap">
+        select
+            u.id u_id,u.nickname u_nickname,u.account u_account,u.small_avatar u_small_avatar,u.is_online u_is_online,u.ts_create u_ts_create,
+           ui.id ui_id,ui.province ui_province,ui.city ui_city,ui.country ui_country,ui.district ui_district,ui.gender ui_gender
+        from im_custom_emoji ce
+            left join im_user u on u.id = ce.user_id
+            left join im_user_info ui on ui.user_id = u.id
+        <where>1=1
+            <if test="q.userSearch!=null and q.userSearch!=''">
+                and(u.nickname like concat('%',#{q.userSearch},'%') or u.account like concat('%',#{q.userSearch},'%') or u.username like concat('%',#{q.userSearch},'%') or u.mobile like concat('%',#{q.userSearch},'%'))
+            </if>
+        </where>
+        order by ce.ts_pin desc,ce.ts_send desc,ce.ts_create desc
+    </select>
     <select id="paginationApi" resultMap="BaseResultMap">
         select * from im_custom_emoji
-        <where>ts_locked = 0
+        <where>del_flag = 0
             <if test="q.keyword!=null and q.keyword !=''">
                 and keyword like concat("%",#{q.keyword},"%")
             </if>
@@ -33,5 +67,33 @@
         select * from im_custom_emoji where user_id = #{userId}
         order by ts_pin desc,ts_send desc,ts_create desc
     </select>
+
+    <update id="pin">
+        update im_custom_emoji set ts_pin = #{ts} where id = #{id}
+    </update>
+
+    <select id="selectLogicDeleted" resultType="org.jeecg.modules.im.entity.CustomEmoji">
+        SELECT * FROM im_custom_emoji ${ew.customSqlSegment}
+    </select>
+
+    <update id="revertLogicDeleted">
+        UPDATE
+        im_custom_emoji
+        SET
+        del_flag = 0
+        WHERE
+        del_flag = 1
+        AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="deleteLogicDeleted">
+        DELETE FROM im_custom_emoji WHERE del_flag = 1 AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </delete>
 
 </mapper>

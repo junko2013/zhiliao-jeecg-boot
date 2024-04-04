@@ -43,10 +43,6 @@ public class MsgServiceImpl extends BaseServiceImpl<MsgMapper, Msg> implements M
     public Result<Object> deleteLogic(Integer fromUserId,Integer toUserId) {
         return success(msgMapper.deleteLogic(fromUserId,toUserId,getTs()));
     }
-    @Override
-    public Result<Object> deleteLogicBoth(Integer fromUserId,Integer toUserId) {
-        return success(msgMapper.deleteLogicBoth(fromUserId,toUserId,getTs()));
-    }
 
 
     @Override
@@ -70,6 +66,11 @@ public class MsgServiceImpl extends BaseServiceImpl<MsgMapper, Msg> implements M
     @Override
     public Msg findByStanzaIdOfSend(String stanzaId,boolean isSend) {
         return msgMapper.findByStanzaIdOfSend(stanzaId,isSend);
+    }
+
+    @Override
+    public Result<Object> updateTsReceive(String stanzaId, Long ts) {
+        return success(msgMapper.updateTsReceive(stanzaId,ts));
     }
 
 

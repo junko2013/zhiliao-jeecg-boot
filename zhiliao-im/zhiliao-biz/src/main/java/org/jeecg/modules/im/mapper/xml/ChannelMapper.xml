@@ -85,8 +85,8 @@
                     </otherwise>
                 </choose>
             </if>
-            <if test="q.ts_create!=null">
-                and c.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.tsCreate!=null">
+                and c.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
     </select>

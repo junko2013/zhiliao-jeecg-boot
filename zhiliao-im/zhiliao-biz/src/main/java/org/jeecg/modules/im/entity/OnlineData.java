@@ -36,4 +36,6 @@ public class OnlineData extends BaseModel<OnlineData> {
 
     private Integer totalDevice;
 
+    private Integer serverId;
+
 }

@@ -19,5 +19,5 @@ import org.jeecg.modules.im.entity.query_helper.QSecretAnswer;
 public interface SecretAnswerService extends IService<SecretAnswer> {
     IPage<SecretAnswer> pagination(MyPage<SecretAnswer> page, QSecretAnswer q);
 
-    Result<Object> check(String account, String questions);
+    Result<Object> check(Integer currUserId,String account, String questions);
 }

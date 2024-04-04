@@ -13,12 +13,26 @@
         <result column="friend_add" property="friendAdd" />
         <result column="muc_create" property="mucCreate" />
         <result column="msg_send" property="msgSend" />
-        <result column="activity" property="activity" />
+        <result column="post" property="post" />
         <result column="muc_msg_send" property="mucMsgSend" />
+        <result column="server_id" property="serverId" />
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, date, ts_create, ts_update, user_register, user_login, friend_add, muc_create, msg_send, activity, muc_msg_send
+        id, date, ts_create, ts_update, user_register, user_login, friend_add, muc_create, msg_send, post, muc_msg_send
     </sql>
+
+
+    <select id="pagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> from im_statistic
+        <where>
+            <if test="q.serverId!=null">
+                and server_id=#{q.serverId}
+            </if>
+        </where>
+        <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">
+            order by ${q.column} ${q.order}
+        </if>
+    </select>
 
 </mapper>

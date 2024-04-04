@@ -4,7 +4,6 @@ package org.jeecg.modules.im.controller;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.entity.SysConfig;
 import org.jeecg.modules.im.service.SysConfigService;
-import org.jeecg.modules.im.service.base.BaseBackController;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;

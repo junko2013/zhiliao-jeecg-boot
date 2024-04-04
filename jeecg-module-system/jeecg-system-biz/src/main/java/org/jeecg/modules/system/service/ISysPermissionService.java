@@ -59,10 +59,10 @@ public interface ISysPermissionService extends IService<SysPermission> {
 
     /**
      * 获取登录用户拥有的权限
-     * @param username 用户名
+     * @param userId 用户id
      * @return
      */
-	public List<SysPermission> queryByUser(String username);
+	public List<SysPermission> queryByUser(String userId);
 	
 	/**
 	 * 根据permissionId删除其关联的SysPermissionDataRule表中的数据

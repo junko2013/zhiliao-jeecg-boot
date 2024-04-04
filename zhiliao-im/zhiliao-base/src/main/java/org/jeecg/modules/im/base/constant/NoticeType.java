@@ -4,10 +4,12 @@ import lombok.Getter;
 
 public enum NoticeType {
     unknown(-1, "-"),
-    quiteNotice(0, "退群通知"),
+    quitNotice(0, "退群通知"),
     muteNotice(1, "禁言通知"),
     kickNotice(2, "移除通知"),
-    revokeNotice(3, "撤回通知");
+    revokeNotice(3, "撤回通知"),
+    modifyNicknameNotice(4, "成员修改昵称通知"),
+    ;
     @Getter
     int code;
     @Getter

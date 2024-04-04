@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.im.mapper.StateMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.im.entity.State">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="icon" property="icon" />
+        <result column="ctg_id" property="ctgId" />
+        <result column="order_no" property="orderNo" />
+        <result column="ts_create" property="tsCreate" />
+        <association property="ctg" javaType="org.jeecg.modules.im.entity.StateCtg">
+            <id column="ctg_id" property="id" />
+            <result column="ctg_name" property="name" />
+            <result column="ctg_order_no" property="orderNo" />
+        </association>
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, icon, ctg_id, order_no, ts_create
+    </sql>
+    <select id="findAll" resultMap="BaseResultMap">
+        select s.id, s.name, s.icon, s.order_no, s.ts_create,
+            sc.id ctg_id,sc.name ctg_name,sc.order_no ctg_order_no
+        from im_state s
+        left join im_state_ctg sc on sc.id = s.ctg_id
+        order by sc.order_no desc,s.order_no desc,s.ts_create asc,s.id asc
+    </select>
+
+</mapper>

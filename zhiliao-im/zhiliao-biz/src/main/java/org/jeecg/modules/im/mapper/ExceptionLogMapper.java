@@ -18,5 +18,5 @@ import org.jeecg.modules.im.entity.query_helper.QExceptionLog;
  */
 @Mapper
 public interface ExceptionLogMapper extends BaseMapper<ExceptionLog> {
-    MyPage<ExceptionLog> pagination(@Param("pg") MyPage<ExceptionLog> pg, @Param("q") QExceptionLog q);
+    MyPage<ExceptionLog> pagination(MyPage<ExceptionLog> pg, @Param("q") QExceptionLog q);
 }

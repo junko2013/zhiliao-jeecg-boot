@@ -43,7 +43,7 @@ public class SysUserTenant implements Serializable {
 	/**状态(1 正常 2 冻结 3 待审核 4 拒绝)*/
 	@Excel(name = "状态(1 正常 2 冻结 3 待审核 4 拒绝)", width = 15)
     @ApiModelProperty(value = "状态(1 正常 2 冻结 3 待审核 4 拒绝)")
-    private String status;
+    private Integer status;
 	/**创建人登录名称*/
     @ApiModelProperty(value = "创建人登录名称")
     private String createBy;

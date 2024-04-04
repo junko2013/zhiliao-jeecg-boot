@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 /**
  * <p>
@@ -33,6 +34,9 @@ public class Upload extends BaseModel<Upload> {
     private String type;
 
     private String contentType;
+
+    //模块
+    private String module;
 
     /**
      * 重命名名称
@@ -66,9 +70,8 @@ public class Upload extends BaseModel<Upload> {
 
     private Long size;
 
-    private String adminId;
-
     private Integer userId;
+    private String admin;
     //待删除时间
     private Long tsDelete;
     //0:正常，1：待删除，2：已删除
@@ -77,15 +80,21 @@ public class Upload extends BaseModel<Upload> {
     /**
      * 临时文件
      */
+    @Dict(dicCode = "yon")
     private Boolean isTemp;
 
     private Long tsCreate;
+
+    private Integer serverId;
 
     public enum FileType{
         视频("video"),
         音频("audio"),
         消息图片("image"),
+        朋友圈动态图片("image"),
         普通图片("img"),
+        广告图("adver"),
+        聊天背景图("chatBg"),
         压缩文件("zip"),
         头像("avatar"),
         群组头像("muc_avatar"),
@@ -95,6 +104,7 @@ public class Upload extends BaseModel<Upload> {
         动图("gif"),
         自定义表情("custom_emoji"),
         文件("file"),
+        字体预览("font_preview"),
         其他("other");
         private String type;
         FileType(String type){

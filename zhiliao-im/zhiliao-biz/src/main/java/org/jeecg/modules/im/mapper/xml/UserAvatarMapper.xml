@@ -10,6 +10,7 @@
         <result column="ts_create" property="tsCreate" />
         <result column="ts_audit" property="tsAudit" />
         <result column="user_id" property="userId" />
+        <result column="server_id" property="serverId" />
         <association property="user" javaType="org.jeecg.modules.im.entity.User">
             <result column="u_id" property="id"/>
             <result column="u_nickname" property="nickname"/>
@@ -33,7 +34,7 @@
     </sql>
 
     <select id="pagination" resultMap="BaseResultMap">
-        SELECT a.id,a.user_id,a.ts_create,a.origin,a.thumb,ts_audit,
+        SELECT a.id,a.user_id,a.server_id,a.ts_create,a.origin,a.thumb,ts_audit,
         u.id u_id,u.nickname u_nickname,u.account u_account,u.small_avatar u_small_avatar,u.is_online u_is_online,u.ts_create u_ts_create,
         i.id i_id,i.province i_province,i.city i_city,i.country i_country,i.district i_district,i.gender i_gender
         from im_user_avatar a
@@ -47,8 +48,11 @@
             <if test="q.userId!=null and q.userId!=''">
                 and user_id=#{q.userId}
             </if>
-            <if test="q.ts_create!=null">
-                and a.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.serverId!=null">
+                and a.server_id=#{q.serverId}
+            </if>
+            <if test="q.tsCreate!=null">
+                and a.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
         <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">

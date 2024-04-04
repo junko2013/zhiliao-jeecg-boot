@@ -13,6 +13,7 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.config.TenantContext;
 import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.common.constant.ConstantCache;
 import org.jeecg.common.constant.SymbolConstant;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.vo.DictModel;
@@ -444,40 +445,26 @@ public class SysDictController {
 	 * @功能：刷新缓存
 	 * @return
 	 */
-	@RequestMapping(value = "/refleshCache")
-	public Result<?> refleshCache() {
-		Result<?> result = new Result<SysDict>();
-		//清空字典缓存
-//		Set keys = redisTemplate.keys(CacheConstant.SYS_DICT_CACHE + "*");
-//		Set keys7 = redisTemplate.keys(CacheConstant.SYS_ENABLE_DICT_CACHE + "*");
-//		Set keys2 = redisTemplate.keys(CacheConstant.SYS_DICT_TABLE_CACHE + "*");
-//		Set keys21 = redisTemplate.keys(CacheConstant.SYS_DICT_TABLE_BY_KEYS_CACHE + "*");
-//		Set keys3 = redisTemplate.keys(CacheConstant.SYS_DEPARTS_CACHE + "*");
-//		Set keys4 = redisTemplate.keys(CacheConstant.SYS_DEPART_IDS_CACHE + "*");
-//		Set keys5 = redisTemplate.keys( "jmreport:cache:dict*");
-//		Set keys6 = redisTemplate.keys( "jmreport:cache:dictTable*");
-//		redisTemplate.delete(keys);
-//		redisTemplate.delete(keys2);
-//		redisTemplate.delete(keys21);
-//		redisTemplate.delete(keys3);
-//		redisTemplate.delete(keys4);
-//		redisTemplate.delete(keys5);
-//		redisTemplate.delete(keys6);
-//		redisTemplate.delete(keys7);
-
-		//update-begin-author:liusq date:20230404 for:  [issue/4358]springCache中的清除缓存的操作使用了“keys”
-		redisUtil.removeAll(CacheConstant.SYS_DICT_CACHE);
-		redisUtil.removeAll(CacheConstant.SYS_ENABLE_DICT_CACHE);
-		redisUtil.removeAll(CacheConstant.SYS_DICT_TABLE_CACHE);
-		redisUtil.removeAll(CacheConstant.SYS_DICT_TABLE_BY_KEYS_CACHE);
-		redisUtil.removeAll(CacheConstant.SYS_DEPARTS_CACHE);
-		redisUtil.removeAll(CacheConstant.SYS_DEPART_IDS_CACHE);
-		redisUtil.removeAll("jmreport:cache:dict");
-		redisUtil.removeAll("jmreport:cache:dictTable");
-		//update-end-author:liusq date:20230404 for:  [issue/4358]springCache中的清除缓存的操作使用了“keys”
-		return result;
+	@RequestMapping(value = "/refreshCache")
+	public Result<?> refreshCache(@RequestParam(defaultValue = "0",required = false) String isSystem) {
+		if("0".equals(isSystem)){
+			//清空字典缓存
+			redisUtil.removeAll(CacheConstant.SYS_DICT_CACHE);
+			redisUtil.removeAll(CacheConstant.SYS_ENABLE_DICT_CACHE);
+			redisUtil.removeAll(CacheConstant.SYS_DICT_TABLE_CACHE);
+			redisUtil.removeAll(CacheConstant.SYS_DICT_TABLE_BY_KEYS_CACHE);
+			redisUtil.removeAll(CacheConstant.SYS_DEPARTS_CACHE);
+			redisUtil.removeAll(CacheConstant.SYS_DEPART_IDS_CACHE);
+			redisUtil.removeAll("jmreport:cache:dict");
+			redisUtil.removeAll("jmreport:cache:dictTable");
+		}else{
+			//服务器配置
+			redisUtil.removeAll(ConstantCache.SERVER_CONFIG);
+			//服务器
+			redisUtil.removeAll(ConstantCache.SERVER);
+		}
+		return Result.ok();
 	}
-
 	/**
 	 * 导出excel
 	 *

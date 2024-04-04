@@ -164,6 +164,9 @@ public class ImageUtils {
         }
         BufferedImage image = Thumbnails.of(origin).scale(1f).outputFormat(format).asBufferedImage();
         InputStream in  = new FileInputStream(origin);
+        if(width==-1){
+            width = image.getWidth();
+        }
         if(image.getWidth()<width){
             width = image.getWidth()*10/10;
         }
@@ -304,28 +307,33 @@ public class ImageUtils {
      * @param quality
      * @return
      */
-    public static boolean executeCWebp(String inputFile, String outputFile, Integer quality) {
+    public static boolean convertToWebP(String inputFile, String outputFile, Integer quality) {
         boolean result = false;
         String cwebpPath = "cwebp";
         if (inputFile.endsWith(".gif"))
             cwebpPath = "gif2webp";
         try {
-//            String chmodCommand = "chmod 755 " + cwebpPath;
-//            Runtime.getRuntime().exec(chmodCommand).waitFor();
-
             StringBuilder command = new StringBuilder(cwebpPath);
-            command.append(" -q " + (quality == 0 ? 75 : quality));
-            command.append(" " + inputFile);
-            command.append(" -o " + outputFile);
-//            command.append(" -lossy -m 4 ");
+            command.append(" -q ").append(quality == null || quality == 0 ? 75 : quality);
+            command.append(" ").append(inputFile);
+            command.append(" -o ").append(outputFile);
 
-            Runtime.getRuntime().exec(command.toString());
-            result=true;
+            // 执行命令
+            Process process = Runtime.getRuntime().exec(command.toString());
+
+            // 等待外部程序执行完成
+            int exitCode = process.waitFor();
+
+            // 检查执行是否成功
+            if (exitCode == 0) {
+                result = true;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return result;
     }
+
 
     /**
      * 将gif转为webm
@@ -437,7 +445,7 @@ public class ImageUtils {
 
 
     public static void main(String[] args) {
-        System.out.println(executeCWebp("I:/1.jpg","I:/2.webp",75));;
+        System.out.println(convertToWebP("I:/1.jpg","I:/2.webp",75));;
         try {
             gifReSize(new File("I:\\data\\sgim\\resource\\sticker\\o\\5\\1f79ce4f90eb4db3ae8d382da99a679a.gif"),new File("I:\\data\\sgim\\resource\\sticker\\o\\5\\1f79ce4f90eb4db3ae8d382da99a679a-2.gif"),64,64);
         } catch (IOException e) {

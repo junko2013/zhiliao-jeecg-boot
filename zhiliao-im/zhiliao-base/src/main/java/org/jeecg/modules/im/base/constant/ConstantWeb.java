@@ -8,6 +8,10 @@ public interface ConstantWeb {
 
     //测试用户id
     String TEST_USER_ID = "1";
+    //服务器id
+    String SERVER_ID = "Server-Id";
+    //服务器令牌
+    String SERVER_ACCESS_TOKEN = "Server-AccessToken";
     //设备
     String DEVICE_NO = "deviceNo";
     //ip
@@ -21,6 +25,8 @@ public interface ConstantWeb {
     String JPUSH_ID = "jpushId";
     //系统版本
     String DEVICE_SYS_VER = "systemVersion";
+    //真机
+    String DEVICE_IS_PHYSIC = "isPhysic";
     //app版本
     String DEVICE_CLIENT_VER = "clientVersion";
     //位置

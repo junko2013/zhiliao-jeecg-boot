@@ -20,7 +20,7 @@ import java.util.List;
  */
 @Mapper
 public interface ContactMapper extends BaseMapper<Contact> {
-    MyPage<Contact> pagination(@Param("pg") MyPage<Contact> pg, @Param("q") QContact q);
+    MyPage<Contact> pagination(MyPage<Contact> pg, @Param("q") QContact q);
 
     List<Contact> findAllOfUser(Integer userId);
 }

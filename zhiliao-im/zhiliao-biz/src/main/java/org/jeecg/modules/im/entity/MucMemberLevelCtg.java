@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 /**
  * <p>
@@ -20,7 +21,7 @@ import lombok.EqualsAndHashCode;
 public class MucMemberLevelCtg extends BaseModel<MucMemberLevelCtg> {
 
     private static final long serialVersionUID = 1L;
-    public static final String TABLE_NAME = "im_member_level_ctg";
+    public static final String TABLE_NAME = "im_muc_member_level_ctg";
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
@@ -30,5 +31,9 @@ public class MucMemberLevelCtg extends BaseModel<MucMemberLevelCtg> {
     private Integer orderNo;
     //封面图
     private String cover;
+
+    //1：启用 0：未启用
+    @Dict(dicCode = "status")
+    private Integer status;
 
 }

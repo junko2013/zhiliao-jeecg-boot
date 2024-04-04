@@ -8,7 +8,6 @@ import org.jeecg.modules.im.entity.User;
 import org.jeecg.modules.im.entity.UserSetting;
 import org.jeecg.modules.im.entity.query_helper.QUser;
 import org.jeecg.modules.im.service.*;
-import org.jeecg.modules.im.service.base.BaseBackController;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -60,6 +59,7 @@ public class UserController extends BaseBackController {
             }
             q.setIds(s.substring(0,s.toString().length()-1));
         }
+        q.setServerId(getServer().getId());
         return success(userService.pagination(new MyPage<>(getPage(), getPageSize()), q));
     }
 

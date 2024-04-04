@@ -113,7 +113,7 @@ public class SysAnnouncementController {
 		}
 		//------------------------------------------------------------------------------------------------
 		Result<IPage<SysAnnouncement>> result = new Result<IPage<SysAnnouncement>>();
-		sysAnnouncement.setDelFlag(CommonConstant.DEL_FLAG_0.toString());
+		sysAnnouncement.setDelFlag(CommonConstant.DEL_FLAG_0);
 		QueryWrapper<SysAnnouncement> queryWrapper = QueryGenerator.initQueryWrapper(sysAnnouncement, req.getParameterMap());
 		Page<SysAnnouncement> page = new Page<SysAnnouncement>(pageNo,pageSize);
 		IPage<SysAnnouncement> pageList = sysAnnouncementService.page(page, queryWrapper);
@@ -135,7 +135,7 @@ public class SysAnnouncementController {
 			String title = XssUtils.scriptXss(sysAnnouncement.getTitile());
 			sysAnnouncement.setTitile(title);
 			// update-end-author:liusq date:20210804 for:标题处理xss攻击的问题
-			sysAnnouncement.setDelFlag(CommonConstant.DEL_FLAG_0.toString());
+			sysAnnouncement.setDelFlag(CommonConstant.DEL_FLAG_0);
             //未发布
 			sysAnnouncement.setSendStatus(CommonSendStatus.UNPUBLISHED_STATUS_0);
 			sysAnnouncementService.saveAnnouncement(sysAnnouncement);
@@ -185,7 +185,7 @@ public class SysAnnouncementController {
 		if(sysAnnouncement==null) {
 			result.error500("未找到对应实体");
 		}else {
-			sysAnnouncement.setDelFlag(CommonConstant.DEL_FLAG_1.toString());
+			sysAnnouncement.setDelFlag(CommonConstant.DEL_FLAG_1);
 			boolean ok = sysAnnouncementService.updateById(sysAnnouncement);
 			if(ok) {
 				result.success("删除成功!");
@@ -209,7 +209,7 @@ public class SysAnnouncementController {
 			String[] id = ids.split(",");
 			for(int i=0;i<id.length;i++) {
 				SysAnnouncement announcement = sysAnnouncementService.getById(id[i]);
-				announcement.setDelFlag(CommonConstant.DEL_FLAG_1.toString());
+				announcement.setDelFlag(CommonConstant.DEL_FLAG_1);
 				sysAnnouncementService.updateById(announcement);
 			}
 			result.success("删除成功!");
@@ -411,7 +411,7 @@ public class SysAnnouncementController {
                 List<SysAnnouncement> listSysAnnouncements = ExcelImportUtil.importExcel(file.getInputStream(), SysAnnouncement.class, params);
                 for (SysAnnouncement sysAnnouncementExcel : listSysAnnouncements) {
                 	if(sysAnnouncementExcel.getDelFlag()==null){
-                		sysAnnouncementExcel.setDelFlag(CommonConstant.DEL_FLAG_0.toString());
+                		sysAnnouncementExcel.setDelFlag(CommonConstant.DEL_FLAG_0);
 					}
                     sysAnnouncementService.save(sysAnnouncementExcel);
                 }

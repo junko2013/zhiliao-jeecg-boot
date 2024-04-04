@@ -31,19 +31,19 @@ public class SysRoleIndex {
 	/**id*/
 	@TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "id")
-	private java.lang.String id;
+	private String id;
 	/**角色编码*/
 	@Excel(name = "角色编码", width = 15)
     @ApiModelProperty(value = "角色编码")
-	private java.lang.String roleCode;
+	private String roleCode;
 	/**路由地址*/
 	@Excel(name = "路由地址", width = 15)
     @ApiModelProperty(value = "路由地址")
-	private java.lang.String url;
+	private String url;
 	/**路由地址*/
 	@Excel(name = "路由地址", width = 15)
     @ApiModelProperty(value = "组件")
-	private java.lang.String component;
+	private String component;
 	/**
 	 * 是否路由菜单: 0:不是  1:是（默认值1）
 	 */
@@ -54,15 +54,15 @@ public class SysRoleIndex {
 	/**优先级*/
 	@Excel(name = "优先级", width = 15)
     @ApiModelProperty(value = "优先级")
-	private java.lang.Integer priority;
+	private Integer priority;
 	/**路由地址*/
 	@Excel(name = "状态", width = 15)
 	@ApiModelProperty(value = "状态")
-	private java.lang.String status;
+	private Integer status;
 	/**创建人登录名称*/
 	@Excel(name = "创建人登录名称", width = 15)
     @ApiModelProperty(value = "创建人登录名称")
-	private java.lang.String createBy;
+	private String createBy;
 	/**创建日期*/
 	@Excel(name = "创建日期", width = 20, format = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
@@ -72,7 +72,7 @@ public class SysRoleIndex {
 	/**更新人登录名称*/
 	@Excel(name = "更新人登录名称", width = 15)
     @ApiModelProperty(value = "更新人登录名称")
-	private java.lang.String updateBy;
+	private String updateBy;
 	/**更新日期*/
 	@Excel(name = "更新日期", width = 20, format = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
@@ -82,7 +82,7 @@ public class SysRoleIndex {
 	/**所属部门*/
 	@Excel(name = "所属部门", width = 15)
     @ApiModelProperty(value = "所属部门")
-	private java.lang.String sysOrgCode;
+	private String sysOrgCode;
 
 
 	public SysRoleIndex() {

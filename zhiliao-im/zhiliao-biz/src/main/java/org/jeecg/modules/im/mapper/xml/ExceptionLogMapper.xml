@@ -46,8 +46,8 @@
         left join im_user u on u.id = l.user_id
         left join im_user_info i on i.user_id = u.id
         <where> 1=1
-            <if test="q.ts_create!=null">
-                and l.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.tsCreate!=null">
+                and l.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
         <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">

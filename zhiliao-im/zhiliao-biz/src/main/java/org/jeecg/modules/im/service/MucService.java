@@ -60,11 +60,11 @@ public interface MucService extends IService<Muc> {
      */
     Integer getCountOfRole(Integer userId, MucMember.Role role);
 
-    Result<Object> updateQrcode(Muc muc);
-    Result<Object> updateName(Muc muc);
-    Result<Object> updateInfo(Muc muc);
-    Result<Object> updateWelcomes(QMuc muc);
-    Result<Object> updateAvatar(Muc muc);
+    Result<Object> updateQrcode(Integer userId,Muc muc);
+    Result<Object> updateName(Integer userId,Muc muc);
+    Result<Object> updateInfo(Integer userId,Muc muc);
+    Result<Object> updateWelcomes(Integer userId,QMuc muc);
+    Result<Object> updateAvatar(Integer userId,Muc muc);
 
     /**
      * 批量设置/取消管理员
@@ -73,5 +73,5 @@ public interface MucService extends IService<Muc> {
      * @param flag
      * @return
      */
-    Result<Object> setManagers(Integer mucId, String memberIds,Integer flag);
+    Result<Object> setManagers(Integer userId,Integer mucId, String memberIds,Integer flag);
 }

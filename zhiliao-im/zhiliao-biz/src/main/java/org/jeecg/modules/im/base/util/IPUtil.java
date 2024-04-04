@@ -127,6 +127,10 @@ public class IPUtil {
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
         }
+        String[] ips = StringUtils.split(ip,",");
+        if(ips.length>1){
+            ip = ips[0];
+        }
 
         return "0:0:0:0:0:0:0:1".equals(ip) ? LOCAL_IP : ip;
     }

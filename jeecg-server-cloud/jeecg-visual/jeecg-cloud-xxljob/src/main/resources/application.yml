@@ -5,9 +5,9 @@ server:
   #数据源配置
 spring:
   datasource:
-    url: jdbc:mysql://jeecg-boot-mysql:3306/xxl_job?Unicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: ${MYSQL-USER:root}
-    password: ${MYSQL-PWD:CGfTn7SRcTYZcwYy}
+    url: jdbc:mysql://jeecg-boot-mysql:3306/zhiliao_xxljob_new?Unicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: ${MYSQL-USER:zhiliao_xxljob_new}
+    password: ${MYSQL-PWD:niwdyKiDdXZbpRz6}
     driver-class-name: com.mysql.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
@@ -21,10 +21,10 @@ spring:
       connection-test-query: SELECT 1
   #邮箱配置
   mail:
-    host: smtphz.qiye.163.com
-    port: 994
-    username: zhuwei@aboatedu.com
-    password: zwass1314
+    host: smtp.qiye.aliyun.com
+    port: 465
+    username: service@songguo.info
+    password: E5Z6QKeiEyf35Y*3
     properties:
       mail:
         smtp:

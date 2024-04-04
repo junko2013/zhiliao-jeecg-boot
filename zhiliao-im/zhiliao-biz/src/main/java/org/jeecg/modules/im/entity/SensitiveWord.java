@@ -41,4 +41,5 @@ public class SensitiveWord extends BaseModel<SensitiveWord> {
 
     private Long tsCreate;
 
+    private Integer serverId;
 }

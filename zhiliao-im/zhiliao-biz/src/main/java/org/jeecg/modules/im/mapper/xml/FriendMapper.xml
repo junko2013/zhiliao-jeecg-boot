@@ -21,6 +21,7 @@
         <result column="privilege" property="privilege"/>
         <result column="ts_create" property="tsCreate"/>
         <result column="ts_friend" property="tsFriend"/>
+        <result column="back_img" property="backImg"/>
         <result column="ts_pin" property="tsPin"/>
         <result column="ts_update" property="tsUpdate"/>
         <result column="ts_last_talk" property="tsLastTalk"/>
@@ -30,7 +31,7 @@
         <result column="is_hide" property="isHide"/>
         <result column="is_unread" property="isUnread"/>
         <result column="is_read_del" property="isReadDel"/>
-        <result column="last_ack_id" property="lastAckId"/>
+        <result column="server_id" property="serverId"/>
         <association property="toUser" javaType="org.jeecg.modules.im.entity.User">
             <id column="t_id" property="id"/>
             <result column="t_account" property="account"/>
@@ -40,6 +41,8 @@
             <result column="t_avatar" property="avatar"/>
             <result column="t_is_online" property="isOnline"/>
             <result column="t_type" property="type"/>
+            <result column="t_verify" property="verify"/>
+            <result column="t_is_public" property="isPublic"/>
             <result column="t_ts_online" property="tsOnline"/>
             <result column="t_ts_offline" property="tsOffline"/>
             <association property="info"  javaType="org.jeecg.modules.im.entity.UserInfo">
@@ -55,15 +58,11 @@
             </association>
         </association>
     </resultMap>
-    <!-- 通用查询结果列 -->
-    <sql id="Base_Column_List">
-        id, user_id, to_user_id, phone,is_star,is_no_disturb, remark, info, tag_ids, add_type, status, privilege, ts_create,ts_friend,ts_pin, ts_update, ts_last_t,is_unread,is_read_del,last_ack_id
-    </sql>
 
     <select id="pagination" resultMap="BaseResultMap">
         select
-            f.id,f.user_id,f.to_user_id,f.is_star,is_no_disturb,is_msg_archive,remark,phone,info,tag_ids,tag_names,tr, add_type, f.status, privilege, f.ts_create,f.ts_friend,f.ts_pin, f.ts_update, f.ts_last_talk,f.ts_msg_visible,f.ts_black,f.ts_been_black,f.is_hide,f.is_unread,f.is_read_del,f.last_ack_id,
-            t.id t_id,t.account t_account,t.nickname t_nickname,t.username t_username,t.type t_type,t.is_online t_is_online,t.small_avatar t_small_avatar,t.avatar t_avatar,
+            f.id,f.user_id,f.to_user_id,f.is_star,is_no_disturb,is_msg_archive,remark,back_img,phone,info,tag_ids,tag_names,tr, add_type, f.status, privilege, f.ts_create,f.ts_friend,f.ts_pin, f.ts_update, f.ts_last_talk,f.ts_msg_visible,f.ts_black,f.ts_been_black,f.is_hide,f.is_unread,f.is_read_del,
+            t.id t_id,t.account t_account,t.nickname t_nickname,t.username t_username,t.verify t_verify,t.type t_type,t.is_public t_is_public,t.is_online t_is_online,t.small_avatar t_small_avatar,t.avatar t_avatar,
             info.gender t_gender,info.country t_country,info.province t_province,info.city t_city,info.signature t_signature,info.state t_state
         from im_friend f
         left join im_user t on t.id = f.to_user_id
@@ -85,8 +84,8 @@
             <if test="q.isStar !=null">
                 and f.is_star = #{q.isStar}
             </if>
-            <if test="q.ts_create!=null">
-                and f.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.tsCreate!=null">
+                and f.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
         order by f.ts_create desc
@@ -94,8 +93,8 @@
 
     <select id="findAll" resultMap="BaseResultMap">
         select
-            f.id,f.user_id,f.to_user_id,f.is_star,is_no_disturb,is_msg_archive,remark,phone,info,tag_ids,tag_names,tr, add_type, f.status, privilege, f.ts_create,f.ts_friend,f.ts_pin, f.ts_update, f.ts_last_talk,f.ts_msg_visible,f.ts_black,f.ts_been_black,f.is_hide,f.is_unread,f.is_read_del,f.last_ack_id,
-            t.id t_id,t.account t_account,t.nickname t_nickname,t.username t_username,t.type t_type,t.small_avatar t_small_avatar,t.avatar t_avatar,t.ts_online t_ts_online,t.ts_offline t_ts_offline,t.is_online t_is_online,
+            f.id,f.user_id,f.to_user_id,f.is_star,is_no_disturb,is_msg_archive,remark,back_img,phone,info,tag_ids,tag_names,tr, add_type, f.status, privilege, f.ts_create,f.ts_friend,f.ts_pin, f.ts_update, f.ts_last_talk,f.ts_msg_visible,f.ts_black,f.ts_been_black,f.is_hide,f.is_unread,f.is_read_del,
+            t.id t_id,t.account t_account,t.nickname t_nickname,t.username t_username,t.verify t_verify,t.type t_type,t.is_public t_is_public,t.small_avatar t_small_avatar,t.avatar t_avatar,t.ts_online t_ts_online,t.ts_offline t_ts_offline,t.is_online t_is_online,
             info.gender t_gender,info.country t_country,info.province t_province,info.city t_city,info.signature t_signature,info.state t_state,setting.online_visibility
         from im_friend f
         left join im_user t on t.id = f.to_user_id
@@ -115,15 +114,15 @@
     </select>
     <select id="findOne" resultMap="BaseResultMap">
         select
-            f.id,f.user_id,f.to_user_id,f.is_star,is_no_disturb,is_msg_archive,remark,phone,info,tag_ids,tag_names,tr,add_type, f.status, privilege, f.ts_create,ts_friend,f.ts_pin, f.ts_update, f.ts_last_talk,f.ts_msg_visible,f.ts_black,f.ts_been_black,f.is_hide,f.is_unread,f.is_read_del,f.last_ack_id,
-            t.id t_id,t.account t_account,t.nickname t_nickname,t.username t_username,t.type t_type,t.small_avatar t_small_avatar,t.avatar t_avatar,t.ts_online t_ts_online,t.ts_offline t_ts_offline,t.is_online t_is_online,
+            f.id,f.user_id,f.to_user_id,f.is_star,is_no_disturb,is_msg_archive,remark,back_img,phone,info,tag_ids,tag_names,tr,add_type, f.status, privilege, f.ts_create,ts_friend,f.ts_pin, f.ts_update, f.ts_last_talk,f.ts_msg_visible,f.ts_black,f.ts_been_black,f.is_hide,f.is_unread,f.is_read_del,f.server_id,
+            t.id t_id,t.account t_account,t.nickname t_nickname,t.username t_username,t.verify t_verify,t.type t_type,t.is_public t_is_public,t.small_avatar t_small_avatar,t.avatar t_avatar,t.ts_online t_ts_online,t.ts_offline t_ts_offline,t.is_online t_is_online,
             info.gender t_gender,info.country t_country,info.province t_province,info.city t_city,info.signature t_signature,info.state t_state,setting.online_visibility
         from im_friend f
         left join im_user t on t.id = f.to_user_id
         left join im_user_info info on info.user_id = t.id
         left join im_user_setting setting on setting.user_id = t.id
         <where>
-            f.user_id = #{userId} and f.to_user_id = #{toUserId}
+            f.user_id = #{userId} and f.to_user_id = #{toUserId} and f.server_id = #{serverId}
         </where>
     </select>
 </mapper>

@@ -20,6 +20,10 @@ import java.util.List;
  */
 @Mapper
 public interface MucMsgMapper extends BaseMapper<MucMsg> {
-    MyPage<MucMsg> pagination(@Param("pg") MyPage<MucMsg> pg, @Param("q") QMucMsg q);
+    MyPage<MucMsg> pagination(MyPage<MucMsg> pg, @Param("q") QMucMsg q);
     List<MucMsg> pageApi(@Param("q") QMucMsg q);
+    MucMsg findByStanzaId(String stanzaId);
+    Long deleteLogic(Integer mucId,Long tsDelete);
+
+    int updateTsReceive(String stanzaId, Long ts);
 }

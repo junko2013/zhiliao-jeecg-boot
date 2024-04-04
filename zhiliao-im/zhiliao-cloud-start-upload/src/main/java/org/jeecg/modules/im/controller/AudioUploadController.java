@@ -36,7 +36,7 @@ public class AudioUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的文件");
         }
         try {
-            return uploadService.saveAudio(multipartFile);
+            return uploadService.saveAudio(getCurrentUserId(),getAdmin(),multipartFile);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("文件上传失败", e);

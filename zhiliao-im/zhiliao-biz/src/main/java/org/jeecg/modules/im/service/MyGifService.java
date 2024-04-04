@@ -22,8 +22,10 @@ public interface MyGifService extends IService<MyGif> {
     //查询用户全部的gif
     List<MyGif> findAll(Integer userId);
     Result<Object> createOrUpdate(MyGif gifAlbum);
-    Result<Object> delBatch(String ids);
+    Result<Object> delBatch(Integer userId,String ids);
     Result<Object> addGif(Integer userId,Integer gifId);
 
     MyGif findByGifId(Integer userId,Integer gifId);
+
+    Result<Object> pin(int id, long ts);
 }

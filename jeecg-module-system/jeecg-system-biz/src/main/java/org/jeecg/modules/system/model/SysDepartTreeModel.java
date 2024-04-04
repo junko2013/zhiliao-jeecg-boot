@@ -61,9 +61,9 @@ public class SysDepartTreeModel implements Serializable{
 
     private String memo;
 
-    private String status;
+    private Integer status;
 
-    private String delFlag;
+    private Integer delFlag;
 
     private String qywxIdentifier;
 
@@ -285,19 +285,19 @@ public class SysDepartTreeModel implements Serializable{
         this.description = description;
     }
 
-    public String getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
-    public String getDelFlag() {
+    public Integer getDelFlag() {
         return delFlag;
     }
 
-    public void setDelFlag(String delFlag) {
+    public void setDelFlag(Integer delFlag) {
         this.delFlag = delFlag;
     }
 

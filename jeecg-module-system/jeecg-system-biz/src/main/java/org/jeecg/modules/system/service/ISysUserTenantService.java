@@ -62,7 +62,7 @@ public interface ISysUserTenantService extends IService<SysUserTenant> {
      * @param tenantId
      * @param userTenantStatus
      */
-    void updateUserTenantStatus(String id, String tenantId, String userTenantStatus);
+    void updateUserTenantStatus(String id, String tenantId, Integer userTenantStatus);
 
     /**
      * 联查用户和租户审核状态
@@ -127,5 +127,5 @@ public interface ISysUserTenantService extends IService<SysUserTenant> {
      * @param tenantStatus
      * @return
      */
-    Long getUserCount(Integer tenantId, String tenantStatus);
+    Long getUserCount(Integer tenantId, Integer tenantStatus);
 }

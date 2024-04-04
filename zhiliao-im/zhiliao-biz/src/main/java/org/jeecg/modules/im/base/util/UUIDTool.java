@@ -11,7 +11,7 @@ public class UUIDTool {
      * @return
      */
     public static String getUUID() {
-        return UUID.randomUUID().toString().replace("-", "");
+        return UUID.randomUUID().toString().replace("-", "").toUpperCase();
     }
     public static String getUUID2() {
         return UUID.randomUUID().toString();

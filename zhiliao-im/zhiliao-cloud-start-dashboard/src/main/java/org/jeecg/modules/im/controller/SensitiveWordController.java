@@ -6,7 +6,6 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.SensitiveWord;
 import org.jeecg.modules.im.entity.query_helper.QSensitiveWord;
 import org.jeecg.modules.im.service.SensitiveWordService;
-import org.jeecg.modules.im.service.base.BaseBackController;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;

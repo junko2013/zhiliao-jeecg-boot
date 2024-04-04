@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 /**
  * <p>
@@ -36,6 +37,8 @@ public class Gif extends BaseModel<Gif> {
     private String keyword;
 
     private String emoji;
+    private int width;
+    private int height;
     //
     private String emojiCode;
     //图集
@@ -47,6 +50,6 @@ public class Gif extends BaseModel<Gif> {
 
     private Long tsCreate;
     //禁用
+    @Dict(dicCode = "yon")
     private Boolean isLocked;
-
 }

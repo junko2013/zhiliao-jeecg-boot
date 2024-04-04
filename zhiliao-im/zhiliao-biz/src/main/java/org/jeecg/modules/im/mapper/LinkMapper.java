@@ -10,5 +10,5 @@ import org.jeecg.modules.im.entity.Link;
 import org.jeecg.modules.im.entity.query_helper.QLink;
 @Mapper
 public interface LinkMapper extends BaseMapper<Link> {
-    MyPage<Link> pagination(@Param("pg") MyPage<Link> pg, @Param("q") QLink q);
+    MyPage<Link> pagination(MyPage<Link> pg, @Param("q") QLink q);
 }

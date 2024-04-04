@@ -1,12 +1,15 @@
 package org.jeecg.modules.im.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Link;
 import org.jeecg.modules.im.entity.Link;
+import org.jeecg.modules.im.entity.Locale;
 import org.jeecg.modules.im.entity.query_helper.QLink;
 import org.jeecg.modules.im.mapper.LinkMapper;
 import org.jeecg.modules.im.mapper.LinkMapper;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -64,5 +68,12 @@ public class LinkServiceImpl extends BaseServiceImpl<LinkMapper, Link> implement
         }
         linkMapper.deleteBatchIds(Arrays.asList(StringUtils.split(ids,",")));
         return success();
+    }
+
+    @Override
+    public List<Link> findByServerId(Integer serverId) {
+        LambdaQueryWrapper<Link> q = new LambdaQueryWrapper<>();
+        q.eq(Link::getServerId, serverId);
+        return list(q);
     }
 }

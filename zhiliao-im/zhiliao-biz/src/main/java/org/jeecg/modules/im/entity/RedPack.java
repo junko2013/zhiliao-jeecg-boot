@@ -81,6 +81,8 @@ public class RedPack extends BaseModel<RedPack> {
 
     private Long tsValid;
 
+    private Integer serverId;
+
 
     //支付密码
     @TableField(exist = false)

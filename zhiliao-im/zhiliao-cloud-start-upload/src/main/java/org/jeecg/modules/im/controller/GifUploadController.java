@@ -2,8 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.anotation.NoNeedUserToken;
-import org.jeecg.modules.im.service.UploadService;
+import org.jeecg.modules.im.service.UploadGifService;
 import org.jeecg.modules.im.service.base.BaseUploadCtrl;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,7 +20,7 @@ import javax.annotation.Resource;
 public class GifUploadController extends BaseUploadCtrl {
 
     @Resource
-    private UploadService uploadService;
+    private UploadGifService uploadGifService;
 
 
     @PostMapping({"","/"})
@@ -33,10 +32,10 @@ public class GifUploadController extends BaseUploadCtrl {
     public @ResponseBody
     Result<Object> index(@RequestParam("file") MultipartFile multipartFile,@RequestParam(defaultValue = "0") Integer gifAlbumId,Integer w) {
         if (multipartFile.isEmpty()) {
-            return fail("请选择要上传的文件");
+            return fail("请选择要上传的gif");
         }
         try {
-            return uploadService.saveGif(multipartFile, gifAlbumId,w);
+            return uploadGifService.saveGif(getCurrentUserId(),getAdmin(),multipartFile, gifAlbumId,w);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("gif上传失败", e);
@@ -47,10 +46,10 @@ public class GifUploadController extends BaseUploadCtrl {
     public @ResponseBody
     Result<Object> batchImport(@RequestParam("file") MultipartFile multipartFile,@RequestParam(defaultValue = "0") Integer gifAlbumId) {
         if (multipartFile.isEmpty()) {
-            return fail("请选择要上传的文件");
+            return fail("请选择要导入的文件");
         }
         try {
-            return uploadService.saveGifBatch(multipartFile, gifAlbumId);
+            return uploadGifService.saveGifBatch(getCurrentUserId(),getAdmin(),multipartFile, gifAlbumId);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("gif导入失败", e);

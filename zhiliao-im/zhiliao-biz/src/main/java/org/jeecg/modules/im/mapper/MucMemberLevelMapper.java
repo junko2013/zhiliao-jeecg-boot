@@ -18,5 +18,4 @@ import org.jeecg.modules.im.entity.query_helper.QMucMemberLevel;
  */
 @Mapper
 public interface MucMemberLevelMapper extends BaseMapper<MucMemberLevel> {
-    MyPage<MucMemberLevel> pagination(@Param("pg") MyPage<MucMemberLevel> myPage, @Param("q") QMucMemberLevel q);
 }

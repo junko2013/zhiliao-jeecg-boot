@@ -5,7 +5,6 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.SecretQuestion;
 import org.jeecg.modules.im.entity.query_helper.QSecretQuestion;
 import org.jeecg.modules.im.service.SecretQuestionService;
-import org.jeecg.modules.im.service.base.BaseBackController;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,11 +33,11 @@ public class SecretQuestionController extends BaseBackController {
      * 添加或更新
      */
     @RequestMapping("/createOrUpdate")
-    public Result<Object> createOrUpdate(@RequestBody @Validated SecretQuestion item, BindingResult bindingResult){
+    public Result<Object> createOrUpdate(@RequestBody @Validated SecretQuestion question, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             return fail(bindingResult.getAllErrors().get(0));
         }
-        return secretQuestionService.createOrUpdate(item);
+        return secretQuestionService.createOrUpdate(question);
     }
 
     @RequestMapping("/detail")

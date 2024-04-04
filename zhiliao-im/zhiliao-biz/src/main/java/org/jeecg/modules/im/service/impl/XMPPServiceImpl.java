@@ -48,8 +48,10 @@ public class XMPPServiceImpl implements XMPPService {
                 user.setSalt(PasswordEncoder.createSalt(32));
                 user.setPassword(ToolPassword.getEncPassword(user.getSalt(), DigestUtils.md5Hex(StringUtils.reverse(sys.getAccount().toString()))));
                 user.setType(User.Type.sysAccount.getCode());
+                user.setIsPublic(sys.isPublic());
                 user.setQrCode(UUIDTool.getUUID());
                 user.setResource(User.Resource.CONSOLE_CREATE.getCode());
+                user.setRegNo(0);
                 user.setTsCreate(new Date().getTime());
                 if(!userService.save(user)){
                     throw new BusinessException("创建系统账号失败");

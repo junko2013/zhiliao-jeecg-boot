@@ -1,8 +1,7 @@
 package org.jeecg.modules.im.entity;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,7 +31,11 @@ public class Feedback extends BaseModel<Feedback> {
 
     private String imgUrl;
 
-    private String message;
+    private String title;
+
+    private String content;
+    //处理反馈
+    private String reply;
 
     /**
      * 联系方式
@@ -40,5 +43,16 @@ public class Feedback extends BaseModel<Feedback> {
     private String contact;
 
     private Long tsDeal;
+
+    private Integer serverId;
+    @TableLogic
+    private Integer delFlag;
+
+    @TableField(exist = false)
+    private Boolean isDeal;
+    @TableField(exist = false)
+    private User user;
+    @TableField(exist = false)
+    private FeedbackType type;
 
 }

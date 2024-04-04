@@ -48,6 +48,8 @@ public class RedPackOpen extends BaseModel<RedPackOpen> {
 
     private Long tsCreate;
 
+    private Integer serverId;
+
     @TableField(exist = false)
     private RedPack redPack;
     @TableField(exist = false)

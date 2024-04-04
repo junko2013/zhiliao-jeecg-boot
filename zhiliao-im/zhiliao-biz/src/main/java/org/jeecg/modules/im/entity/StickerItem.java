@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 /**
  * <p>
@@ -29,7 +30,7 @@ public class StickerItem extends BaseModel<StickerItem> {
     private Integer stickerId;
 
     private String emoji;
-    //emoji简短代码
+    //emoji简短代码 如果贴纸包是emoji表情时，emojiCode不可为空且唯一
     private String emojiCode;
     //原图
     private String origin;
@@ -43,11 +44,14 @@ public class StickerItem extends BaseModel<StickerItem> {
     private String keyword;
     //排序
     private Integer orderNo;
+    private Integer width;
+    private Integer height;
     //创建时间
     private Long tsCreate;
     //发送次数
     private Integer sendTimes;
     //禁用
+    @Dict(dicCode = "yon")
     private Boolean isLocked;
 
     @TableField(exist = false)

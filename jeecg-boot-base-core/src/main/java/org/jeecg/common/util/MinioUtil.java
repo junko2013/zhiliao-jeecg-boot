@@ -204,6 +204,9 @@ public class MinioUtil {
      * @return
      */
     public static String upload(InputStream stream,String relativePath) throws Exception {
+        return upload(stream,relativePath,true);
+    }
+    public static String upload(InputStream stream,String relativePath,Boolean closeStream) throws Exception {
         initMinio(minioUrl, minioName,minioPass);
         if(minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
             log.info("Bucket already exists.");
@@ -217,7 +220,8 @@ public class MinioUtil {
                 .contentType("application/octet-stream")
                 .stream(stream,stream.available(),-1).build();
         minioClient.putObject(objectArgs);
-        stream.close();
+        if(closeStream)
+            stream.close();
         return minioUrl+bucketName+"/"+relativePath;
     }
 

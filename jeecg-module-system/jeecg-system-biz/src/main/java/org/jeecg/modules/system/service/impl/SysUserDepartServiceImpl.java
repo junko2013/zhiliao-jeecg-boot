@@ -67,12 +67,10 @@ public class SysUserDepartServiceImpl extends ServiceImpl<SysUserDepartMapper, S
 					depIdList.add(userDepart.getDepId());
 				}
 
-			//update-begin---author:wangshuai ---date:20230112  for：判断是否开启租户saas模式，开启需要根据当前租户查询------------
 			if (MybatisPlusSaasConfig.OPEN_SYSTEM_TENANT_CONTROL) {
 				Integer tenantId = oConvertUtils.getInt(TenantContext.getTenant(), 0);
 				queryDep.eq(SysDepart::getTenantId,tenantId);
 			}
-			//update-end---author:wangshuai ---date:20230112  for：判断是否开启租户saas模式，开启需要根据当前租户查询------------
 			
 			queryDep.in(SysDepart::getId, depIdList);
 			List<SysDepart> depList = sysDepartService.list(queryDep);
@@ -107,12 +105,10 @@ public class SysUserDepartServiceImpl extends ServiceImpl<SysUserDepartMapper, S
 				userIdList.add(uDep.getUserId());
 			}
 			List<SysUser> userList = (List<SysUser>) sysUserMapper.selectBatchIds(userIdList);
-			//update-begin-author:taoyan date:201905047 for:接口调用查询返回结果不能返回密码相关信息
 			for (SysUser sysUser : userList) {
 				sysUser.setSalt("");
 				sysUser.setPassword("");
 			}
-			//update-end-author:taoyan date:201905047 for:接口调用查询返回结果不能返回密码相关信息
 			return userList;
 		}
 		return new ArrayList<SysUser>();
@@ -123,7 +119,6 @@ public class SysUserDepartServiceImpl extends ServiceImpl<SysUserDepartMapper, S
 	 */
 	@Override
 	public List<SysUser> queryUserByDepCode(String depCode,String realname) {
-		//update-begin-author:taoyan date:20210422 for: 根据部门选择用户接口代码优化
 		if(oConvertUtils.isNotEmpty(realname)){
 			realname = realname.trim();
 		}
@@ -136,7 +131,6 @@ public class SysUserDepartServiceImpl extends ServiceImpl<SysUserDepartMapper, S
 			map.put(sysUser.getId(), sysUser);
 		}
 		return new ArrayList<SysUser>(map.values());
-		//update-end-author:taoyan date:20210422 for: 根据部门选择用户接口代码优化
 
 	}
 
@@ -158,10 +152,7 @@ public class SysUserDepartServiceImpl extends ServiceImpl<SysUserDepartMapper, S
 		Page<SysUser> page = new Page<SysUser>(pageNo, pageSize);
 		if(oConvertUtils.isEmpty(departId)){
 			LambdaQueryWrapper<SysUser> query = new LambdaQueryWrapper<>();
-            //update-begin---author:wangshuai ---date:20220104  for：[JTC-297]已冻结用户仍可设置为代理人------------
-            query.eq(SysUser::getStatus,Integer.parseInt(CommonConstant.STATUS_1));
-            //update-end---author:wangshuai ---date:20220104  for：[JTC-297]已冻结用户仍可设置为代理人------------
-			//update-begin---author:liusq ---date:20231215  for：逗号分割多个用户翻译问题------------
+            query.eq(SysUser::getStatus,CommonConstant.STATUS_1);
 			if(oConvertUtils.isNotEmpty(username)){
 				String COMMA = ",";
 				if(oConvertUtils.isNotEmpty(isMultiTranslate) && username.contains(COMMA)){
@@ -171,28 +162,18 @@ public class SysUserDepartServiceImpl extends ServiceImpl<SysUserDepartMapper, S
 					query.like(SysUser::getUsername, username);
 				}
 			}
-			//update-end---author:liusq ---date:20231215  for：逗号分割多个用户翻译问题------------
-            //update-begin---author:wangshuai ---date:20220608  for：[VUEN-1238]邮箱回复时，发送到显示的为用户id------------
             if(oConvertUtils.isNotEmpty(id)){
                 query.eq(SysUser::getId, id);
             }
-            //update-end---author:wangshuai ---date:20220608  for：[VUEN-1238]邮箱回复时，发送到显示的为用户id------------
-            //update-begin---author:wangshuai ---date:20220902  for：[VUEN-2121]临时用户不能直接显示------------
             query.ne(SysUser::getUsername,"_reserve_user_external");
-            //update-end---author:wangshuai ---date:20220902  for：[VUEN-2121]临时用户不能直接显示------------
-
-			//------------------------------------------------------------------------------------------------
 			//是否开启系统管理模块的多租户数据隔离【SAAS多租户模式】
 			if (MybatisPlusSaasConfig.OPEN_SYSTEM_TENANT_CONTROL) {
 				String tenantId = oConvertUtils.getString(TenantContext.getTenant(), "0");
-                //update-begin---author:wangshuai ---date:20221223  for：[QQYUN-3371]租户逻辑改造，改成关系表------------
 				List<String> userIdList = userTenantMapper.getUserIdsByTenantId(Integer.valueOf(tenantId));
 				if(null!=userIdList && userIdList.size()>0){
                     query.in(SysUser::getId,userIdList);
                 }
-                //update-end---author:wangshuai ---date:20221223  for：[QQYUN-3371]租户逻辑改造，改成关系表------------
 			}
-			//------------------------------------------------------------------------------------------------
 			pageList = sysUserMapper.selectPage(page, query);
 		}else{
 			// 有部门ID 需要走自定义sql
@@ -228,7 +209,7 @@ public class SysUserDepartServiceImpl extends ServiceImpl<SysUserDepartMapper, S
         LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         if(oConvertUtils.isEmpty(departId)){
             LambdaQueryWrapper<SysUser> query = new LambdaQueryWrapper<>();
-            query.eq(SysUser::getStatus,Integer.parseInt(CommonConstant.STATUS_1));
+            query.eq(SysUser::getStatus,CommonConstant.STATUS_1);
             query.ne(SysUser::getUsername,"_reserve_user_external");
 
 			// 支持租户隔离
@@ -251,9 +232,7 @@ public class SysUserDepartServiceImpl extends ServiceImpl<SysUserDepartMapper, S
         }else{
             // 有部门ID 需要走自定义sql
             SysDepart sysDepart = sysDepartService.getById(departId);
-            //update-begin---author:wangshuai ---date:20220908  for：部门排除自己------------
             pageList = this.baseMapper.getUserInformation(page, sysDepart.getOrgCode(), keyword,sysUser.getId());
-            //update-end---author:wangshuai ---date:20220908  for：部门排除自己--------------
         }
         return pageList;
     }
@@ -272,25 +251,16 @@ public class SysUserDepartServiceImpl extends ServiceImpl<SysUserDepartMapper, S
 		if(oConvertUtils.isNotEmpty(departId)){
 			// 有部门ID 需要走自定义sql
 			SysDepart sysDepart = sysDepartService.getById(departId);
-			//update-begin-author:taoyan date:2023-1-3 for: 用户选择组件 加载用户需要根据租户ID过滤
-			//update-begin---author:wangshuai---date:2024-02-02---for:【QQYUN-8239】用户角色，添加用户 返回2页数据，实际只显示一页---
-			//update-begin---author:wangshuai---date:2024-02-02---for:【QQYUN-8239】用户角色，添加用户 返回2页数据，实际只显示一页---
 			pageList = this.baseMapper.getProcessUserList(page, sysDepart.getOrgCode(), keyword, tenantId, userIdList);
-			//update-end---author:wangshuai---date:2024-02-02---for:【QQYUN-8239】用户角色，添加用户 返回2页数据，实际只显示一页---
 		} else if (oConvertUtils.isNotEmpty(roleId)) {
-			//update-begin---author:wangshuai---date:2024-02-02---for:【QQYUN-8239】用户角色，添加用户 返回2页数据，实际只显示一页---
 			pageList = this.sysUserMapper.selectUserListByRoleId(page, roleId, keyword, tenantId,userIdList);
-			//update-end---author:wangshuai---date:2024-02-02---for:【QQYUN-8239】用户角色，添加用户 返回2页数据，实际只显示一页---
-			//update-end-author:taoyan date:2023-1-3 for: 用户选择组件 加载用户需要根据租户ID过滤
 		} else{
 			LambdaQueryWrapper<SysUser> query = new LambdaQueryWrapper<>();
-			query.eq(SysUser::getStatus,Integer.parseInt(CommonConstant.STATUS_1));
+			query.eq(SysUser::getStatus,CommonConstant.STATUS_1);
 			query.ne(SysUser::getUsername,"_reserve_user_external");
-			//update-begin---author:wangshuai---date:2024-02-02---for:【QQYUN-8239】用户角色，添加用户 返回2页数据，实际只显示一页---
 			if(oConvertUtils.isNotEmpty(excludeUserIdList)){
 				query.notIn(SysUser::getId,Arrays.asList(excludeUserIdList.split(SymbolConstant.COMMA)));
 			}
-			//update-end---author:wangshuai---date:2024-02-02---for:【QQYUN-8239】用户角色，添加用户 返回2页数据，实际只显示一页---
 			// 支持租户隔离
 			if (tenantId != null) {
 				List<String> userIds = userTenantMapper.getUserIdsByTenantId(tenantId);
@@ -333,11 +303,7 @@ public class SysUserDepartServiceImpl extends ServiceImpl<SysUserDepartMapper, S
 
 		Map<String, String> res = new HashMap(5);
 		list.forEach(item -> {
-					if (res.get(item.getUserId()) == null) {
-						res.put(item.getUserId(), item.getDepartName());
-					} else {
-						res.put(item.getUserId(), res.get(item.getUserId()) + "," + item.getDepartName());
-					}
+					res.merge(item.getUserId(), item.getDepartName(), (a, b) -> a + "," + b);
 				}
 		);
 		return res;

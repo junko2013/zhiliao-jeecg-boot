@@ -95,7 +95,7 @@ public class SysPermissionController {
 
 			//如果有菜单名查询条件，则平铺数据 不做上下级
 			if(oConvertUtils.isNotEmpty(sysPermission.getName())){
-				if(list!=null && list.size()>0){
+				if(list!=null && !list.isEmpty()){
 					treeList = list.stream().map(e -> {
 						e.setLeaf(true);
 						return new SysPermissionTree(e);
@@ -238,6 +238,10 @@ public class SysPermissionController {
 	//@DynamicTable(value = DynamicTableConstant.SYS_ROLE_INDEX)
 	public Result<?> getUserPermissionByToken(HttpServletRequest request) {
 		Result<JSONObject> result = new Result<JSONObject>();
+		String serverId = request.getHeader("Server-Id");
+		if(serverId==null){
+			serverId = "0";
+		}
 		try {
 			//直接获取当前用户不适用前端token
 			LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
@@ -246,15 +250,11 @@ public class SysPermissionController {
 			}
 			List<SysPermission> metaList = sysPermissionService.queryByUser(loginUser.getId());
 			//添加首页路由
-			//update-begin-author:taoyan date:20200211 for: TASK #3368 【路由缓存】首页的缓存设置有问题，需要根据后台的路由配置来实现是否缓存
-
-			//update-begin--Author:zyf Date:20220425  for:自定义首页地址 LOWCOD-1578
 			String version = request.getHeader(CommonConstant.VERSION);
 			SysRoleIndex defIndexCfg = sysUserService.getDynamicIndexByUserRole(loginUser.getUsername(), version);
 			if (defIndexCfg == null) {
 				defIndexCfg = sysRoleIndexService.initDefaultIndex();
 			}
-			//update-end--Author:zyf  Date:20220425  for：自定义首页地址 LOWCOD-1578
 
 			// 如果没有授权角色首页，则自动添加首页路由
 			if (!PermissionDataUtil.hasIndexPage(metaList, defIndexCfg)) {
@@ -279,39 +279,15 @@ public class SysPermissionController {
 				}
 				metaList.add(0, indexMenu);
 			}
-			//update-end-author:taoyan date:20200211 for: TASK #3368 【路由缓存】首页的缓存设置有问题，需要根据后台的路由配置来实现是否缓存
-
-/* TODO 注： 这段代码的主要作用是：把首页菜单的组件替换成角色菜单的组件，由于现在的逻辑如果角色菜单不存在则自动插入一条，所以这段代码暂时不需要
-			List<SysPermission> menus = metaList.stream().filter(sysPermission -> {
-				if (defIndexCfg.getUrl().equals(sysPermission.getUrl())) {
-					return true;
-				}
-				return defIndexCfg.getUrl().equals(sysPermission.getUrl());
-			}).collect(Collectors.toList());
-			//update-begin---author:liusq ---date:2022-06-29  for：设置自定义首页地址和组件----------
-			if (menus.size() == 1) {
-				String component = defIndexCfg.getComponent();
-				String routeUrl = defIndexCfg.getUrl();
-				boolean route = defIndexCfg.isRoute();
-				if (oConvertUtils.isNotEmpty(routeUrl)) {
-					menus.get(0).setComponent(component);
-					menus.get(0).setRoute(route);
-					menus.get(0).setUrl(routeUrl);
-				} else {
-					menus.get(0).setComponent(component);
-				}
-			}
-			//update-end---author:liusq ---date:2022-06-29  for：设置自定义首页地址和组件-----------
-*/
 
 			JSONObject json = new JSONObject();
 			JSONArray menujsonArray = new JSONArray();
-			this.getPermissionJsonArray(menujsonArray, metaList, null);
+			this.getPermissionJsonArray(menujsonArray, metaList, null,serverId);
 			//一级菜单下的子菜单全部是隐藏路由，则一级菜单不显示
 			this.handleFirstLevelMenuHidden(menujsonArray);
 
 			JSONArray authjsonArray = new JSONArray();
-			this.getAuthJsonArray(authjsonArray, metaList);
+			this.getAuthJsonArray(authjsonArray, metaList,serverId);
 			//查询所有的权限
 			LambdaQueryWrapper<SysPermission> query = new LambdaQueryWrapper<SysPermission>().select( SysPermission::getName, SysPermission::getPermsType, SysPermission::getPerms, SysPermission::getStatus);
 			query.eq(SysPermission::getDelFlag, CommonConstant.DEL_FLAG_0);
@@ -349,7 +325,8 @@ public class SysPermissionController {
 	 * 3、系统安全模式 (开启则online报表的数据源必填)
 	 */
 	@RequestMapping(value = "/getPermCode", method = RequestMethod.GET)
-	public Result<?> getPermCode() {
+	public Result<?> getPermCode(HttpServletRequest request) {
+		String serverId = request.getHeader("Server-Id");
 		try {
 			// 直接获取当前用户
 			LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
@@ -364,7 +341,7 @@ public class SysPermissionController {
                     .collect(ArrayList::new, (list, permission) -> list.add(permission.getPerms()), ArrayList::addAll);
             //
 			JSONArray authArray = new JSONArray();
-			this.getAuthJsonArray(authArray, metaList);
+			this.getAuthJsonArray(authArray, metaList,serverId);
 			// 查询所有的权限
 			LambdaQueryWrapper<SysPermission> query = new LambdaQueryWrapper<SysPermission>().select( SysPermission::getName, SysPermission::getPermsType, SysPermission::getPerms, SysPermission::getStatus);
 			query.eq(SysPermission::getDelFlag, CommonConstant.DEL_FLAG_0);
@@ -690,12 +667,17 @@ public class SysPermissionController {
 	 * @param jsonArray
 	 * @param metaList
 	 */
-	private void getAuthJsonArray(JSONArray jsonArray,List<SysPermission> metaList) {
+	private void getAuthJsonArray(JSONArray jsonArray,List<SysPermission> metaList,String serverId) {
 		for (SysPermission permission : metaList) {
 			if(permission.getMenuType()==null) {
 				continue;
 			}
-			JSONObject json = null;
+			if(permission.isNeedServer()){
+				if(oConvertUtils.isEmpty(serverId)||serverId.equals("0")){
+					continue;
+				}
+			}
+			JSONObject json;
 			if(permission.getMenuType().equals(CommonConstant.MENU_TYPE_2) &&CommonConstant.STATUS_1.equals(permission.getStatus())) {
 				json = new JSONObject();
 				json.put("action", permission.getPerms());
@@ -711,10 +693,15 @@ public class SysPermissionController {
 	 * @param metaList
 	 * @param parentJson
 	 */
-	private void getPermissionJsonArray(JSONArray jsonArray, List<SysPermission> metaList, JSONObject parentJson) {
+	private void getPermissionJsonArray(JSONArray jsonArray, List<SysPermission> metaList, JSONObject parentJson,String serverId) {
 		for (SysPermission permission : metaList) {
 			if (permission.getMenuType() == null) {
 				continue;
+			}
+			if(permission.isNeedServer()){
+				if(oConvertUtils.isEmpty(serverId)||serverId.equals("0")) {
+					continue;
+				}
 			}
 			String tempPid = permission.getParentId();
 			JSONObject json = getPermissionJsonObject(permission);
@@ -724,7 +711,7 @@ public class SysPermissionController {
 			if (parentJson == null && oConvertUtils.isEmpty(tempPid)) {
 				jsonArray.add(json);
 				if (!permission.isLeaf()) {
-					getPermissionJsonArray(jsonArray, metaList, json);
+					getPermissionJsonArray(jsonArray, metaList, json,serverId);
 				}
 			} else if (parentJson != null && oConvertUtils.isNotEmpty(tempPid) && tempPid.equals(parentJson.getString("id"))) {
 				// 类型( 0：一级菜单 1：子菜单 2：按钮 )
@@ -748,7 +735,7 @@ public class SysPermissionController {
 					}
 
 					if (!permission.isLeaf()) {
-						getPermissionJsonArray(jsonArray, metaList, json);
+						getPermissionJsonArray(jsonArray, metaList, json,serverId);
 					}
 				}
 			}
@@ -818,11 +805,19 @@ public class SysPermissionController {
 			} else {
 				meta.put("internalOrExternal", false);
 			}
-			/* update_end author:wuxianquan date:20190908 for: 往菜单信息里添加外链菜单打开方式*/
+			if (permission.isCanGrantToTenant()) {
+				meta.put("canGrantToTenant", true);
+			} else {
+				meta.put("canGrantToTenant", false);
+			}
+			if (permission.isNeedServer()) {
+				meta.put("isNeedServer", true);
+			} else {
+				meta.put("isNeedServer", false);
+			}
 
 			meta.put("title", permission.getName());
 
-			//update-begin--Author:scott  Date:20201015 for：路由缓存问题，关闭了tab页时再打开就不刷新 #842
 			String component = permission.getComponent();
 			if(oConvertUtils.isNotEmpty(permission.getComponentName()) || oConvertUtils.isNotEmpty(component)){
 				meta.put("componentName", oConvertUtils.getString(permission.getComponentName(),component.substring(component.lastIndexOf("/")+1)));

@@ -40,11 +40,15 @@ public class SysConfig extends BaseModel<SysConfig> {
      * xmpp主机
      */
     private String xmppHost;
-
     /**
      * xmpp虚拟域名
      */
     private String xmppDomain;
+
+    //websocket url
+    private String xmppWs;
+    //bosh url
+    private String xmppBosh;
 
     /**
      * xmpp端口
@@ -62,10 +66,6 @@ public class SysConfig extends BaseModel<SysConfig> {
      * 保存群聊消息
      */
     private Boolean saveMucMsg;
-    /**
-     * 关键词过滤
-     */
-    private Boolean keywordFilter;
 
     /**
      * 邮件服务器

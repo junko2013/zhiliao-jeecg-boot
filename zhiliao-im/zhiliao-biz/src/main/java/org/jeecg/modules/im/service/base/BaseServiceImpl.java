@@ -8,8 +8,12 @@ import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.util.JwtUtilApp;
 import org.jeecg.modules.im.base.constant.ConstantWeb;
 import org.jeecg.modules.im.base.util.IPUtil;
+import org.jeecg.modules.im.entity.Server;
+import org.jeecg.modules.im.entity.ServerConfig;
 import org.jeecg.modules.im.entity.User;
 import org.jeecg.modules.im.service.ParamService;
+import org.jeecg.modules.im.service.ServerConfigService;
+import org.jeecg.modules.im.service.ServerService;
 import org.jeecg.modules.im.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +40,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M,T
     @Resource
     private ParamService paramService;
     @Resource
+    private ServerService serverService;
+    @Resource
+    private ServerConfigService serverConfigService;
+    @Resource
     private UserService userService;
     @Autowired
     private MessageSource messageSource;
@@ -60,29 +68,62 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M,T
     }
 
     protected Result<Object> fail() {
-        return Result.error(messageSource.getMessage("op.fail",null, LocaleContextHolder.getLocale()));
+        return Result.error(messageSource.getMessage("操作失败",null, LocaleContextHolder.getLocale()));
     }
 
     public Result<Object> fail(String msg) {
+        try {
+            String message = messageSource.getMessage(msg, null, LocaleContextHolder.getLocale());
+            return Result.error(message);
+        }catch (Exception e){
+
+        }
         return Result.error(msg);
     }
 
 
     protected Result<Object> fail(String msg, Object data) {
+        try {
+            String message = messageSource.getMessage(msg, null, LocaleContextHolder.getLocale());
+            return Result.error(message,data);
+        }catch (Exception e){
+
+        }
         return Result.error(msg, data);
     }
     protected Result<Object> fail(int code,String msg) {
+        try {
+            String message = messageSource.getMessage(msg, null, LocaleContextHolder.getLocale());
+            return Result.error(code,message);
+        }catch (Exception e){
+
+        }
         return Result.error(code,msg);
+    }
+    protected Result<Object> fail(int code) {
+        return Result.error(code);
     }
 
     protected Result<Object> success() {
-        return Result.OK(messageSource.getMessage("op.success",null, LocaleContextHolder.getLocale()));
+        return Result.OK(messageSource.getMessage("操作成功",null, LocaleContextHolder.getLocale()));
     }
 
     protected Result<Object> success(String msg) {
+        try {
+            String message = messageSource.getMessage(msg, null, LocaleContextHolder.getLocale());
+            return Result.OK(message);
+        }catch (Exception e){
+
+        }
         return Result.OK(msg);
     }
     protected Result<Object> success(String msg,Object data) {
+        try {
+            String message = messageSource.getMessage(msg, null, LocaleContextHolder.getLocale());
+            return Result.error(message,data);
+        }catch (Exception e){
+
+        }
         return Result.OK(msg,data);
     }
 
@@ -107,6 +148,15 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M,T
     }
     protected String getIpInfo(){
         return IPUtil.getCityInfo(getIp());
+    }
+    protected Integer getServerId(){
+        return Integer.valueOf(request.getHeader(ConstantWeb.SERVER_ID));
+    }
+    protected Server getServer(){
+        return serverService.findById(getServerId());
+    }
+    protected ServerConfig getServerConfig(){
+        return  serverConfigService.get(getServer().getId());
     }
     protected String getDeviceNo(){
         return request.getHeader(ConstantWeb.DEVICE_NO);
@@ -136,6 +186,9 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M,T
     protected String getDeviceSystemVersion(){
         return request.getHeader(ConstantWeb.DEVICE_SYS_VER);
     }
+    protected Boolean getDeviceIsPhysic(){
+        return Boolean.valueOf(request.getHeader(ConstantWeb.DEVICE_IS_PHYSIC));
+    }
     protected String getClientVer(){
         return request.getHeader(ConstantWeb.DEVICE_CLIENT_VER);
     }
@@ -151,34 +204,34 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M,T
         return new Date().getTime();
     }
 
-    /**
-     * 根据token获取当前用户
-     *
-     * @return
-     */
-    protected User getCurrentUser() {
-        Integer userId = getCurrentUserId();
-        return userId==null?null:userService.findById(userId);
-    }
-
-    /**
-     * 根据token获取当前用户id
-     *
-     * @return
-     */
-    protected Integer getCurrentUserId() {
-        try {
-            return JwtUtilApp.getUserId(request);
-        }catch(Exception e){
-            return null;
-        }
-    }
-    protected String getCurrentAdminId() {
-        try {
-            return JwtUtil.getUserNameByToken(request);
-        }catch(Exception e){
-            return null;
-        }
-    }
+//    /**
+//     * 根据token获取当前用户
+//     *
+//     * @return
+//     */
+//    protected User getCurrentUser() {
+//        Integer userId = getCurrentUserId();
+//        return userId==null?null:userService.findById(userId);
+//    }
+//
+//    /**
+//     * 根据token获取当前用户id
+//     *
+//     * @return
+//     */
+//    protected Integer getCurrentUserId() {
+//        try {
+//            return JwtUtilApp.getUserId(request);
+//        }catch(Exception e){
+//            return null;
+//        }
+//    }
+//    protected String getCurrentAdminId() {
+//        try {
+//            return JwtUtil.getUserNameByToken(request);
+//        }catch(Exception e){
+//            return null;
+//        }
+//    }
 
 }

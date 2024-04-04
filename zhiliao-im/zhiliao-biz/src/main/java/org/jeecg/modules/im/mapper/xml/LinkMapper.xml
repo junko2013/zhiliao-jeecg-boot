@@ -40,8 +40,8 @@
             <if test="q.visibleCommon!=null">
                 and visible_common = #{q.visibleCommon}
             </if>
-            <if test="q.ts_create!=null">
-                and ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.tsCreate!=null">
+                and ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
         <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">

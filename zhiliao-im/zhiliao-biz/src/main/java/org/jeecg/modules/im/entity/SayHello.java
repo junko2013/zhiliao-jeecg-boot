@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 import java.util.List;
 
@@ -46,6 +47,7 @@ public class SayHello extends BaseModel<SayHello> {
     /**
      * 有效的
      */
+    @Dict(dicCode = "yon")
     private Boolean isValid;
     /**
      * 状态：0：待验证，1：接受，2：拒绝
@@ -55,7 +57,10 @@ public class SayHello extends BaseModel<SayHello> {
     private Integer type;
 
     private Long tsCreate;
+    private Long tsRead;
     private Long tsDeal;
+
+    private Integer serverId;
     //回话列表
     @TableField(exist = false)
     private List<SayHelloReply> replies;

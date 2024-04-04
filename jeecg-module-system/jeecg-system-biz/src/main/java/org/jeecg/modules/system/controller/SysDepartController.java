@@ -327,7 +327,7 @@ public class SysDepartController {
 			departIds = user.getDepartIds();
 		}
 		List<SysDepartTreeModel> treeList = this.sysDepartService.searchByKeyWord(keyWord,myDeptSearch,departIds);
-		if (treeList == null || treeList.size() == 0) {
+		if (treeList == null || treeList.isEmpty()) {
 			result.setSuccess(false);
 			result.setMessage("未查询匹配数据！");
 			return result;

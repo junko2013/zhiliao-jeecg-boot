@@ -96,6 +96,8 @@ public class Muc extends BaseModel<Muc> {
     private Long tsCreate;
     //解散时间
     private Long tsDelete;
+
+    private Integer serverId;
     /**
      * 群组配置
      */

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
+
 /**
  * <p>
  * 频道
@@ -55,11 +57,13 @@ public class Channel extends BaseModel<Channel> {
     /**
      * 类型，0：私有，1：公开
      */
+    @Dict(dicCode = "yon")
     private Boolean isPublic;
 
     /**
      * 消息署名
      */
+    @Dict(dicCode = "yon")
     private Boolean isMsgSign;
 
     /**
@@ -78,6 +82,8 @@ public class Channel extends BaseModel<Channel> {
      * 公开时用于创建唯一链接
      */
     private String publicAccount;
+
+    private Integer serverId;
 
     //创建人
     @TableField(exist = false)

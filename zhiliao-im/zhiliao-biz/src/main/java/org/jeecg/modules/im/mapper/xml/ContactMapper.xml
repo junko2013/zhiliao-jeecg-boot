@@ -10,6 +10,7 @@
         <result column="mobile" property="mobile"/>
         <result column="capital" property="capital"/>
         <result column="ts_create" property="tsCreate"/>
+        <result column="server_id" property="serverId"/>
         <association property="friend" javaType="org.jeecg.modules.im.entity.Friend">
             <id column="f_id" property="id"/>
             <result column="f_status" property="status"/>
@@ -34,11 +35,14 @@
         left join im_friend f on u.id = f.to_user_id
         <where>
             1=1
-            <if test="q.userId!=null and q.userId !=''">
+            <if test="q.userId!=null">
                 and t.user_id = #{q.userId}
             </if>
-            <if test="q.ts_create!=null">
-                and t.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.serverId!=null">
+                and t.server_id = #{q.serverId}
+            </if>
+            <if test="q.tsCreate!=null">
+                and t.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
     </select>

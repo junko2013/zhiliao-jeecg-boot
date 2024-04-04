@@ -12,6 +12,7 @@
            <result column="comment" property="comment" />
            <result column="type" property="type" />
            <result column="ts_create" property="tsCreate" />
+           <result column="server_id" property="serverId" />
        </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
@@ -32,8 +33,11 @@
             <if test="q.comment!=null and q.comment !=''">
                 and comment like concat("%",#{q.comment},"%")
             </if>
-            <if test="q.ts_create!=null">
-                and ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.tsCreate!=null">
+                and ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
+            </if>
+            <if test="q.serverId!=null">
+                and server_id=#{q.serverId}
             </if>
         </where>
         <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">
@@ -42,18 +46,18 @@
     </select>
 
     <select id="findByIp" resultMap="BaseResultMap">
-        select * from im_block_ip where ip = #{ip} and type=1
+        select * from im_block_ip where ip = #{ip} and type=1 and server_id=#{q.serverId}
     </select>
     <select id="findByIp2" resultMap="BaseResultMap">
         select * from im_block_ip
         <where>
-            num1 &lt;= #{ip} and #{ip} &lt;= num2 and type=2 order by id desc
+            num1 &lt;= #{ip} and #{ip} &lt;= num2 and type=2 and server_id=#{q.serverId} order by id desc
         </where>
     </select>
     <select id="findByIp3" resultMap="BaseResultMap">
-        select * from im_block_ip where ip like concat(#{ip}, '%') and type = 3 order by id desc
+        select * from im_block_ip where ip like concat(#{ip}, '%') and type = 3 and server_id=#{q.serverId} order by id desc
     </select>
     <select id="findByIp4" resultMap="BaseResultMap">
-        select * from im_block_ip where type = #{country}
+        select * from im_block_ip where type = #{country} and server_id=#{q.serverId}
     </select>
 </mapper>

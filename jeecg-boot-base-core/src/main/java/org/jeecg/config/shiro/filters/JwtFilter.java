@@ -1,11 +1,17 @@
 package org.jeecg.config.shiro.filters;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.jeecg.common.config.TenantContext;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.util.JwtUtil;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.config.shiro.JwtToken;
 import org.springframework.http.HttpHeaders;
@@ -63,16 +69,14 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
     protected boolean executeLogin(ServletRequest request, ServletResponse response) throws Exception {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String token = httpServletRequest.getHeader(CommonConstant.X_ACCESS_TOKEN);
-        // update-begin--Author:lvdandan Date:20210105 for：JT-355 OA聊天添加token验证，获取token参数
         if (oConvertUtils.isEmpty(token)) {
             token = httpServletRequest.getParameter("token");
         }
-        // update-end--Author:lvdandan Date:20210105 for：JT-355 OA聊天添加token验证，获取token参数
-
         JwtToken jwtToken = new JwtToken(token);
-        // 提交给realm进行登入，如果错误他会抛出异常并被捕获
         getSubject(request, response).login(jwtToken);
-        // 如果没有抛出异常则代表登入成功，返回true
+
+//        JWTVerifier verifier = JWT.require(Algorithm.HMAC256("cb362cfeefbf3d8d")).build();
+//        DecodedJWT jwt = verifier.verify(token);
         return true;
     }
 

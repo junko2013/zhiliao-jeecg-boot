@@ -27,7 +27,7 @@ public interface TagService extends IService<Tag> {
     /**
      * 创建标签并关联好友
      */
-    Result<Object> create(String name, String friendIds);
+    Result<Object> create(Integer userId,String name, String friendIds);
     /**
      * 更新标签并关联好友
      */

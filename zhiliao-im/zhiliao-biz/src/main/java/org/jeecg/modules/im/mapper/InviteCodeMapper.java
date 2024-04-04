@@ -21,6 +21,6 @@ import org.jeecg.modules.im.entity.query_helper.QLink;
 @Mapper
 public interface InviteCodeMapper extends BaseMapper<InviteCode> {
     InviteCode findByCode(String code);
-    MyPage<InviteCode> pagination(@Param("pg") MyPage<InviteCode> pg, @Param("q") QInviteCode q);
+    MyPage<InviteCode> pagination(MyPage<InviteCode> pg, @Param("q") QInviteCode q);
 
 }

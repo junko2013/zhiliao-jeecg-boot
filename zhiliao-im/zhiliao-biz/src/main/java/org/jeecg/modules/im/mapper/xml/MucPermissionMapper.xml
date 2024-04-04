@@ -23,7 +23,7 @@
     </sql>
 
     <select id="findByManager" resultMap="BaseResultMap">
-        select * from im_muc_permission where manager_id = #{managerId}
+        select * from im_muc_permission where muc_id = #{mucId} and manager_id = #{managerId}
     </select>
     <select id="findDefaultOfMuc" resultMap="BaseResultMap">
         select * from im_muc_permission where muc_id = #{mucId} and manager_id = 0

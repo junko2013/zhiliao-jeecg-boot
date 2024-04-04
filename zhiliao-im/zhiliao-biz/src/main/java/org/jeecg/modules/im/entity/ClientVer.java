@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 /**
  * <p>
@@ -33,19 +34,20 @@ public class ClientVer extends BaseModel<ClientVer> {
      * 版本号
      */
     private String version;
-
+    //下载地址
     private String downloadUrl;
 
     /**
      * 更新类型，0：一般更新，1：静默更新，2：强制更新
      */
     private Integer type;
-
+    //描述
     private String info;
 
     /**
      * 上架
      */
+    @Dict(dicCode = "yon")
     private Boolean isOn;
 
     /**

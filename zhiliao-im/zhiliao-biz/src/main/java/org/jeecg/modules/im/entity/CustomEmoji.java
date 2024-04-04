@@ -1,11 +1,14 @@
 package org.jeecg.modules.im.entity;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
+
+import io.swagger.models.auth.In;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
+
 /**
  * <p>
  * 自定义表情
@@ -29,11 +32,21 @@ public class CustomEmoji extends Model<CustomEmoji> {
     private String origin;
 
     private String thumb;
+    private Integer width;
+    private Integer height;
 
     private Long tsCreate;
     private Long tsSend;
-    private Long tsLocked;
+
+    @Dict(dicCode = "status")
+    private Integer status;
+    @TableLogic
+    private Integer delFlag;
     private Long tsPin;
     private String keyword;
 
+    private Integer serverId;
+
+    @TableField(exist = false)
+    private User user;
 }

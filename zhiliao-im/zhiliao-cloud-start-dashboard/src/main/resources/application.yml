@@ -18,6 +18,9 @@ spring:
       - optional:nacos:jeecg-@profile.name@.yaml
   profiles:
     active: test
+  messages:
+    basename: i18n.messages
+    encoding: UTF-8
 #  datasource:
 #    dynamic:
 #      datasource:

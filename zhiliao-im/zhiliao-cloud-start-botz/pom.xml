@@ -13,6 +13,10 @@
     <description>知了机器人服务</description>
     <version>1.0.0</version>
 
+    <properties>
+        <openfire.version>4.7.4</openfire.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.jeecgframework.boot</groupId>
@@ -36,13 +40,23 @@
         </dependency>
     </dependencies>
 
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>igniterealtime</id>-->
+<!--            <name>Ignite Realtime Repository</name>-->
+<!--            <url>https://igniterealtime.org/archiva/repository/maven/</url>-->
+<!--        </repository>-->
+<!--    </repositories>-->
+
     <repositories>
+        <!-- Where we obtain dependencies. -->
         <repository>
             <id>igniterealtime</id>
             <name>Ignite Realtime Repository</name>
             <url>https://igniterealtime.org/archiva/repository/maven/</url>
         </repository>
     </repositories>
+
 
     <build>
         <finalName>${project.artifactId}</finalName>

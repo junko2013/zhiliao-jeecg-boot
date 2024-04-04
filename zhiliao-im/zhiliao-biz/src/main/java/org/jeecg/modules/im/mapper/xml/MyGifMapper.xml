@@ -8,6 +8,8 @@
         <result column="user_id" property="userId" />
         <result column="thumb" property="thumb" />
         <result column="origin" property="origin" />
+        <result column="height" property="height" />
+        <result column="width" property="width" />
         <result column="order_no" property="orderNo" />
         <result column="ts_create" property="tsCreate" />
         <result column="ts_last_send" property="tsLastSend" />
@@ -20,11 +22,11 @@
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        user_id, thumb, origin, order_no, ts_create,gif_id,ts_last_send,ts_pin
+        user_id, thumb, origin,height,width, order_no, ts_create,gif_id,ts_last_send,ts_pin
     </sql>
 
     <select id="findAll" resultMap="BaseResultMap">
-        select mg.id,user_id, mg.thumb, mg.origin, mg.order_no, mg.ts_create,mg.ts_last_send,mg.ts_pin,gif_id,g.is_locked,g.emoji,g.emoji_code
+        select mg.id,user_id, mg.thumb, mg.origin,mg.height,mg.width, mg.order_no, mg.ts_create,mg.ts_last_send,mg.ts_pin,gif_id,g.is_locked,g.emoji,g.emoji_code
         from im_my_gif mg
         right join im_gif g on mg.gif_id = g.id
         where user_id = #{q.userId}
@@ -33,5 +35,8 @@
     <select id="findByGifId" resultMap="BaseResultMap">
         select * from im_my_gif where user_id = #{userId} and gif_id = #{gifId}
     </select>
+    <update id="pin">
+        update im_my_gif set ts_pin = #{ts} where id = #{id}
+    </update>
 
 </mapper>

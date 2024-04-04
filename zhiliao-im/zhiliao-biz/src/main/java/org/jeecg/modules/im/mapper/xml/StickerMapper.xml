@@ -20,6 +20,8 @@
         <result column="is_emoji" property="isEmoji"/>
         <result column="order_no" property="orderNo"/>
         <result column="counts" property="counts"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="server_id" property="serverId"/>
         <result column="total_send_times" property="totalSendTimes"/>
         <association property="user" javaType="org.jeecg.modules.im.entity.User">
             <id column="user_id" property="id"/>
@@ -40,6 +42,8 @@
             <result column="i_send_times" property="sendTimes"/>
             <result column="i_ts_create" property="tsCreate"/>
             <result column="i_sticker_id" property="stickerId"/>
+            <result column="i_height" property="height"/>
+            <result column="i_width" property="width"/>
             <association property="sendRecord" javaType="org.jeecg.modules.im.entity.StickerSend">
                 <id column="ss_id" property="id" />
                 <result column="ss_sticker_item_id" property="stickerItemId" />
@@ -51,19 +55,19 @@
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, user_id, admin_id,name,zip,info,is_animated,is_big_emoji,is_emoji,add_times,is_locked,ts_create,is_hot,order_no
+        id, user_id, admin_id,name,zip,info,is_animated,is_big_emoji,is_emoji,del_flag,add_times,is_locked,ts_create,is_hot,order_no
     </sql>
 
     <select id="pagination" resultMap="BaseResultMap">
         select
-        s.id, s.name,s.info,s.zip,s.ts_create,s.add_times,s.is_locked,s.is_animated,s.is_big_emoji,s.is_emoji,s.is_hot,s.order_no,
+        s.id, s.name,s.info,s.zip,s.ts_create,s.add_times,s.is_locked,s.is_animated,s.is_big_emoji,s.is_emoji,s.del_flag,s.is_hot,s.order_no,
         user.id user_id,user.nickname user_nickname,user.account user_account,user.small_avatar user_small_avatar,
         count(i.id) counts,sum(i.send_times) total_send_times,
         i.id i_id, emoji i_emoji, emoji_code i_emoji_code,origin i_origin,thumb i_thumb, keyword i_keyword,i.order_no i_order_no, i.ts_create i_ts_create,zip_name i_zip_name,lottie i_lottie,send_times i_send_times
         from im_sticker s
         left join im_user user on user.id = s.user_id
         left join im_sticker_item i on i.sticker_id = s.id
-        <where>1=1
+        <where>del_flag = 0 and s.server_id = #{q.serverId}
             <if test="q.isAnimated!=null">
                 and s.is_animated = #{q.isAnimated}
             </if>
@@ -85,8 +89,8 @@
             <if test="q.isLocked!=null">
                 and s.is_locked >= #{q.isLocked}
             </if>
-            <if test="q.ts_create!=null">
-                and s.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.tsCreate!=null">
+                and s.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
         group by s.id
@@ -96,9 +100,9 @@
     </select>
     <select id="paginationApi" resultMap="BaseResultMap">
         select
-        s.id, s.name,s.info,s.zip,s.add_times,s.is_locked, s.ts_create,s.is_animated,s.is_big_emoji,s.is_emoji,s.is_hot,s.order_no,
+        s.id, s.name,s.info,s.zip,s.add_times,s.is_locked, s.ts_create,s.is_animated,s.is_big_emoji,s.is_emoji,s.del_flag,s.is_hot,s.order_no,
         user.id user_id,user.nickname user_nickname,user.account user_account,user.small_avatar user_small_avatar,
-        i.id i_id, emoji i_emoji, emoji_code i_emoji_code,origin i_origin,thumb i_thumb, keyword i_keyword,i.order_no i_order_no, i.ts_create i_ts_create,zip_name i_zip_name,lottie i_lottie,sticker_id i_sticker_id,
+        i.id i_id, emoji i_emoji, emoji_code i_emoji_code,origin i_origin,thumb i_thumb, keyword i_keyword,i.order_no i_order_no, i.ts_create i_ts_create,zip_name i_zip_name,lottie i_lottie,sticker_id i_sticker_id,height i_height,width i_width,
         a.* from im_sticker s
         left join im_user user on user.id = s.user_id
         left join im_sticker_item i on i.sticker_id = s.id
@@ -126,29 +130,40 @@
     </select>
     <select id="findById" resultMap="BaseResultMap">
         select
-        s.id, s.name,s.info,s.zip,s.add_times,s.is_locked, s.ts_create,s.is_animated,s.is_big_emoji,s.is_emoji,s.is_hot,s.order_no,
-        i.id i_id, emoji i_emoji, emoji_code i_emoji_code,origin i_origin,thumb i_thumb, keyword i_keyword,i.order_no i_order_no, i.ts_create i_ts_create,zip_name i_zip_name,lottie i_lottie,sticker_id i_sticker_id
+        s.id, s.name,s.info,s.zip,s.add_times,s.is_locked, s.ts_create,s.is_animated,s.is_big_emoji,s.is_emoji,s.del_flag,s.is_hot,s.order_no,
+        i.id i_id, emoji i_emoji, emoji_code i_emoji_code,origin i_origin,thumb i_thumb, keyword i_keyword,i.order_no i_order_no, i.ts_create i_ts_create,zip_name i_zip_name,lottie i_lottie,sticker_id i_sticker_id,height i_height,width i_width
         from im_sticker s
         left join im_sticker_item i on i.sticker_id = s.id where s.id = #{id}
     </select>
     <select id="getBigEmoji" resultMap="BaseResultMap">
         select
-        s.id, s.name,s.info,s.zip,s.add_times,s.is_locked, s.ts_create,s.is_animated,s.is_big_emoji,s.is_emoji,s.is_hot,s.order_no,
-        i.id i_id, emoji i_emoji, emoji_code i_emoji_code,origin i_origin,thumb i_thumb, keyword i_keyword,i.order_no i_order_no, i.ts_create i_ts_create,zip_name i_zip_name,lottie i_lottie,sticker_id i_sticker_id
+        s.id, s.name,s.info,s.zip,s.add_times,s.is_locked, s.ts_create,s.is_animated,s.is_big_emoji,s.is_emoji,s.del_flag,s.is_hot,s.order_no,
+        i.id i_id, emoji i_emoji, emoji_code i_emoji_code,origin i_origin,thumb i_thumb, keyword i_keyword,i.order_no i_order_no, i.ts_create i_ts_create,zip_name i_zip_name,lottie i_lottie,sticker_id i_sticker_id,height i_height,width i_width
         from im_sticker s
         left join im_sticker_item i on i.sticker_id = s.id where s.is_big_emoji is true
     </select>
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT
+            s.id, s.name, s.info, s.zip, s.add_times, s.is_locked, s.ts_create, s.is_animated, s.is_big_emoji, s.is_emoji,s.del_flag, s.is_hot, s.order_no,
+            i.id AS i_id, i.emoji AS i_emoji, i.emoji_code AS i_emoji_code, i.origin AS i_origin, i.thumb AS i_thumb, i.keyword AS i_keyword, i.order_no AS i_order_no, i.ts_create AS i_ts_create, i.zip_name AS i_zip_name, i.lottie AS i_lottie, i.sticker_id AS i_sticker_id, i.height AS i_height, i.width AS i_width
+        FROM
+            (SELECT * FROM im_sticker ORDER BY order_no DESC, add_times DESC, ts_create DESC LIMIT 10) s
+                LEFT JOIN
+            im_sticker_item i ON i.sticker_id = s.id
+        ORDER BY
+            s.order_no DESC, s.add_times DESC, s.ts_create DESC;
+    </select>
     <select id="getHot" resultMap="BaseResultMap">
         select
-        s.id, s.name,s.info,s.zip,s.add_times,s.is_locked, s.ts_create,s.is_animated,s.is_big_emoji,s.is_emoji,s.is_hot,s.order_no,
-        i.id i_id, emoji i_emoji, emoji_code i_emoji_code,origin i_origin,thumb i_thumb, keyword i_keyword,i.order_no i_order_no, i.ts_create i_ts_create,zip_name i_zip_name,lottie i_lottie,sticker_id i_sticker_id
+        s.id, s.name,s.info,s.zip,s.add_times,s.is_locked, s.ts_create,s.is_animated,s.is_big_emoji,s.is_emoji,s.del_flag,s.is_hot,s.order_no,
+        i.id i_id, emoji i_emoji, emoji_code i_emoji_code,origin i_origin,thumb i_thumb, keyword i_keyword,i.order_no i_order_no, i.ts_create i_ts_create,zip_name i_zip_name,lottie i_lottie,sticker_id i_sticker_id,height i_height,width i_width
         from im_sticker s
         left join im_sticker_item i on i.sticker_id = s.id where s.is_hot is true order by order_no desc,add_times desc,ts_create desc
     </select>
     <select id="getEmojis" resultMap="BaseResultMap">
         select
-        s.id, s.name,s.info,s.zip,s.add_times,s.is_locked, s.ts_create,s.is_animated,s.is_big_emoji,s.is_emoji,s.is_hot,s.order_no,
-        i.id i_id, emoji i_emoji, emoji_code i_emoji_code,origin i_origin,thumb i_thumb, keyword i_keyword,i.order_no i_order_no, i.ts_create i_ts_create,zip_name i_zip_name,lottie i_lottie,sticker_id i_sticker_id
+        s.id, s.name,s.info,s.zip,s.add_times,s.is_locked, s.ts_create,s.is_animated,s.is_big_emoji,s.is_emoji,s.del_flag,s.is_hot,s.order_no,
+        i.id i_id, emoji i_emoji, emoji_code i_emoji_code,origin i_origin,thumb i_thumb, keyword i_keyword,i.order_no i_order_no, i.ts_create i_ts_create,zip_name i_zip_name,lottie i_lottie,sticker_id i_sticker_id,height i_height,width i_width
         from im_sticker s
         left join im_sticker_item i on i.sticker_id = s.id where is_emoji is true order by order_no desc,is_hot is true desc,add_times desc,ts_create desc
     </select>
@@ -156,4 +171,27 @@
         select * from im_sticker where name = #{name}
     </select>
 
+    <select id="selectLogicDeleted" resultType="org.jeecg.modules.im.entity.Sticker">
+        SELECT * FROM im_sticker ${ew.customSqlSegment}
+    </select>
+
+    <update id="revertLogicDeleted">
+        UPDATE
+        im_sticker
+        SET
+        del_flag = 0
+        WHERE
+        del_flag = 1
+        AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="deleteLogicDeleted">
+        DELETE FROM im_sticker WHERE del_flag = 1 AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </delete>
 </mapper>

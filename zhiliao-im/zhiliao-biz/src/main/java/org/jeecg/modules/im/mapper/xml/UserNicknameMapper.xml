@@ -9,6 +9,7 @@
         <result column="nickname" property="nickname" />
         <result column="ts_create" property="tsCreate" />
         <result column="ts_audit" property="tsAudit" />
+        <result column="server_id" property="serverId" />
         <association property="user" javaType="org.jeecg.modules.im.entity.User">
             <result column="u_id" property="id"/>
             <result column="u_nickname" property="nickname"/>
@@ -46,8 +47,11 @@
             <if test="q.userId!=null and q.userId!=''">
                 and user_id=#{q.userId}
             </if>
-            <if test="q.ts_create!=null">
-                and n.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.tsCreate!=null">
+                and n.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
+            </if>
+            <if test="q.serverId!=null">
+                and n.server_id=#{q.serverId}
             </if>
         </where>
         <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">

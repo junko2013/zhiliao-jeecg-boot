@@ -1,13 +1,16 @@
 package org.jeecg.modules.system.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.SymbolConstant;
 import org.jeecg.common.constant.enums.FileTypeEnum;
 import org.jeecg.common.exception.JeecgBootException;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.CommonUtils;
 import org.jeecg.common.util.filter.SsrfFileTypeFilter;
+import org.jeecg.common.util.google.GoogleAuthenticator;
 import org.jeecg.common.util.oConvertUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.AntPathMatcher;
@@ -51,6 +54,12 @@ public class CommonController {
     @GetMapping("/403")
     public Result<?> noauth()  {
         return Result.error("没有权限，请联系管理员授权");
+    }
+
+    @GetMapping("/generateGoogleCode")
+    public Result<?> generateGoogleCode()  {
+        LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        return Result.OK((Object) GoogleAuthenticator.genSecret(sysUser.getUsername()));
     }
 
     /**
@@ -105,9 +114,7 @@ public class CommonController {
             }
             */
         }else{
-            //update-begin-author:taoyan date:20200814 for:文件上传改造
             savePath = CommonUtils.upload(file, bizPath, uploadType);
-            //update-end-author:taoyan date:20200814 for:文件上传改造
         }
         if(oConvertUtils.isNotEmpty(savePath)){
             result.setMessage(savePath);

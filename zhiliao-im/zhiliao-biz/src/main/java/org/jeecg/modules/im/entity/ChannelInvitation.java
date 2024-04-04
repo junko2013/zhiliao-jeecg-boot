@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
+
 /**
  * <p>
  * 频道邀请链接
@@ -57,10 +59,12 @@ public class ChannelInvitation extends BaseModel<ChannelInvitation> {
     /**
      * 已撤销
      */
+    @Dict(dicCode = "yon")
     private Boolean isRevoked;
     /**
      * 1：公开，0：私有
      */
+    @Dict(dicCode = "yon")
     private Boolean isPublic;
 
 }

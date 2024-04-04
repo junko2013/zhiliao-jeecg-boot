@@ -1,6 +1,5 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
@@ -8,11 +7,11 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.exception.BusinessException;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Channel;
-import org.jeecg.modules.im.entity.ClientConfig;
+import org.jeecg.modules.im.entity.ServerConfig;
 import org.jeecg.modules.im.entity.query_helper.QChannel;
 import org.jeecg.modules.im.mapper.ChannelMapper;
 import org.jeecg.modules.im.service.ChannelService;
-import org.jeecg.modules.im.service.ClientConfigService;
+import org.jeecg.modules.im.service.ServerConfigService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,7 +33,7 @@ public class ChannelServiceImpl extends BaseServiceImpl<ChannelMapper, Channel> 
     @Autowired
     private ChannelMapper channelMapper;
     @Resource
-    private ClientConfigService clientConfigService;
+    private ServerConfigService serverConfigService;
     @Override
     public IPage<Channel> pagination(MyPage<Channel> page, QChannel q) {
         return channelMapper.pagination(page, q);
@@ -55,7 +54,7 @@ public class ChannelServiceImpl extends BaseServiceImpl<ChannelMapper, Channel> 
     }
 
     private Result<Object> consoleCreate(Channel channel) {
-        ClientConfig config = clientConfigService.get();
+        ServerConfig config = getServerConfig();
         if(config.getChannelNameUnique()&&findByName(channel.getName())!=null){
             return fail("群组名称已存在");
         }
@@ -67,7 +66,7 @@ public class ChannelServiceImpl extends BaseServiceImpl<ChannelMapper, Channel> 
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return fail();
         } catch (Exception e) {
-            log.error("后台创建频道异常：channel={},e={}", channel, e);
+            log.error("后台创建频道异常：channel={}", channel, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());

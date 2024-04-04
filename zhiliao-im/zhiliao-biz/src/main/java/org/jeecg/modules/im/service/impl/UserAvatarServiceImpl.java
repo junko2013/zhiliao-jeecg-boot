@@ -1,14 +1,10 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.util.RedisUtil;
-import org.jeecg.modules.im.base.constant.ConstantCache;
+import org.jeecg.common.constant.ConstantCache;
 import org.jeecg.modules.im.base.vo.MyPage;
-import org.jeecg.modules.im.entity.BlockIp;
-import org.jeecg.modules.im.entity.UserAvatar;
 import org.jeecg.modules.im.entity.UserAvatar;
 import org.jeecg.modules.im.entity.query_helper.QUserAvatar;
 import org.jeecg.modules.im.mapper.UserAvatarMapper;
@@ -18,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
 import java.util.List;
 
 /**

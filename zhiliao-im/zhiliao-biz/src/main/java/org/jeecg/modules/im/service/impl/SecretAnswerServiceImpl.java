@@ -45,7 +45,7 @@ public class SecretAnswerServiceImpl extends BaseServiceImpl<SecretAnswerMapper,
     }
 
     @Override
-    public Result<Object> check(String account, String questions) {
+    public Result<Object> check(Integer currUserId,String account, String questions) {
         try {
             Integer userId;
             if(StringUtils.isNotBlank(account)){
@@ -64,7 +64,7 @@ public class SecretAnswerServiceImpl extends BaseServiceImpl<SecretAnswerMapper,
                 }
                 userId = user.getId();
             }else{
-                userId = getCurrentUserId();
+                userId = currUserId;
             }
             JSONArray arr = JSONArray.parseArray(questions);
             if (arr.size() < 2) {

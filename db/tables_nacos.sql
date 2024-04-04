@@ -1,5 +1,5 @@
-CREATE database if NOT EXISTS `nacos` default character set utf8mb4 collate utf8mb4_general_ci;
-use `nacos`;
+CREATE database if NOT EXISTS `zhiliao_nacos_new` default character set utf8mb4 collate utf8mb4_general_ci;
+use `zhiliao_nacos_new`;
 
 /*
  Navicat Premium Data Transfer

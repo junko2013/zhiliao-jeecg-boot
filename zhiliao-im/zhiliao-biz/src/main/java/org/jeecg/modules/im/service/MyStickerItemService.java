@@ -20,5 +20,5 @@ public interface MyStickerItemService extends IService<MyStickerItem> {
     List<MyStickerItem> findAll(Integer userId);
     Result<Object> createOrUpdate(MyStickerItem myStickerItem);
     Result<Object> del(String ids);
-    Result<Object> addStickerItem(Integer stickerItemId);
+    Result<Object> addStickerItem(Integer userId,Integer stickerItemId);
 }

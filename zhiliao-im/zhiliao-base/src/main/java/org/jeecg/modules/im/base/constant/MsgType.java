@@ -43,14 +43,20 @@ public enum MsgType {
     updateGoogleCode(75, "更新谷歌验证", false, false),
     updateFriend(76, "更新好友资料", false, false),
     readDel(77, "阅后即焚", false, false),
-    delMsg(78, "删除消息", false, true),
+    delMsg(78, "删除消息", false, false),
     clearHistory(79, "清空聊天记录", false, true),
     revokeMsg(82, "撤回消息", false, false),
     offlineKick(83, "踢下线", false, false),
     terminate(84, "终止特定会话", false, false),
     deviceOnline(85, "设备上线", false, false),
     addMeToMuc(86, "拉我进群", false, false),
-    updateNotifySetting(88, "更新通知设置", false, false),
+    updateNotifySetting(87, "更新通知设置", false, false),
+    addGif(88, "添加gif", false, false),
+    addSticker(89, "添加sticker", false, false),
+    addCustom(90, "添加自定义表情", false, false),
+    pinGif(91, "置顶gif", false, false),
+    pinCustom(92, "置顶自定义表情", false, false),
+    tag(93, "标签消息", false, false),
 
     ////////////////////////////音视频通话/////////////////////////////////
     call(100, "发起音视频通话", true, true),
@@ -67,9 +73,10 @@ public enum MsgType {
     busy(134, "忙线中", false, false),
 
 
-    activityPraise(201, "动态点赞", false, true),
-    activityComment(202, "动态评论", false, true),
-    activityAtMe(203, "动态提醒", false, true),
+    post(200, "动态点赞", false, false),
+    postPraise(201, "动态点赞", false, false),
+    postComment(202, "动态评论", false, false),
+    postAtMe(203, "动态@我", false, false),
 
     ////////////////////////////控制台操作/////////////////////////////////
     mute(301, "控制台禁言/取消", false, false),
@@ -77,8 +84,11 @@ public enum MsgType {
     noConnectXmpp(303, "控制台禁止连接聊天服务/取消", false, false),
 
     ////////////////////////////新朋友消息/////////////////////////////////
-    sayHello(500, "打招呼", true, true),
-    sayHelloReply(501, "打招呼回话", false, true),
+    rejectFriendAddRequest(497, "拒绝加好友", false, false),
+    sayHelloReplyRead(498, "打招呼回复已读", false, false),
+    sayHelloRead(499, "打招呼已读", false, false),
+    sayHello(500, "打招呼", true, false),
+    sayHelloReply(501, "打招呼回话", false, false),
     follow(502, "关注", false, true),
     passFriendAddRequest(503, "同意加好友", true, true),
     del(504, "双向删除", false, false),
@@ -91,7 +101,7 @@ public enum MsgType {
     dialogueRead(511, "对话已读", false, false),
     dialogueNoDisturb(512, "对话免打扰", false, false),
     dialogueArchive(513, "对话归档", false, false),
-    hideDialogue(514, "隐藏对话", false, false),
+    dialogueHide(514, "隐藏对话", false, false),
 
 
     contactBeFriend(510, "手机联系人添加我直接成为好友", false, false),
@@ -104,7 +114,7 @@ public enum MsgType {
     destroyMuc(902, "解散群组", true, false),
     leaveMuc(903, "退出群组", false, false),
     kickMember(904, "移除群聊", false, true),
-    newNotice(905, "新公告", false, false),
+    mucNotice(905, "发布群公告", false, false),
     mucMute(906, "全体禁言/全体取消禁言", false, false),
     setMucNotice(907, "设置 退群/禁言/移除/撤回 通知", false, false),
     newMember(908, "增加新成员", false, false),

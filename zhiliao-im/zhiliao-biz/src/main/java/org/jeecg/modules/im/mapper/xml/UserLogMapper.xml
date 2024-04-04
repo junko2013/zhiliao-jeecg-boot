@@ -14,6 +14,7 @@
         <result column="device_no" property="deviceNo"/>
         <result column="device_sys_ver" property="deviceSysVer"/>
         <result column="device_client_ver" property="deviceClientVer"/>
+        <result column="device_is_physic" property="deviceIsPhysic"/>
         <result column="type" property="type"/>
         <result column="detail" property="detail"/>
         <result column="module" property="module"/>
@@ -22,6 +23,7 @@
         <result column="req_param" property="reqParam"/>
         <result column="res_data" property="resData"/>
         <result column="ts_create" property="tsCreate"/>
+        <result column="server_id" property="serverId"/>
         <association property="user" javaType="org.jeecg.modules.im.entity.User">
             <result column="u_id" property="id"/>
             <result column="u_nickname" property="nickname"/>
@@ -41,7 +43,7 @@
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        ip, ip_info,device_id,device_platform, device_name, device_no, device_sys_ver, device_client_ver,detail,module, uri,method,req_param,res_data
+        ip, ip_info,device_id,device_platform, device_name, device_no, device_sys_ver, device_client_ver,device_is_physic,detail,module, uri,method,req_param,res_data
     </sql>
     <select id="pagination" resultMap="BaseResultMap">
         SELECT l.id,l.user_id,l.type,l.ts_create,<include refid="Base_Column_List"/>,
@@ -85,8 +87,14 @@
             <if test="q.deviceClientVer!=null and q.deviceClientVer!=''">
                 and device_client_ver=#{q.deviceClientVer}
             </if>
-            <if test="q.ts_create!=null">
-                and l.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.deviceIsPhysic!=null and q.deviceIsPhysic!=''">
+                and device_is_physic=#{q.deviceIsPhysic}
+            </if>
+            <if test="q.tsCreate!=null">
+                and l.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
+            </if>
+            <if test="q.serverId!=null">
+                and l.server_id=#{q.serverId}
             </if>
         </where>
         <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">

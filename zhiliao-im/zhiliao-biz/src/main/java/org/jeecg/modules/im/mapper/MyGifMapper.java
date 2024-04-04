@@ -4,6 +4,7 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.MyGif;
 import org.jeecg.modules.im.entity.query_helper.QMyGif;
@@ -24,4 +25,6 @@ public interface MyGifMapper extends BaseMapper<MyGif> {
     List<MyGif> findAll(Integer userId);
 
     MyGif findByGifId(Integer userId, Integer gifId);
+
+    int pin(int id, long ts);
 }

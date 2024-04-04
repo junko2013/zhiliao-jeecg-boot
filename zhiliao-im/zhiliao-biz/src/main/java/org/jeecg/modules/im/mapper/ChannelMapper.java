@@ -18,6 +18,6 @@ import org.jeecg.modules.im.entity.query_helper.QChannel;
  */
 @Mapper
 public interface ChannelMapper extends BaseMapper<Channel> {
-    MyPage<Channel> pagination(@Param("pg") MyPage<Channel> pg, @Param("q") QChannel q);
+    MyPage<Channel> pagination(MyPage<Channel> pg, @Param("q") QChannel q);
 
 }

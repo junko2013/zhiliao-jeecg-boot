@@ -104,9 +104,9 @@ public class UserInfo extends BaseModel<UserInfo> {
     private Integer balanceFreeze;
 
     /**
-     * 连续签到天数
+     * 金币
      */
-    private Integer continueSignInDay;
+    private Integer coin;
 
     /**
      * 累计签到天数

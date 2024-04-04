@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 /**
  * <p>
@@ -38,6 +39,7 @@ public class Friend extends BaseModel<Friend> {
     /**
      * 星标朋友
      */
+    @Dict(dicCode = "yon")
     private Boolean isStar;
 
     /**
@@ -65,16 +67,20 @@ public class Friend extends BaseModel<Friend> {
     /**
      * 消息归档
      */
+    @Dict(dicCode = "yon")
     private Boolean isMsgArchive;
     /**
      * 隐藏对话
      */
+    @Dict(dicCode = "yon")
     private Boolean isHide;
     /**
      * 免打扰
      */
+    @Dict(dicCode = "yon")
     private Boolean isNoDisturb;
     //阅后即焚
+    @Dict(dicCode = "yon")
     private Boolean isReadDel;
     /**
      * 添加时间
@@ -122,8 +128,13 @@ public class Friend extends BaseModel<Friend> {
     //被拉黑时间
     private Long tsBeenBlack;
 
-    //最后一条已读消息id
-    private Long lastAckId;
+    private Integer serverId;
+
+
+    /**
+     * 聊天背景
+     */
+    private String backImg;
 
     @TableField(exist = false)
     private User user;
@@ -137,7 +148,7 @@ public class Friend extends BaseModel<Friend> {
         Stranger(2,"陌生人"),
         Delete(5,"双向删除"),
         Fans(6,"粉丝"),
-        Ask(7,"等待通过");
+        Ask(7,"等待验证");
         int code;
         String name;
         Status(int code,String name) {

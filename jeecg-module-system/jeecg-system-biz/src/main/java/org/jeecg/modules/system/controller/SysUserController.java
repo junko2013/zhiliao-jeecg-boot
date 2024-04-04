@@ -114,18 +114,17 @@ public class SysUserController {
 	public Result<IPage<SysUser>> queryPageList(SysUser user,@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,HttpServletRequest req) {
 		QueryWrapper<SysUser> queryWrapper = QueryGenerator.initQueryWrapper(user, req.getParameterMap());
-        //------------------------------------------------------------------------------------------------
-        //是否开启系统管理模块的多租户数据隔离【SAAS多租户模式】
-        if (MybatisPlusSaasConfig.OPEN_SYSTEM_TENANT_CONTROL) {
-            String tenantId = oConvertUtils.getString(TenantContext.getTenant(), "-1");
-            List<String> userIds = userTenantService.getUserIdsByTenantId(Integer.valueOf(tenantId));
+        LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        int tenantId = oConvertUtils.getInt(TenantContext.getTenant(), 0);
+        //如果是超管则添加的为系统角色
+        if(!sysUserService.getRole(sysUser.getUsername()).contains("admin")){
+            List<String> userIds = userTenantService.getUserIdsByTenantId(tenantId);
             if (oConvertUtils.listIsNotEmpty(userIds)) {
                 queryWrapper.in("id", userIds);
             }else{
                 queryWrapper.eq("id", "通过租户查询不到任何用户");
             }
         }
-        //------------------------------------------------------------------------------------------------
         return sysUserService.queryPageList(req, queryWrapper, pageSize, pageNo);
 	}
 
@@ -356,7 +355,7 @@ public class SysUserController {
         Result<List<DepartIdModel>> result = new Result<>();
         try {
             List<DepartIdModel> depIdModelList = this.sysUserDepartService.queryDepartIdsOfUser(userId);
-            if (depIdModelList != null && depIdModelList.size() > 0) {
+            if (depIdModelList != null && !depIdModelList.isEmpty()) {
                 result.setSuccess(true);
                 result.setMessage("查找成功");
                 result.setResult(depIdModelList);
@@ -601,7 +600,7 @@ public class SysUserController {
 	/**
 	 * 首页用户重置密码
 	 */
-    @RequiresPermissions("system:user:updatepwd")
+//    @RequiresPermissions("system:user:updatepwd")
     @RequestMapping(value = "/updatePassword", method = RequestMethod.PUT)
 	public Result<?> updatePassword(@RequestBody JSONObject json) {
 		String username = json.getString("username");
@@ -1503,9 +1502,7 @@ public class SysUserController {
     @GetMapping("/getMultiUser")
     public List<SysUser> getMultiUser(SysUser sysUser){
         QueryWrapper<SysUser> queryWrapper = QueryGenerator.initQueryWrapper(sysUser, null);
-        //update-begin---author:wangshuai ---date:20220104  for：[JTC-297]已冻结用户仍可设置为代理人------------
-        queryWrapper.eq("status",Integer.parseInt(CommonConstant.STATUS_1));
-        //update-end---author:wangshuai ---date:20220104  for：[JTC-297]已冻结用户仍可设置为代理人------------
+        queryWrapper.eq("status",CommonConstant.STATUS_1);
         List<SysUser> ls = this.sysUserService.list(queryWrapper);
         for(SysUser user: ls){
             user.setPassword(null);
@@ -1641,7 +1638,7 @@ public class SysUserController {
         //update-begin---author:wangshuai ---date:20230220  for：[QQYUN-3980]组织管理中 职位功能 职位表加租户id 加职位-用户关联表------------
         //获取用户id通过职位数据
         List<SysPosition> sysPositionList = sysPositionService.getPositionList(user.getId());
-        if(null != sysPositionList && sysPositionList.size()>0){
+        if(null != sysPositionList && !sysPositionList.isEmpty()){
         //update-end---author:wangshuai ---date:20230220  for：[QQYUN-3980]组织管理中 职位功能 职位表加租户id 加职位-用户关联表------------
             StringBuilder nameBuilder = new StringBuilder();
             StringBuilder idBuilder = new StringBuilder();

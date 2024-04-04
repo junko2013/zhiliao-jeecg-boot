@@ -16,7 +16,6 @@ import org.jeecg.modules.im.entity.query_helper.QMucMemberLevelCtg;
  * @since 2021-01-20
  */
 public interface MucMemberLevelCtgService extends IService<MucMemberLevelCtg> {
-    IPage<MucMemberLevelCtg> pagination(MyPage<MucMemberLevelCtg> page, QMucMemberLevelCtg q);
-
     Result<Object> createOrUpdate(MucMemberLevelCtg ctg);
+    Result<Object> del(String ids);
 }

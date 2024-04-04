@@ -1,10 +1,9 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.util.RedisUtil;
-import org.jeecg.modules.im.base.constant.ConstantCache;
+import org.jeecg.common.constant.ConstantCache;
 import org.jeecg.modules.im.entity.Gif;
 import org.jeecg.modules.im.entity.MyGif;
 import org.jeecg.modules.im.mapper.MyGifMapper;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -60,7 +58,7 @@ public class MyGifServiceImpl extends BaseServiceImpl<MyGifMapper, MyGif> implem
     }
 
     @Override
-    public Result<Object> delBatch(String ids) {
+    public Result<Object> delBatch(Integer userId,String ids) {
         if(isEmpty(ids)){
             return fail();
         }
@@ -83,6 +81,8 @@ public class MyGifServiceImpl extends BaseServiceImpl<MyGifMapper, MyGif> implem
             myGif.setOrigin(gif.getOrigin());
             myGif.setThumb(gif.getThumb());
             myGif.setUserId(userId);
+            myGif.setHeight(gif.getHeight());
+            myGif.setWidth(gif.getWidth());
             if(!save(myGif)){
                 return fail("添加失败");
             }
@@ -100,5 +100,10 @@ public class MyGifServiceImpl extends BaseServiceImpl<MyGifMapper, MyGif> implem
     @Override
     public MyGif findByGifId(Integer userId, Integer gifId) {
         return myGifMapper.findByGifId(userId,gifId);
+    }
+
+    @Override
+    public Result<Object> pin(int id, long ts) {
+        return success(myGifMapper.pin(id,ts));
     }
 }

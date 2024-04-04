@@ -26,7 +26,7 @@ public class MucMemberLevel extends BaseModel<MucMemberLevel> {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    private Integer levelCtgId;
+    private Integer ctgId;
 
     private String name;
 

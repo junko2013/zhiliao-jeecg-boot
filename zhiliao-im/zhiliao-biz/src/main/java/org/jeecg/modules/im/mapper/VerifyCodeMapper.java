@@ -18,7 +18,7 @@ import org.jeecg.modules.im.entity.query_helper.QVerifyCode;
  */
 @Mapper
 public interface VerifyCodeMapper extends BaseMapper<VerifyCode> {
-    MyPage<VerifyCode> pagination(@Param("pg") MyPage<VerifyCode> pg, @Param("q") QVerifyCode q);
+    MyPage<VerifyCode> pagination(MyPage<VerifyCode> pg, @Param("q") QVerifyCode q);
     /**
      * 根据手机号和类型查询最新一条
      */

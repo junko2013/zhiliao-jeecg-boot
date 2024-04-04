@@ -23,12 +23,11 @@ import java.util.List;
  */
 @Mapper
 public interface MsgMapper extends BaseMapper<Msg> {
-    MyPage<Msg> pagination(@Param("pg") MyPage<Msg> pg, @Param("q") QMsg q);
+    MyPage<Msg> pagination(MyPage<Msg> pg, @Param("q") QMsg q);
 
     List<Msg> paginationApi(@Param("q") QMsg q);
 
     Long deleteLogic(Integer userId, Integer toUserId,Long tsDelete);
-    Long deleteLogicBoth(Integer userId, Integer toUserId,Long tsDelete);
 
     Long deleteLogicWithIds(String ids,Integer type,Long tsDelete);
 
@@ -36,4 +35,6 @@ public interface MsgMapper extends BaseMapper<Msg> {
 
     List<Msg> findByStanzaId(String stanzaId);
     Msg findByStanzaIdOfSend(String stanzaId,boolean isSend);
+
+    int updateTsReceive(String stanzaId, Long ts);
 }

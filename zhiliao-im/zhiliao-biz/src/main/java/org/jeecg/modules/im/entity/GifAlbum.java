@@ -33,6 +33,9 @@ public class GifAlbum extends BaseModel<GifAlbum> {
 
     private Long tsCreate;
     private Integer addTimes;
+
+    private Integer serverId;
+
     private List<Gif> gifs;
     @TableField(exist = false)
     private Integer counts;

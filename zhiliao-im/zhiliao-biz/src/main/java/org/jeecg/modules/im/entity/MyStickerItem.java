@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
+
 /**
  * <p>
  * 我收藏的贴纸项
@@ -36,5 +38,6 @@ public class MyStickerItem extends BaseModel<MyStickerItem> {
     private Long tsCreate;
 
     @TableField(exist = false)
+    @Dict(dicCode = "yon")
     private Boolean isLocked;
 }

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 import java.math.BigDecimal;
 
@@ -47,6 +48,7 @@ public class Bill extends BaseModel<Bill> {
 
     private Long tsCreate;
 
+    @Dict(dicCode = "yon")
     private Boolean increase;
 
     /**
@@ -68,6 +70,8 @@ public class Bill extends BaseModel<Bill> {
      * 支付方式
      */
     private String payType;
+
+    private Integer serverId;
 
 
     @TableField(exist = false)

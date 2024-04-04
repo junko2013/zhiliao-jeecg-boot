@@ -5,7 +5,6 @@ import org.jeecg.modules.im.base.tools.ToolDateTime;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.query_helper.QMsg;
 import org.jeecg.modules.im.service.MsgService;
-import org.jeecg.modules.im.service.base.BaseBackController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +28,7 @@ public class MsgController extends BaseBackController {
                 q.setSendEndTime(ToolDateTime.getDateByDatePlusDays(ToolDateTime.getDate(q.getSendStartTime()),1).getTime());
             }
         }
+        q.setServerId(getServerId());
         return success(msgService.pagination(new MyPage<>(getPage(), getPageSize()), q));
     }
 

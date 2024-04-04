@@ -24,6 +24,6 @@ import java.util.List;
 public interface SecretQuestionMapper extends BaseMapper<SecretQuestion> {
 
     List<SecretQuestion> findAll();
-    MyPage<SecretQuestion> pagination(@Param("pg") MyPage<SecretQuestion> pg, @Param("q") QSecretQuestion q);
+    MyPage<SecretQuestion> pagination(MyPage<SecretQuestion> pg, @Param("q") QSecretQuestion q);
 
 }

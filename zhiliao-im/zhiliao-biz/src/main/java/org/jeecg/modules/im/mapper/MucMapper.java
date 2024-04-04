@@ -20,7 +20,7 @@ import java.util.List;
  */
 @Mapper
 public interface MucMapper extends BaseMapper<Muc> {
-    MyPage<Muc> pagination(@Param("pg") MyPage<Muc> pg, @Param("q") QMuc q);
+    MyPage<Muc> pagination(MyPage<Muc> pg, @Param("q") QMuc q);
 
     Muc findByName(String name);
     Muc findByAccount(String account);

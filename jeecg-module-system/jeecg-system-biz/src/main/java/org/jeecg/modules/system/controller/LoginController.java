@@ -19,14 +19,11 @@ import org.jeecg.common.constant.enums.DySmsEnum;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.*;
-import org.jeecg.common.util.encryption.EncryptedString;
+import org.jeecg.common.util.encryption.AesEncryptUtil;
 import org.jeecg.common.util.google.GoogleAuthenticator;
 import org.jeecg.config.JeecgBaseConfig;
 import org.jeecg.modules.base.service.BaseCommonService;
-import org.jeecg.modules.system.entity.SysDepart;
-import org.jeecg.modules.system.entity.SysRoleIndex;
-import org.jeecg.modules.system.entity.SysTenant;
-import org.jeecg.modules.system.entity.SysUser;
+import org.jeecg.modules.system.entity.*;
 import org.jeecg.modules.system.model.SysLoginModel;
 import org.jeecg.modules.system.service.*;
 import org.jeecg.modules.system.service.impl.SysBaseApiImpl;
@@ -40,7 +37,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @Author scott
@@ -74,7 +70,7 @@ public class LoginController {
 
 	@ApiOperation("登录接口")
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public Result<JSONObject> login(@RequestBody SysLoginModel sysLoginModel, HttpServletRequest request){
+	public Result<JSONObject> login(@RequestBody SysLoginModel sysLoginModel, HttpServletRequest request) throws Exception {
 		Result<JSONObject> result = new Result<JSONObject>();
 		String username = sysLoginModel.getUsername();
 		String password = sysLoginModel.getPassword();
@@ -113,9 +109,8 @@ public class LoginController {
 		}
 
 		// step.3 校验用户名或密码是否正确
-		String userpassword = PasswordUtil.encrypt(username, password, sysUser.getSalt());
-		String syspassword = sysUser.getPassword();
-		if (!syspassword.equals(userpassword)) {
+		String pwd = PasswordUtil.encrypt(username, AesEncryptUtil.desEncrypt(password), sysUser.getSalt());
+		if (!sysUser.getPassword().equals(pwd)) {
 			addLoginFailOvertimes(username);
 			result.error500("用户名或密码错误");
 			return result;
@@ -129,6 +124,45 @@ public class LoginController {
 
 		// step.5  登录成功删除验证码
 		redisUtil.del(realKey);
+		redisUtil.del(CommonConstant.LOGIN_FAIL + username);
+
+		// step.6  记录用户登录日志
+		LoginUser loginUser = new LoginUser();
+		BeanUtils.copyProperties(sysUser, loginUser);
+		baseCommonService.addLog("用户名: " + username + ",登录成功！", CommonConstant.LOG_TYPE_1, null,loginUser);
+		return result;
+	}
+	@ApiOperation("屏幕解锁接口")
+	@RequestMapping(value = "/unlockScreen", method = RequestMethod.POST)
+	public Result<JSONObject> unlockScreen(@RequestBody SysLoginModel sysLoginModel, HttpServletRequest request) throws Exception {
+		Result<JSONObject> result = new Result<JSONObject>();
+		String username = sysLoginModel.getUsername();
+		String password = sysLoginModel.getPassword();
+		if(isLoginFailOvertimes(username)){
+			return result.error500("该用户登录失败次数过多，请于10分钟后再次登录！");
+		}
+
+		// step.2 校验用户是否存在且有效
+		LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(SysUser::getUsername,username);
+		SysUser sysUser = sysUserService.getOne(queryWrapper);
+		result = sysUserService.checkUserIsEffective(sysUser);
+		if(!result.isSuccess()) {
+			return result;
+		}
+
+		// step.3 校验用户名或密码是否正确
+		String userpassword = PasswordUtil.encrypt(username, AesEncryptUtil.desEncrypt(password), sysUser.getSalt());
+		String syspassword = sysUser.getPassword();
+		if (!syspassword.equals(userpassword)) {
+			addLoginFailOvertimes(username);
+			result.error500("用户名或密码错误");
+			return result;
+		}
+		// step.4  登录成功获取用户信息
+		userInfo(sysUser, result, request);
+
+		// step.5  登录成功删除登录失败次数缓存
 		redisUtil.del(CommonConstant.LOGIN_FAIL + username);
 
 		// step.6  记录用户登录日志
@@ -443,12 +477,12 @@ public class LoginController {
 	 */
 	private Result<JSONObject> userInfo(SysUser sysUser, Result<JSONObject> result, HttpServletRequest request) {
 		String username = sysUser.getUsername();
-		String syspassword = sysUser.getPassword();
+		String pwd = sysUser.getPassword();
 		// 获取用户部门信息
 		JSONObject obj = new JSONObject(new LinkedHashMap<>());
 
 		//1.生成token
-		String token = JwtUtil.sign(username, syspassword);
+		String token = JwtUtil.sign(username, pwd);
 		// 设置token缓存有效时间
 		redisUtil.set(CommonConstant.PREFIX_USER_TOKEN + token, token);
 		redisUtil.expire(CommonConstant.PREFIX_USER_TOKEN + token, JwtUtil.EXPIRE_TIME * 2 / 1000);
@@ -466,7 +500,7 @@ public class LoginController {
 		//4.设置登录部门
 		List<SysDepart> departs = sysDepartService.queryUserDeparts(sysUser.getId());
 		obj.put("departs", departs);
-		if (departs == null || departs.size() == 0) {
+		if (departs == null || departs.isEmpty()) {
 			obj.put("multi_depart", 0);
 		} else if (departs.size() == 1) {
 			sysUserService.updateUserDepart(username, departs.get(0).getOrgCode(),null);
@@ -500,12 +534,9 @@ public class LoginController {
 	 * @return
 	 */
 	@GetMapping(value = "/getEncryptedString")
-	public Result<Map<String,String>> getEncryptedString(){
-		Result<Map<String,String>> result = new Result<Map<String,String>>();
-		Map<String,String> map = new HashMap(5);
-		map.put("key", EncryptedString.key);
-		map.put("iv",EncryptedString.iv);
-		result.setResult(map);
+	public Result<Kv> getEncryptedString(){
+		Result<Kv> result = new Result<>();
+		result.setResult(Kv.by("key", AesEncryptUtil.KEY).set("iv",AesEncryptUtil.IV));
 		return result;
 	}
 

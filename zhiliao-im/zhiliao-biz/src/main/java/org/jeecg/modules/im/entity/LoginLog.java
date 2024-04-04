@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 /**
  * <p>
@@ -59,9 +60,12 @@ public class LoginLog extends BaseModel<LoginLog> {
     /**
      * 是注册
      */
+    @Dict(dicCode = "yon")
     private Boolean isRegister;
 
     private Long tsCreate;
+
+    private Integer serverId;
     /**
      * 登录方式  手机号/账号/短信验证码
      */

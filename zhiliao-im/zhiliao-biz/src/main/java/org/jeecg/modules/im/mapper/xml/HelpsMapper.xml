@@ -10,10 +10,35 @@
         <result column="content" property="content" />
         <result column="ts_create" property="tsCreate" />
         <result column="order_no" property="orderNo" />
+        <result column="del_flag" property="delFlag" />
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, title, message, content, ts_create, order_no
     </sql>
+
+    <select id="selectLogicDeleted" resultType="org.jeecg.modules.im.entity.MucInviteLink">
+        SELECT * FROM im_helps ${ew.customSqlSegment}
+    </select>
+
+    <update id="revertLogicDeleted">
+        UPDATE
+        im_helps
+        SET
+        del_flag = 0
+        WHERE
+        del_flag = 1
+        AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="deleteLogicDeleted">
+        DELETE FROM im_helps WHERE del_flag = 1 AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </delete>
 
 </mapper>

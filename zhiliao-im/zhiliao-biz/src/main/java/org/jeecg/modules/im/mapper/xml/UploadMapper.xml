@@ -15,16 +15,17 @@
            <result column="storage_type" property="storageType" />
            <result column="href" property="href" />
            <result column="size" property="size" />
-           <result column="admin_id" property="adminId" />
+           <result column="admin" property="admin" />
            <result column="user_id" property="userId" />
            <result column="is_temp" property="isTemp" />
            <result column="ts_create" property="tsCreate" />
            <result column="ts_delete" property="tsDelete" />
            <result column="status" property="status" />
+           <result column="server_id" property="serverId" />
        </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, md5, type, content_type, name, source_name, suffix, path, storage_type, href, size, admin_id, user_id, is_temp, ts_create,ts_delete,status
+        id, md5, type, content_type, name, source_name, suffix, path, storage_type, href, size, admin, user_id, is_temp, ts_create,ts_delete,status
     </sql>
 
     <select id="findByHref" resultMap="BaseResultMap">

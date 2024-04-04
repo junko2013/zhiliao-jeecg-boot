@@ -3,6 +3,8 @@ package org.jeecg.modules.im.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import org.jeecg.common.aspect.annotation.Dict;
 
 /**
  * <p>
@@ -56,10 +58,13 @@ public class MucMember extends BaseModel<MucMember> {
     /**
      * 消息免打扰
      */
+    @Dict(dicCode = "yon")
     private Boolean isNoDisturb;
     //标记为未读
+    @Dict(dicCode = "yon")
     private Boolean isUnread;
     //阅后即焚
+    @Dict(dicCode = "yon")
     private Boolean isReadDel;
 
     /**
@@ -69,10 +74,12 @@ public class MucMember extends BaseModel<MucMember> {
     /**
      * 消息归档
      */
+    @Dict(dicCode = "yon")
     private Boolean isMsgArchive;
     /**
      * 隐藏对话
      */
+    @Dict(dicCode = "yon")
     private Boolean isHide;
     /**
      * 该时间之后的消息可见
@@ -88,7 +95,7 @@ public class MucMember extends BaseModel<MucMember> {
      */
     private Integer unreadCount;
     /**
-     * 积分
+     * 金币
      */
     private Integer coin;
     /**
@@ -115,9 +122,6 @@ public class MucMember extends BaseModel<MucMember> {
 
     //群聊备注，仅自己可见
     private String remark;
-    //最后一条已读消息id
-    private Long lastAckId;
-
 
     @TableField(exist = false)
     private User user;
@@ -125,39 +129,50 @@ public class MucMember extends BaseModel<MucMember> {
     private MucPermission permission;
 
     public enum Role{
-        Zombie(0),Member(1),Manager(2),Master(3);
+        Zombie(0,"僵尸号"),
+        Member(1,"普通成员"),
+        Manager(2,"管理员"),
+        Master(3,"群主");
+        @Getter
         private final int code;
-        Role(int code){
+        @Getter
+        private String msg;
+        Role(int code,String msg){
             this.code = code;
+            this.msg = msg;
         }
 
-        public int getCode() {
-            return code;
-        }
     }
     public enum Status{
-        Normal(0),//正常
-        Kicked(1),//被踢
-        Quit(2),//主动退出
-        Dismiss(3);//群组解散
+        normal(0,"正常"),
+        kicked(1,"被踢"),
+        quit(2,"主动退出"),
+        dismiss(3,"群组解散");
+        @Getter
         private final int code;
-        Status(int code){
+        @Getter
+        private String msg;
+        Status(int code,String msg){
             this.code = code;
+            this.msg = msg;
         }
 
-        public int getCode() {
-            return code;
-        }
     }
     public enum JoinType{
-        Invite(0),Create(1),ConsoleAdd(2);
+        invite(0,"邀请进群"),
+        create(1,"建群加入"),
+        consoleAdd(2,"后台添加"),
+        qrCode(3,"扫码进群"),
+        inviteLink(4,"邀请链接"),
+        ;
+        @Getter
         private int code;
-        JoinType(int code){
+        @Getter
+        private String msg;
+        JoinType(int code,String msg){
             this.code = code;
+            this.msg = msg;
         }
 
-        public int getCode() {
-            return code;
-        }
     }
 }

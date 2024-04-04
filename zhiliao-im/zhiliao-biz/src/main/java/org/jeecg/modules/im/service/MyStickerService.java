@@ -18,9 +18,9 @@ public interface MyStickerService extends IService<MySticker> {
     //查找所有贴纸
     List<MySticker> findMyAll(Integer userId);
     //添加贴纸
-    Result<Object> add(Integer stickerId);
+    Result<Object> add(Integer userId,Integer stickerId);
     //已存在某贴纸
     MySticker getOne(Integer userId,Integer stickerId);
     //移除
-    Result<Object> del(String ids);
+    Result<Object> del(Integer userId,String ids);
 }

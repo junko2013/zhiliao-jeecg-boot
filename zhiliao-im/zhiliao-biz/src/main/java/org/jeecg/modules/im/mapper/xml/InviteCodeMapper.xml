@@ -13,6 +13,7 @@
         <result column="max_times" property="maxTimes" />
         <result column="is_enable" property="isEnable" />
         <result column="times" property="times" />
+        <result column="server_id" property="serverId" />
     </resultMap>
 
     <select id="findByCode" resultType="org.jeecg.modules.im.entity.InviteCode">
@@ -29,8 +30,11 @@
             <if test="q.isEnable!=null">
                 and is_enable = #{q.isEnable}
             </if>
-            <if test="q.ts_create!=null">
-                and ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.serverId!=null">
+                and server_id = #{q.serverId}
+            </if>
+            <if test="q.tsCreate!=null">
+                and ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
         <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">

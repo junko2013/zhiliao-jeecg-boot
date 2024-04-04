@@ -396,7 +396,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         }
 
         //4.需要用户手动同意加入
-        String status = CommonConstant.USER_TENANT_INVITE;
+        Integer status = CommonConstant.USER_TENANT_INVITE;
 
         //5.当前用户不存在租户中,就需要将用户添加到租户中
         SysUserTenant tenant = new SysUserTenant();
@@ -820,7 +820,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
      * @param status
      * @return
      */
-    private String getTenantErrorInfo(String status) {
+    private String getTenantErrorInfo(Integer status) {
         String content = "已在租户中，无需邀请！";
         if (CommonConstant.USER_TENANT_QUIT.equals(status)) {
             content = "已离职！";

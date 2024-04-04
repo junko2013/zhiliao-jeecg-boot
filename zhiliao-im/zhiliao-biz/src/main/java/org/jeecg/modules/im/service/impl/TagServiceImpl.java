@@ -49,10 +49,10 @@ public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements T
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result<Object> create(String name,String friendIds) {
+    public Result<Object> create(Integer userId,String name,String friendIds) {
         Tag tag = new Tag();
         tag.setName(name);
-        tag.setUserId(getCurrentUserId());
+        tag.setUserId(userId);
         if(findByNameOfUser(tag)!=null){
             return fail("已存在标签["+tag.getName()+"]");
         }
@@ -63,7 +63,7 @@ public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements T
             Friend friend;
             int count = 0;
             for (String friendId : StringUtils.split(friendIds, ",")) {
-                friend=friendService.findByIdOfUser(Integer.parseInt(friendId),getCurrentUserId());
+                friend=friendService.findByIdOfUser(Integer.parseInt(friendId),userId);
                 if(friend==null||!friend.getStatus().equals(Friend.Status.Friend.getCode())){
                     throw new BusinessException("请选择好友");
                 }
@@ -75,9 +75,9 @@ public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements T
             if (!save(tag)) {
                 return fail("创建标签失败");
             }
-            return success("标签创建成功",findAllOfUser(getCurrentUserId()));
+            return success("标签创建成功",findAllOfUser(userId));
         }catch (Exception e){
-            log.error("创建标签并关联好友异常：tag={},friendIds={},e={}", tag,friendIds, e);
+            log.error("创建标签并关联好友异常：tag={},friendIds={}", tag,friendIds, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());
@@ -92,11 +92,7 @@ public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements T
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> update(Tag tag) {
-        Tag temp = getById(tag.getId());
-        if(temp==null||!temp.getUserId().equals(getCurrentUserId())){
-            return fail("标签不存在");
-        }
-        temp = findByNameOfUser(tag);
+        Tag temp = findByNameOfUser(tag);
         //如果新名称已存在且不是当前标签
         if(temp!=null&&!temp.getId().equals(tag.getId())){
             return fail("已存在标签["+tag.getName()+"]");
@@ -105,7 +101,7 @@ public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements T
             return fail("至少选择一个好友");
         }
         try {
-            StringBuilder friendIds = new StringBuilder(",");
+            StringBuilder friendIds = new StringBuilder();
             Friend friend;
             int count = 0;
             QTag q = new QTag();
@@ -114,12 +110,12 @@ public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements T
                     continue;
                 }
                 friendIds.append(friendId).append(",");
-                friend=friendService.findByIdOfUser(Integer.parseInt(friendId),getCurrentUserId());
+                friend=friendService.findByIdOfUser(Integer.parseInt(friendId),tag.getUserId());
                 if(friend==null||!friend.getStatus().equals(Friend.Status.Friend.getCode())){
                     throw new BusinessException("请选择好友");
                 }
                 //好友标签更新
-                q.setUserId(getCurrentUserId());
+                q.setUserId(tag.getUserId());
                 q.setFriendId(String.format(",%s,",friendId));
                 friend.setTagIds(tagListToIds(findByFriendIdOfUser(q)));
                 count++;
@@ -131,7 +127,7 @@ public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements T
             }
             return success("标签已更新");
         }catch (Exception e){
-            log.error("更新标签异常：tag={},e={}", tag, e);
+            log.error("更新标签异常：tag={}", tag, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());
@@ -147,7 +143,7 @@ public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements T
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> del(String id) {
         Tag tag = getById(id);
-        if(tag==null||!tag.getUserId().equals(getCurrentUserId())){
+        if(tag==null){
             return fail("标签不存在");
         }
         try{
@@ -163,7 +159,7 @@ public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements T
                     }
                     friend = friendService.getById(friendId);
                     //好友标签更新
-                    q.setUserId(getCurrentUserId());
+                    q.setUserId(tag.getUserId());
                     q.setFriendId(String.format(",%s,",friendId));
                     friend.setTagIds(tagListToIds(findByFriendIdOfUser(q)));
                     friendService.updateById(friend);
@@ -171,7 +167,7 @@ public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements T
             }
             return success();
         }catch (Exception e){
-            log.error("删除标签异常：tag={},e={}", tag, e);
+            log.error("删除标签异常：tag={}", tag, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             if (e instanceof BusinessException) {
                 return fail(e.getMessage());

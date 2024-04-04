@@ -1,16 +1,20 @@
 package org.jeecg.modules.im.service.base;
 
-import com.alibaba.fastjson.JSONObject;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.constant.ConstantWeb;
 import org.jeecg.modules.im.base.util.IPUtil;
-import org.jeecg.modules.im.entity.Device;
+import org.jeecg.modules.im.entity.Server;
+import org.jeecg.modules.im.entity.ServerConfig;
 import org.jeecg.modules.im.service.ParamService;
+import org.jeecg.modules.im.service.ServerConfigService;
+import org.jeecg.modules.im.service.ServerService;
 import org.jeecg.modules.im.service.UserService;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,11 +40,18 @@ public class BaseController {
     private ParamService paramService;
     @Resource
     private UserService userService;
+    @Resource
+    private ServerService serverService;
+    @Resource
+    private ServerConfigService serverConfigService;
+    @Autowired
+    private MessageSource messageSource;
 
     private int page;
     private int pageSize;
     private String column;
     private String order;
+
 
     //公共参数
     @ModelAttribute
@@ -79,8 +90,60 @@ public class BaseController {
         }
         return ip;
     }
+    protected Integer getServerId(){
+        return Integer.valueOf(request.getHeader(ConstantWeb.SERVER_ID));
+    }
+    protected Server getServer(){
+        return  serverService.findById(getServerId());
+    }
+    protected Integer getServerAccessToken(){
+        return Integer.valueOf(request.getHeader(ConstantWeb.SERVER_ACCESS_TOKEN));
+    }
+    protected ServerConfig getServerConfig(){
+        return  serverConfigService.get(getServer().getId());
+    }
+
+
     protected String getDeviceNo(){
         return request.getHeader(ConstantWeb.DEVICE_NO);
+    }
+    protected String getJPushId(){
+        return request.getHeader(ConstantWeb.JPUSH_ID);
+    }
+    protected String getDeviceName(){
+        try {
+            return URLDecoder.decode(request.getHeader(ConstantWeb.DEVICE_NAME),"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return "Error";
+        }
+    }
+    protected String getDeviceDetail(){
+        try {
+            return URLDecoder.decode(request.getHeader(ConstantWeb.DEVICE_DETAIL),"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return "Error";
+        }
+    }
+    //当前设备平台
+    protected String getDevicePlatform(){
+        return request.getHeader(ConstantWeb.DEVICE_PLATFORM);
+    }
+    protected String getDeviceSystemVersion(){
+        return request.getHeader(ConstantWeb.DEVICE_SYS_VER);
+    }
+    protected Boolean getDeviceIsPhysic(){
+        return Boolean.valueOf(request.getHeader(ConstantWeb.DEVICE_IS_PHYSIC));
+    }
+    protected String getClientVer(){
+        return request.getHeader(ConstantWeb.DEVICE_CLIENT_VER);
+    }
+    protected String getLocationLongitude(){
+        return request.getHeader(ConstantWeb.LOCATION_LONGITUDE);
+    }
+    protected String getLocationLatitude(){
+        return request.getHeader(ConstantWeb.LOCATION_LATITUDE);
     }
 
 
@@ -180,11 +243,40 @@ public class BaseController {
     }
 
     protected Result<Object> fail() {
-        return Result.error("");
+        return Result.error(messageSource.getMessage("操作失败",null, LocaleContextHolder.getLocale()));
     }
 
     public Result<Object> fail(String msg) {
+        try {
+            String message = messageSource.getMessage(msg, null, LocaleContextHolder.getLocale());
+            return Result.error(message);
+        }catch (Exception e){
+
+        }
         return Result.error(msg);
+    }
+
+
+    protected Result<Object> fail(String msg, Object data) {
+        try {
+            String message = messageSource.getMessage(msg, null, LocaleContextHolder.getLocale());
+            return Result.error(message,data);
+        }catch (Exception e){
+
+        }
+        return Result.error(msg, data);
+    }
+    protected Result<Object> fail(int code,String msg) {
+        try {
+            String message = messageSource.getMessage(msg, null, LocaleContextHolder.getLocale());
+            return Result.error(code,message);
+        }catch (Exception e){
+
+        }
+        return Result.error(code,msg);
+    }
+    protected Result<Object> fail(int code) {
+        return Result.error(code);
     }
 
     public Result<Object> fail(Object data) {

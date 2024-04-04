@@ -27,12 +27,17 @@ public class SayHelloReplyServiceImpl extends BaseServiceImpl<SayHelloReplyMappe
     @Autowired
     private SayHelloReplyMapper sayHelloReplyMapper;
     @Override
-    public List<SayHelloReply> findByHelloId(Integer helloId,Boolean isSend) {
-        return sayHelloReplyMapper.findByHelloId(helloId,isSend);
+    public List<SayHelloReply> findLatestNByHelloId(Integer helloId,Integer n) {
+        return sayHelloReplyMapper.findLatestNByHelloId(helloId,n);
     }
 
     @Override
     public IPage<SayHelloReply> pagination(MyPage<SayHelloReply> page, QSayHelloReply q) {
         return sayHelloReplyMapper.pagination(page,q);
+    }
+
+    @Override
+    public void read(int helloId, Long ts,int userId) {
+        sayHelloReplyMapper.read(helloId,ts,userId);
     }
 }

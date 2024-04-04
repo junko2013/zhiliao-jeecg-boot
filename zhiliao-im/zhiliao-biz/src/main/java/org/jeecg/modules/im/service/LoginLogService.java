@@ -20,7 +20,7 @@ public interface LoginLogService extends IService<LoginLog> {
     IPage<LoginLog> pagination(MyPage<LoginLog> page, QLoginLog q);
     LoginLog findLatestByDeviceId(Integer deviceId);
     //同一个ip单位时间内注册用户数量
-    Long getRegisterCountOfIp(Date begin, Date end, String ip);
+    Long getRegisterCountOfIp(Date begin, Date end, String ip,Integer serverId);
     //同一个设备单位时间内注册用户数量
-    Long getRegisterCountOfDevice(Date begin,Date end,String deviceNo);
+    Long getRegisterCountOfDevice(Date begin,Date end,String deviceNo,Integer serverId);
 }

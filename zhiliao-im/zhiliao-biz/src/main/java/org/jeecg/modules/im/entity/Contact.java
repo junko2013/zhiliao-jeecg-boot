@@ -46,6 +46,8 @@ public class Contact extends BaseModel<Contact> {
 
     private Long tsCreate;
 
+    private Integer serverId;
+
     /*
      * 未注册：邀请注册
      * 已注册：发送添加请求

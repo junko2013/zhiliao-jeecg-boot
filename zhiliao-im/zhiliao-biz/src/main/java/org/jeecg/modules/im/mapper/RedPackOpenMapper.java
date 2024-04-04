@@ -17,5 +17,5 @@ import org.jeecg.modules.im.entity.query_helper.QRedPackOpen;
  */
 @Mapper
 public interface RedPackOpenMapper extends BaseMapper<RedPackOpen> {
-    MyPage<RedPackOpen> pagination(@Param("pg") MyPage<RedPackOpen> pg, @Param("q") QRedPackOpen q);
+    MyPage<RedPackOpen> pagination(MyPage<RedPackOpen> pg, @Param("q") QRedPackOpen q);
 }

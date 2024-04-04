@@ -11,10 +11,27 @@
         <result column="device" property="device" />
         <result column="total_user" property="totalUser" />
         <result column="total_device" property="totalDevice" />
+        <result column="server_id" property="serverId" />
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, date, ts_create, user, device, total_user, total_device
     </sql>
+
+    <select id="pagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> from im_online_data
+        <where>
+            <if test="q.serverId!=null">
+                and server_id=#{q.serverId}
+            </if>
+        </where>
+        <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">
+            order by ${q.column} ${q.order}
+        </if>
+    </select>
+    <select id="findByDateOfServer" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> from im_online_data
+        where server_id = #{serverId} and date = #{date}
+    </select>
 
 </mapper>

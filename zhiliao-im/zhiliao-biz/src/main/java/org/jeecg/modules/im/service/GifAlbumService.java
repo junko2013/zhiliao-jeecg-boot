@@ -21,6 +21,5 @@ public interface GifAlbumService extends IService<GifAlbum> {
     IPage<GifAlbum> pagination(MyPage<GifAlbum> page, QGifAlbum q);
     Result<Object> createOrUpdate(GifAlbum gifAlbum);
     Result<Object> del(String ids);
-    Result<Object> findUngroup();
-    List<GifAlbum> findAll();
+    List<GifAlbum> findAll(Integer serverId);
 }

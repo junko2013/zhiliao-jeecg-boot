@@ -47,14 +47,14 @@ public class StickerItemServiceImpl extends BaseServiceImpl<StickerItemMapper, S
     public Result<Object> createOrUpdate(StickerItem item) {
         if(item.getId()==null){
             item.setTsCreate(getTs());
-            if(!isEmpty(item.getEmoji())) {
+            if(!isEmpty(item.getEmoji())&&isEmpty(item.getEmojiCode())) {
                 item.setEmojiCode(emojiConverter.toAlias(item.getEmoji()));
             }
             if(!save(item)){
                 return fail("添加失败");
             }
         }else{
-            if(!isEmpty(item.getEmoji())){
+            if(!isEmpty(item.getEmoji())&&isEmpty(item.getEmojiCode())){
                 item.setEmojiCode(emojiConverter.toAlias(item.getEmoji()));
             }
             if(!updateById(item)){

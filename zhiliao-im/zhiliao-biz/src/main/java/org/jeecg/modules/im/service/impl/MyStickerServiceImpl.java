@@ -1,12 +1,9 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.util.RedisUtil;
-import org.jeecg.modules.im.base.constant.ConstantCache;
-import org.jeecg.modules.im.base.util.Kv;
+import org.jeecg.common.constant.ConstantCache;
 import org.jeecg.modules.im.entity.MySticker;
 import org.jeecg.modules.im.mapper.MyStickerMapper;
 import org.jeecg.modules.im.service.MyStickerService;
@@ -16,7 +13,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,8 +36,7 @@ public class MyStickerServiceImpl extends BaseServiceImpl<MyStickerMapper, MySti
     @Resource
     private RedisUtil redisUtil;
     @Override
-    public Result<Object> add(Integer stickerId) {
-        Integer userId = getCurrentUserId();
+    public Result<Object> add(Integer userId,Integer stickerId) {
         if(getOne(userId,stickerId)!=null){
             return fail("该贴纸已添加过");
         }
@@ -62,10 +57,9 @@ public class MyStickerServiceImpl extends BaseServiceImpl<MyStickerMapper, MySti
     }
 
     @Override
-    public Result<Object> del(String ids) {
+    public Result<Object> del(Integer userId,String ids) {
         for (String id : StringUtils.split(ids, ",")) {
             Integer stickerId = Integer.parseInt(id);
-            Integer userId = getCurrentUserId();
             MySticker mySticker = getOne(userId,stickerId);
             if(null==mySticker){
                 return fail("未添加过该贴纸");

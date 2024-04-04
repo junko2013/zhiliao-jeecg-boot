@@ -9,6 +9,7 @@
            <result column="type" property="type" />
            <result column="source" property="source" />
            <result column="ts_create" property="tsCreate" />
+           <result column="server_id" property="serverId" />
        </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
@@ -26,8 +27,11 @@
             <if test="q.source!=null and q.source !=''">
                 and source = #{q.source}
             </if>
-            <if test="q.ts_create!=null">
-                and ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.serverId!=null">
+                and server_id = #{q.serverId}
+            </if>
+            <if test="q.tsCreate!=null">
+                and ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
         <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">
@@ -37,5 +41,10 @@
 
     <select id="findAll" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List" /> from im_sensitive_word
+        <where>
+            <if test="serverId!=null and serverId !=''">
+                and server_id = #{serverId}
+            </if>
+        </where>
     </select>
 </mapper>

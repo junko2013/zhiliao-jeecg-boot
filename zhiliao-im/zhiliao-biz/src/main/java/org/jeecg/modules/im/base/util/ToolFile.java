@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -31,6 +32,9 @@ public class ToolFile {
             file.delete();
         }
     }
+    private static final List<String> VIDEO_EXTENSIONS = Arrays.asList(
+            ".mp4", ".avi", ".flv", ".mov", ".wmv", ".mkv"
+    );
 
     /**
      * 获取文件夹下的所有文件
@@ -59,6 +63,8 @@ public class ToolFile {
         return fileName.substring(fileName.lastIndexOf("."));
     }
 
+
+
     /**
      * Get the Mime Type from a File
      * @param fileName 文件名
@@ -68,8 +74,7 @@ public class ToolFile {
      */
     private static String getMimeType(String fileName) {
         FileNameMap fileNameMap = URLConnection.getFileNameMap();
-        String type = fileNameMap.getContentTypeFor(fileName);
-        return type;
+        return fileNameMap.getContentTypeFor(fileName);
     }
 
     /**
@@ -77,12 +82,9 @@ public class ToolFile {
      * @param fileName 文件名
      * @return 是否是视频文件
      */
-    public static boolean isVideoFile(String fileName){
-        String mimeType = getMimeType(fileName);
-        if (StringUtils.isNotBlank(fileName)&&mimeType.contains(PREFIX_VIDEO)){
-            return true;
-        }
-        return false;
+    public static boolean isVideoFile(String filePath) {
+        String fileExtension = filePath.substring(filePath.lastIndexOf(".")).toLowerCase();
+        return VIDEO_EXTENSIONS.contains(fileExtension);
     }
 
 

@@ -20,6 +20,6 @@ import java.util.List;
  */
 @Mapper
 public interface SensitiveWordMapper extends BaseMapper<SensitiveWord> {
-    MyPage<SensitiveWord> pagination(@Param("pg") MyPage<SensitiveWord> myPage, @Param("q") QSensitiveWord q);
+    MyPage<SensitiveWord> pagination(MyPage<SensitiveWord> myPage, @Param("q") QSensitiveWord q);
     List<SensitiveWord> findAll();
 }

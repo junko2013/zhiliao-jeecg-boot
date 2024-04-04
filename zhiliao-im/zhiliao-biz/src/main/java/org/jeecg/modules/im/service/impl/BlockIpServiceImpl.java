@@ -1,16 +1,14 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.util.RedisUtil;
-import org.jeecg.modules.im.base.constant.ConstantCache;
+import org.jeecg.common.constant.ConstantCache;
 import org.jeecg.modules.im.base.util.IPUtil;
-import org.jeecg.modules.im.base.util.Kv;
+import org.jeecg.common.util.Kv;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.BlockIp;
-import org.jeecg.modules.im.entity.Link;
 import org.jeecg.modules.im.entity.query_helper.QBlockIp;
 import org.jeecg.modules.im.mapper.BlockIpMapper;
 import org.jeecg.modules.im.service.BlockIpService;
@@ -21,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -85,7 +82,7 @@ public class BlockIpServiceImpl extends BaseServiceImpl<BlockIpMapper, BlockIp> 
     public List<BlockIp> findByIp2(long ip) {
         String cacheKey = String.format(ConstantCache.BLOCK_IPS,BlockIp.Type.区间,ip);
         List<BlockIp> blockIps = (List<BlockIp>) redisUtil.get(cacheKey);
-        if(blockIps==null){
+        if(blockIps==null||blockIps.isEmpty()){
             blockIps = blockIpMapper.findByIp2(ip);
             redisUtil.set(cacheKey,blockIps);
         }
@@ -96,7 +93,7 @@ public class BlockIpServiceImpl extends BaseServiceImpl<BlockIpMapper, BlockIp> 
     public List<BlockIp> findByIp3(String ip) {
         String cacheKey = String.format(ConstantCache.BLOCK_IPS,BlockIp.Type.地址段,ip);
         List<BlockIp> blockIps = (List<BlockIp>) redisUtil.get(cacheKey);
-        if(blockIps==null){
+        if(blockIps==null||blockIps.isEmpty()){
             blockIps = blockIpMapper.findByIp3(ip);
             redisUtil.set(cacheKey,blockIps);
         }

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
+
 /**
  * <p>
  * 群组管理员权限
@@ -34,47 +36,57 @@ public class MucPermission extends BaseModel<MucPermission> {
     /**
      * 编辑群资料
      */
+    @Dict(dicCode = "yon")
     private Boolean modifyInfo;
 
     /**
      * 编辑公告
      */
+    @Dict(dicCode = "yon")
     private Boolean modifyNotice;
 
     /**
      * 置顶消息
      */
+    @Dict(dicCode = "yon")
     private Boolean msgPin;
 
     /**
      * 添加成员
      */
+    @Dict(dicCode = "yon")
     private Boolean addMember;
 
     /**
      * 移除成员
      */
+    @Dict(dicCode = "yon")
     private Boolean delMember;
 
     /**
      * 禁言成员
      */
+    @Dict(dicCode = "yon")
     private Boolean muteMember;
 
     /**
      * 添加管理员
      */
+    @Dict(dicCode = "yon")
     private Boolean addManager;
 
     /**
      * 撤销管理员
      */
+    @Dict(dicCode = "yon")
     private Boolean revokeManager;
 
     /**
      * 提示入群验证
      */
+    @Dict(dicCode = "yon")
     private Boolean isValidationTip;
     //匿名管理员
+    @Dict(dicCode = "yon")
     private Boolean isAnonymous;
 }

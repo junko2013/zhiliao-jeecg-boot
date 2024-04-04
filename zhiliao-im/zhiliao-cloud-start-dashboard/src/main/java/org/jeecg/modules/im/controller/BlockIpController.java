@@ -7,7 +7,6 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.BlockIp;
 import org.jeecg.modules.im.entity.query_helper.QBlockIp;
 import org.jeecg.modules.im.service.BlockIpService;
-import org.jeecg.modules.im.service.base.BaseBackController;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +24,7 @@ public class BlockIpController extends BaseBackController {
 
     @RequestMapping("/pagination")
     public Result<Object> list(QBlockIp q){
+        q.setServerId(getServer().getId());
         return success(blockIpService.pagination(new MyPage<>(getPage(),getPageSize()),q));
     }
     /**
@@ -32,12 +32,12 @@ public class BlockIpController extends BaseBackController {
      */
     @RequestMapping("/createOrUpdate")
     public Result<Object> createOrUpdate(@RequestBody @Validated BlockIp blockIp, BindingResult bindingResult){
+        blockIp.setServerId(getServer().getId());
         if(bindingResult.hasErrors()){
             return fail(bindingResult.getAllErrors().get(0));
         }
         return blockIpService.createOrUpdate(blockIp);
     }
-
 
     @RequestMapping("/detail")
     public Result<Object> detail(@RequestParam Integer id){

@@ -21,8 +21,8 @@ import java.util.List;
  */
 @Mapper
 public interface GifMapper extends BaseMapper<Gif> {
-    MyPage<Gif> pagination(@Param("pg") MyPage<Gif> pg, @Param("q") QGif q);
-    MyPage<Gif> paginationApi(@Param("pg") MyPage<Gif> pg, @Param("q") QGif q);
+    MyPage<Gif> pagination(MyPage<Gif> pg, @Param("q") QGif q);
+    MyPage<Gif> paginationApi(MyPage<Gif> pg, @Param("q") QGif q);
 
     Gif findByMd5(String md5);
     List<String> findHotEmojis();

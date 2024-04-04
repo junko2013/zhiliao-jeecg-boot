@@ -1,11 +1,9 @@
 package org.jeecg.modules.im.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 import java.util.List;
 
@@ -30,7 +28,6 @@ public class Sticker extends BaseModel<Sticker> {
 
     //作者
     private Integer userId;
-    private String adminId;
     //贴纸名称
     private String name;
     //描述
@@ -38,19 +35,29 @@ public class Sticker extends BaseModel<Sticker> {
     //lottie压缩文件
     private String zip;
     //禁用
+    @Dict(dicCode = "yon")
     private Boolean isLocked;
     //是动画
+    @Dict(dicCode = "yon")
     private Boolean isAnimated;
     //原生emoji的大图贴纸
+    @Dict(dicCode = "yon")
     private Boolean isBigEmoji;
     //emoji表情包
+    @Dict(dicCode = "yon")
     private Boolean isEmoji;
 
     private Long tsCreate;
     //热门
+    @Dict(dicCode = "yon")
     private Boolean IsHot;
     //置顶
     private Integer orderNo;
+
+    private Integer serverId;
+
+    @TableLogic
+    private Integer delFlag;
 
     //被添加次数
     private Integer addTimes;

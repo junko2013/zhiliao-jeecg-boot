@@ -20,6 +20,6 @@ import org.jeecg.modules.im.entity.query_helper.QUserNickname;
  */
 @Mapper
 public interface UserNicknameMapper extends BaseMapper<UserNickname> {
-    MyPage<UserNickname> pagination(@Param("pg") MyPage<UserNickname> pg, @Param("q") QUserNickname q);
+    MyPage<UserNickname> pagination(MyPage<UserNickname> pg, @Param("q") QUserNickname q);
 
 }

@@ -4,7 +4,6 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.query_helper.QSignIn;
 import org.jeecg.modules.im.service.SignInService;
-import org.jeecg.modules.im.service.base.BaseBackController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,6 +19,7 @@ public class SignInController extends BaseBackController {
 
     @RequestMapping("/pagination")
     public Result<Object> adminLoginLog(QSignIn q){
+        q.setServerId(getServerId());
         return success(signInService.pagination(new MyPage<>(getPage(),getPageSize()),q));
     }
 

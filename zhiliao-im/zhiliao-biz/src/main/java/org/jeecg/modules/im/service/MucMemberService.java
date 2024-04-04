@@ -56,6 +56,7 @@ public interface MucMemberService extends IService<MucMember> {
     //获取群人数
     Integer getCount(Integer mucId,Integer status);
 
-    Result<Object> updateMember(MucMember member);
+    Result<Object> updateMember(Integer userId,MucMember member);
 
+    Result<Object> updateTsVisible(Integer mucId, Integer userId);
 }

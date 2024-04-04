@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.im.mapper.FontMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.im.entity.Font">
+        <id column="id" property="id" />
+        <result column="family" property="family" />
+        <result column="name" property="name" />
+        <result column="url" property="url" />
+        <result column="preview" property="preview" />
+        <result column="style" property="style" />
+        <result column="weight" property="weight" />
+        <result column="status" property="status" />
+        <result column="status" property="status" />
+        <result column="size" property="size" />
+        <result column="del_flag" property="delFlag" />
+        <result column="ts_create" property="tsCreate" />
+        <result column="use_times" property="useTimes" />
+        <result column="rating" property="rating" />
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, family, name, url, preview, style, weight, status,hot, del_flag, ts_create, use_times, rating
+    </sql>
+
+    <select id="selectLogicDeleted" resultType="org.jeecg.modules.im.entity.MucInviteLink">
+        SELECT * FROM im_font ${ew.customSqlSegment}
+    </select>
+
+    <update id="revertLogicDeleted">
+        UPDATE
+        im_font
+        SET
+        del_flag = 0
+        WHERE
+        del_flag = 1
+        AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="deleteLogicDeleted">
+        DELETE FROM im_font WHERE del_flag = 1 AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

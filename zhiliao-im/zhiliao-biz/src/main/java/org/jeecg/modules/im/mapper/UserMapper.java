@@ -21,7 +21,7 @@ import java.util.List;
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
 
-    MyPage<User> pagination(@Param("pg") MyPage<User> pg,@Param("q") QUser q);
+    MyPage<User> pagination(MyPage<User> pg,@Param("q") QUser q);
 
     User findByMobile(String mobile);
     User findByEmail(String email);
@@ -48,4 +48,6 @@ public interface UserMapper extends BaseMapper<User> {
     List<User> findSysUser(int type);
 
     List<User> getByIds(String ids);
+
+    int updateOffline(long ts);
 }

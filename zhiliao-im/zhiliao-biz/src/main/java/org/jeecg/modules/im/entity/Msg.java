@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 /**
  * <p>
@@ -40,13 +41,13 @@ public class Msg extends BaseModel<Msg> {
      */
     private String content;
     /**
-     * json
-     */
-    private String body;
-    /**
      * 消息id
      */
     private String stanzaId;
+    /**
+     * 回复的消息id
+     */
+    private String replyStanzaId;
     /**
      * 类型
      */
@@ -54,11 +55,20 @@ public class Msg extends BaseModel<Msg> {
     /**
      * 加密
      */
+    @Dict(dicCode = "yon")
     private Boolean isEncrypt = false;
     /**
      * 发送时间戳
      */
     private Long tsSend;
+    /**
+     * 送达时间
+     */
+    private Long tsReceived;
+    /**
+     * 归档时间
+     */
+    private Long tsArchived;
     /**
      * 置顶
      */
@@ -82,10 +92,12 @@ public class Msg extends BaseModel<Msg> {
     /**
      * 阅后即焚
      */
+    @Dict(dicCode = "yon")
     private Boolean isReadDel = false;
     /**
      * 敏感内容
      */
+    @Dict(dicCode = "yon")
     private Boolean isSpam = false;
 
     /**
@@ -96,7 +108,10 @@ public class Msg extends BaseModel<Msg> {
     /**
      * 发送/接收
      */
+    @Dict(dicCode = "yon")
     private Boolean isSend;
+
+    private Integer serverId;
 
     @TableField(exist = false)
     public User fromUser;

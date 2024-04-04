@@ -1,15 +1,15 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import org.jeecg.modules.im.base.vo.MyPage;
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.entity.MucMemberLevelConfig;
-import org.jeecg.modules.im.entity.query_helper.QMucMemberLevelConfig;
 import org.jeecg.modules.im.mapper.MucMemberLevelConfigMapper;
 import org.jeecg.modules.im.service.MucMemberLevelConfigService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
 
 /**
  * <p>
@@ -23,9 +23,20 @@ import org.springframework.stereotype.Service;
 public class MucMemberLevelConfigServiceImpl extends BaseServiceImpl<MucMemberLevelConfigMapper, MucMemberLevelConfig> implements MucMemberLevelConfigService {
     @Autowired
     private MucMemberLevelConfigMapper mucMemberLevelConfigMapper;
+    @Override
+    public Result<Object> createOrUpdate(MucMemberLevelConfig config) {
+        if(config.getId()!=null){
+            return success(updateById(config));
+        }
+        return success(save(config));
+    }
 
     @Override
-    public IPage<MucMemberLevelConfig> pagination(MyPage<MucMemberLevelConfig> page, QMucMemberLevelConfig q) {
-        return mucMemberLevelConfigMapper.pagination(page,q);
+    public Result<Object> del(String ids) {
+        if(isEmpty(ids)){
+            return fail();
+        }
+        mucMemberLevelConfigMapper.deleteBatchIds(Arrays.asList(StringUtils.split(ids,",")));
+        return success();
     }
 }

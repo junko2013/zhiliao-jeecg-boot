@@ -5,7 +5,6 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Link;
 import org.jeecg.modules.im.entity.query_helper.QLink;
 import org.jeecg.modules.im.service.LinkService;
-import org.jeecg.modules.im.service.base.BaseBackController;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +26,7 @@ public class LinkController extends BaseBackController {
 
     @RequestMapping("/pagination")
     public Result<Object> list(QLink q){
+        q.setServerId(getServerId());
         return success(linkService.pagination(new MyPage<>(getPage(),getPageSize()),q));
     }
 

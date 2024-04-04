@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.im.mapper.MucInviteLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.im.entity.MucInviteLink">
+        <id column="id" property="id" />
+        <result column="code" property="code" />
+        <result column="muc_id" property="mucId" />
+        <result column="name" property="name" />
+        <result column="need_verify" property="needVerify" />
+        <result column="duration" property="duration" />
+        <result column="times" property="times" />
+        <result column="used_times" property="usedTimes" />
+        <result column="status" property="status" />
+        <result column="ts_create" property="tsCreate" />
+        <result column="ts_valid" property="tsValid" />
+        <result column="creator_id" property="creatorId" />
+        <result column="server_id" property="serverId" />
+        <result column="status" property="status" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code,muc_id, name, need_verify, duration, times,used_times, ts_create, ts_valid, creator_id
+    </sql>
+
+    <select id="selectLogicDeleted" resultType="org.jeecg.modules.im.entity.MucInviteLink">
+        SELECT * FROM im_muc_invite_link ${ew.customSqlSegment}
+    </select>
+
+    <update id="revertLogicDeleted">
+        UPDATE
+        im_muc_invite_link
+        SET
+        del_flag = 0
+        WHERE
+        del_flag = 1
+        AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="deleteLogicDeleted">
+        DELETE FROM im_muc_invite_link WHERE del_flag = 1 AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

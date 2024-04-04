@@ -39,11 +39,11 @@ public class LoginLogServiceImpl extends BaseServiceImpl<LoginLogMapper, LoginLo
     }
 
     @Override
-    public Long getRegisterCountOfIp(Date begin, Date end, String ip) {
-        return loginLogMapper.getRegisterCountOfIp(begin.getTime(),end.getTime(),ip);
+    public Long getRegisterCountOfIp(Date begin, Date end, String ip,Integer serverId) {
+        return loginLogMapper.getRegisterCountOfIp(begin.getTime(),end.getTime(),ip,serverId);
     }
     @Override
-    public Long getRegisterCountOfDevice(Date begin, Date end, String deviceNo) {
-        return loginLogMapper.getRegisterCountOfDevice(begin.getTime(),end.getTime(),deviceNo);
+    public Long getRegisterCountOfDevice(Date begin, Date end, String deviceNo,Integer serverId) {
+        return loginLogMapper.getRegisterCountOfDevice(begin.getTime(),end.getTime(),deviceNo,serverId);
     }
 }

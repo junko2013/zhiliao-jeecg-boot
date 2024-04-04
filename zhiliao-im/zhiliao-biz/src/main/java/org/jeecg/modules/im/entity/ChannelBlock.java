@@ -29,5 +29,4 @@ public class ChannelBlock extends BaseModel<ChannelBlock> {
     private Integer memberId;
 
     private Long tsCreate;
-
 }

@@ -19,8 +19,8 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.filter.StanzaIdFilter;
+import org.jivesoftware.smack.filter.StanzaTypeFilter;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
@@ -36,13 +36,16 @@ import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.X509TrustManager;
+import java.io.InputStream;
 import java.security.KeyStore;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,56 +76,87 @@ public class XMPPManager {
     @Resource
     private UserService userService;
 
+    @Value("${spring.profiles.active}")
+    private String evn;
+    @Value("${spring.application.name}")
+    private String appName;
+
+    protected Boolean isTest() {
+        return StringUtils.equals(evn.split(",")[evn.split(",").length-1],"test");
+    }
+
+
     //系统管理员连接
     private XMPPTCPConnection adminConnection;
 
+    private static volatile KeyManager[] keyManagers;
+    private static volatile X509Certificate selfSignedCert;
 
-//    //获取XMPP连接
-//    public XMPPTCPConnection getConnection() {
-//        if (connection == null || !connection.isConnected()) {
-//            //初始化XMPP连接
-//            try {
-//                connection = new XMPPTCPConnection(getConfig());
-//                connection.connect();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        return connection;
-//    }
+    //证书密钥相关
+    private static void loadSecurityMaterials() throws Exception {
+        if (keyManagers == null || selfSignedCert == null) {
+            synchronized (XMPPManager.class) {
+                if (keyManagers == null || selfSignedCert == null) {
+                    ClassLoader classLoader = XMPPManager.class.getClassLoader();
+                    CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+                    KeyStore keyStore = KeyStore.getInstance("PKCS12");
 
-    //获得xmpp配置
+                    try (InputStream certInputStream = classLoader.getResourceAsStream("client.crt");
+                         InputStream keyStoreInputStream = classLoader.getResourceAsStream("pkcs12.p12")) {
+
+                        selfSignedCert = (X509Certificate) certificateFactory.generateCertificate(certInputStream);
+                        keyStore.load(keyStoreInputStream, "junko2013".toCharArray());
+
+                        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                        keyManagerFactory.init(keyStore, "junko2013".toCharArray());
+                        keyManagers = keyManagerFactory.getKeyManagers();
+                    }
+                }
+            }
+        }
+    }
+
+    //获得xmpp连接配置
     public XMPPTCPConnectionConfiguration getConfig() throws Exception {
-//        SSLContext ctx = SSLContext.getInstance("SSL");
-//        TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
-//        KeyStore tks = KeyStore.getInstance("JKS");
-//        tks.load(XMPPManager.class.getResourceAsStream(xmppConfig.getKeystoreFile()), xmppConfig.getKeystorePass().toCharArray());
-//        tmf.init(tks);
-//        ctx.init(null, tmf.getTrustManagers(), null);
+
+
+        //非测试环境启用ssl连接
+        if(!isTest()){
+            loadSecurityMaterials();
+
+            XMPPTCPConnectionConfiguration.Builder configBuilder = XMPPTCPConnectionConfiguration.builder()
+                    .setHost(xmppConfig.getHost())
+                    .setXmppDomain(xmppConfig.getXmppDomain())
+                    .setPort(xmppConfig.getPort())
+                    .setKeyManagers(keyManagers)
+                    .setSecurityMode(ConnectionConfiguration.SecurityMode.required)
+                    .setResource(xmppConfig.getResource()+"-"+appName)
+                    .setCompressionEnabled(true);
+
+            if (xmppConfig.isSelfSigned()) {
+                configBuilder.setCustomX509TrustManager(new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return new X509Certificate[]{selfSignedCert};
+                    }
+
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                        // 实现逻辑
+                    }
+
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        // 实现逻辑
+                    }
+                });
+            }
+            return configBuilder.build();
+        }
         XMPPTCPConnectionConfiguration.Builder configBuilder = XMPPTCPConnectionConfiguration.builder()
                 .setHost(xmppConfig.getHost())
                 .setXmppDomain(xmppConfig.getXmppDomain())
                 .setPort(xmppConfig.getPort())
-//                .setSslContextFactory(() -> ctx)
                 .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
-                .setResource(xmppConfig.getResource())
-                .setCompressionEnabled(true);//压缩节流
-//        //信任自签证书，关键
-//        if (xmppConfig.isSelfSigned()) {
-//            configBuilder.setCustomX509TrustManager(new X509TrustManager() {
-//                public X509Certificate[] getAcceptedIssuers() {
-//                    return new X509Certificate[0];
-//                }
-//
-//                public void checkClientTrusted(
-//                        X509Certificate[] certs, String authType) {
-//                }
-//
-//                public void checkServerTrusted(
-//                        X509Certificate[] certs, String authType) {
-//                }
-//            });
-//        }
+                .setResource(xmppConfig.getResource()+"-"+appName)
+                .setCompressionEnabled(true);
         return configBuilder.build();
     }
 
@@ -223,15 +257,15 @@ public class XMPPManager {
 
     //延迟关闭
     private void closeConnection(XMPPTCPConnection conn) {
-        ThreadUtil.executeInThread(obj -> {
-            try {
-                if (null != conn) {
-                    conn.disconnect();
-                }
-            } catch (Exception e) {
-                log.info("xmpp关闭连接异常：{0}", e);
-            }
-        }, 15);
+//        ThreadUtil.executeInThread(obj -> {
+//            try {
+//                if (null != conn) {
+//                    conn.disconnect();
+//                }
+//            } catch (Exception e) {
+//                log.info("xmpp关闭连接异常：{0}", e);
+//            }
+//        }, 15);
     }
 
     //获取管理员账连接
@@ -245,15 +279,15 @@ public class XMPPManager {
                     adminConnection.login(xmppConfig.getAdminUsername(), xmppConfig.getAdminPassword());
                 } catch (XMPPException e) {
                     //登陆失败 可能是系统 账号不存在  重新注册
-                    if(registerAdmin())
+                    if(registerAdmin()) {
                         adminConnection.login(xmppConfig.getAdminUsername(), xmppConfig.getAdminPassword());
+                    }
                 }
                 if(adminConnection.isConnected()){
                     Presence presence = PresenceBuilder.buildPresence()
                             .setMode(Presence.Mode.available)
                             .build();
                     adminConnection.sendStanza(presence);
-                    adminConnection.addConnectionListener(new MyConnectionListener(adminConnection));
                 }
             } catch (Exception e) {
                 log.error("获取管理员xmpp连接异常：{0}", e);
@@ -609,7 +643,9 @@ public class XMPPManager {
         try {
             MultiUserChat muc = MultiUserChatManager.getInstanceFor(conn).getMultiUserChat(JidCreate.entityBareFrom(room.getId() + getMucChatServiceName(conn)));
             // 加入聊天室
-            muc.join(Resourcepart.from(conn.getUser().getLocalpart().toString()));
+            if(!muc.isJoined()) {
+                muc.join(Resourcepart.from(conn.getUser().getLocalpart().toString()));
+            }
             // 获得聊天室的配置表单
             FillableForm submitForm = muc.getConfigurationForm().getFillableForm();
 
@@ -694,9 +730,13 @@ public class XMPPManager {
             Muc room = mucService.getById(roomId);
             User master = userService.getById(room.getUserId());
             conn = getUserConnection(master.getId(), master.getPassword());
+            System.out.println(conn.isConnected());
+            System.out.println(conn.isAuthenticated());
             MultiUserChat muc = MultiUserChatManager.getInstanceFor(conn).getMultiUserChat(JidCreate.entityBareFrom(roomId + getMucChatServiceName(conn)));
             if(!StringUtils.isBlank(userIds)){
-                muc.join(Resourcepart.from(conn.getUser().getLocalpart().toString()));
+                if(!muc.isJoined()) {
+                    muc.join(Resourcepart.from(conn.getUser().getLocalpart().toString()));
+                }
                 for (String userId : StringUtils.split(userIds, ",")) {
                     muc.revokeAdmin(JidCreate.entityBareFrom(userId+"@"+getConfig().getXMPPServiceDomain()));
                 }
@@ -716,16 +756,20 @@ public class XMPPManager {
             Muc room = mucService.getById(roomId);
             User master = userService.getById(room.getUserId());
             conn = getUserConnection(master.getId(), master.getPassword());
+            System.out.println(conn.isConnected());
+            System.out.println(conn.isAuthenticated());
             MultiUserChat muc = MultiUserChatManager.getInstanceFor(conn).getMultiUserChat(JidCreate.entityBareFrom(roomId + getMucChatServiceName(conn)));
             if(!StringUtils.isBlank(userIds)){
-                muc.join(Resourcepart.from(conn.getUser().getLocalpart().toString()));
+                if(!muc.isJoined()){
+                    muc.join(Resourcepart.from(conn.getUser().getLocalpart().toString()));
+                }
                 for (String userId : StringUtils.split(userIds, ",")) {
                     muc.grantAdmin(JidCreate.entityBareFrom(userId+"@"+getConfig().getXMPPServiceDomain()));
                 }
             }
             return true;
         } catch (Exception e) {
-            log.info("xmpp批授权管理员异常：{0}",e);
+            log.info("xmpp批量授权管理员异常：{0}",e);
             return false;
         } finally {
             closeConnection(conn);
@@ -763,7 +807,9 @@ public class XMPPManager {
         try {
 
             MultiUserChat muc = MultiUserChatManager.getInstanceFor(conn).getMultiUserChat(JidCreate.entityBareFrom(mucId + getMucChatServiceName(conn)));
-            muc.join(Resourcepart.from(conn.getUser().getLocalpart().toString()));
+            if(!muc.isJoined()){
+                muc.join(Resourcepart.from(conn.getUser().getLocalpart().toString()));
+            }
             muc.destroy("解散群组", conn.getUser().asEntityBareJid());
             return true;
         } catch (Exception e) {
@@ -782,7 +828,9 @@ public class XMPPManager {
         try {
             conn = getUserConnection(userId,userService.getPassword(userId));
             MultiUserChat muc = MultiUserChatManager.getInstanceFor(conn).getMultiUserChat(JidCreate.entityBareFrom(mucId + getMucChatServiceName(conn)));
-            muc.join(Resourcepart.from(conn.getUser().getLocalpart().toString()));
+            if(!muc.isJoined()) {
+                muc.join(Resourcepart.from(conn.getUser().getLocalpart().toString()));
+            }
             muc.destroy("解散群组", JidCreate.entityBareFrom(conn.getUser()));
             return true;
         } catch (Exception e) {

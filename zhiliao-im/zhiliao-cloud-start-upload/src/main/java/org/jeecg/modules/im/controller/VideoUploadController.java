@@ -28,7 +28,7 @@ public class VideoUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的文件");
         }
         try {
-            return uploadService.saveVideo(multipartFile);
+            return uploadService.saveVideo(getCurrentUserId(),getAdmin(),multipartFile);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("文件上传失败", e);

@@ -1,5 +1,7 @@
 package org.jeecg.modules.im.base.constant;
 
+import lombok.Getter;
+
 /**
  * xmpp常量
  */
@@ -19,25 +21,23 @@ public interface ConstantXmpp {
 
     //系统账号 有昵称，用于区分不同场景 用于不同场景消息通知
     enum SystemNo{
-        system(100,"系统管理员"),
-        pay(104,"支付通知"),
-        notice(105,"系统通知"),
-        collection(106,"收藏夹"),
+        system(100,"系统管理员",true),
+        pay(104,"支付通知",true),
+        notice(105,"系统通知",true),
+        collection(106,"收藏夹",false),
         ;
+        @Getter
         Integer account;
+        @Getter
+        boolean isPublic;
+        @Getter
         String name;
 
-        SystemNo(Integer account, String name) {
+        SystemNo(Integer account, String name,boolean isPublic) {
             this.account = account;
             this.name = name;
+            this.isPublic = isPublic;
         }
 
-        public Integer getAccount() {
-            return account;
-        }
-
-        public String getName() {
-            return name;
-        }
     }
 }

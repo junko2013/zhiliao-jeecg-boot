@@ -18,9 +18,9 @@ import org.jeecg.modules.im.entity.query_helper.QLoginLog;
  */
 @Mapper
 public interface LoginLogMapper extends BaseMapper<LoginLog> {
-    MyPage<LoginLog> pagination(@Param("pg") MyPage<LoginLog> pg, @Param("q") QLoginLog q);
+    MyPage<LoginLog> pagination(MyPage<LoginLog> pg, @Param("q") QLoginLog q);
 
     LoginLog findLatestByDeviceNo(Integer deviceId);
-    Long getRegisterCountOfIp(Long begin,Long end,String ip);
-    Long getRegisterCountOfDevice(Long begin,Long end,String deviceNo);
+    Long getRegisterCountOfIp(Long begin,Long end,String ip,Integer serverId);
+    Long getRegisterCountOfDevice(Long begin,Long end,String deviceNo,Integer serverId);
 }

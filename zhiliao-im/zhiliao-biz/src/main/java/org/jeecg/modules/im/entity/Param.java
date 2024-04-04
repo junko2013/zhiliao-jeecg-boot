@@ -33,6 +33,8 @@ public class Param extends BaseModel<Param> {
 
     private Long tsCreate;
 
+    private Integer serverId;
+
 
     public enum Name {
         //短信验证码

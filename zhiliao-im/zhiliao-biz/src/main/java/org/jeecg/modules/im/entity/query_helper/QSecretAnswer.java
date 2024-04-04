@@ -7,4 +7,5 @@ import org.jeecg.modules.im.entity.SecretAnswer;
 
 @Data
 public class QSecretAnswer extends SecretAnswer {
+    private String userSearch;
 }

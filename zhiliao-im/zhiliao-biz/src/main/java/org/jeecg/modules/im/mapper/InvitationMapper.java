@@ -18,6 +18,6 @@ import org.jeecg.modules.im.entity.query_helper.QInvitation;
  */
 @Mapper
 public interface InvitationMapper extends BaseMapper<Invitation> {
-    MyPage<Invitation> pagination(@Param("pg") MyPage<Invitation> pg, @Param("q") QInvitation q);
+    MyPage<Invitation> pagination(MyPage<Invitation> pg, @Param("q") QInvitation q);
 
 }

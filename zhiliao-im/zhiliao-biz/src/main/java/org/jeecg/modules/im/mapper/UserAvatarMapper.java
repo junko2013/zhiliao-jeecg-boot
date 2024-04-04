@@ -21,6 +21,6 @@ import java.util.List;
  */
 @Mapper
 public interface UserAvatarMapper extends BaseMapper<UserAvatar> {
-    MyPage<UserAvatar> pagination(@Param("pg") MyPage<UserAvatar> pg, @Param("q") QUserAvatar q);
+    MyPage<UserAvatar> pagination(MyPage<UserAvatar> pg, @Param("q") QUserAvatar q);
     List<UserAvatar> findAll(Integer userId);
 }

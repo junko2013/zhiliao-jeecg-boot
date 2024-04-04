@@ -7,7 +7,6 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Gif;
 import org.jeecg.modules.im.entity.query_helper.QGif;
 import org.jeecg.modules.im.service.GifService;
-import org.jeecg.modules.im.service.base.BaseBackController;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;

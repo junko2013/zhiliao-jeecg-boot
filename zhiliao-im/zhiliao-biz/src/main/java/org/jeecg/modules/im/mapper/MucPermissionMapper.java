@@ -15,7 +15,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 @Mapper
 public interface MucPermissionMapper extends BaseMapper<MucPermission> {
-    MucPermission findByManager(Integer managerId);
+    MucPermission findByManager(Integer mucId,Integer managerId);
     MucPermission findDefaultOfMuc(Integer mucId);
 
     Integer deleteOne(Integer mucId, Integer managerId);

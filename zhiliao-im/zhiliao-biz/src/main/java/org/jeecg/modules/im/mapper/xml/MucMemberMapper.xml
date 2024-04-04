@@ -31,7 +31,6 @@
         <result column="kicker" property="kicker"/>
         <result column="ts_quit" property="tsQuit"/>
         <result column="remark" property="remark"/>
-        <result column="last_ack_id" property="lastAckId"/>
         <association property="user" javaType="org.jeecg.modules.im.entity.User">
             <id column="user_id" property="id"/>
             <result column="user_nickname" property="nickname"/>
@@ -57,11 +56,11 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, user_id, muc_id, nickname, title,back_img,is_msg_archive,ts_msg_visible, ts_join,ts_update, ts_pin,
-        is_no_disturb, is_hide,is_unread,is_read_del,unread_count,role, level_id, coin,ts_mute,ts_mute_begin,mute_type,status,kicker,ts_quit,remark,last_ack_id
+        is_no_disturb, is_hide,is_unread,is_read_del,unread_count,role, level_id, coin,ts_mute,ts_mute_begin,mute_type,status,kicker,ts_quit,remark
     </sql>
     <select id="pagination" resultMap="BaseResultMap">
         select m.id, m.nickname,m.user_id, m.title,m.back_img,m.is_msg_archive,ts_msg_visible, m.ts_join, m.ts_pin, m.is_no_disturb,m.is_hide,m.is_unread,m.is_read_del,m.unread_count,m.join_type,
-               m.role, m.level_id, m.coin,m.ts_mute,ts_mute_begin,mute_type,m.status,m.kicker,m.ts_quit,remark,last_ack_id,
+               m.role, m.level_id, m.coin,m.ts_mute,ts_mute_begin,mute_type,m.status,m.kicker,m.ts_quit,remark,
         user.nickname user_nickname,user.account user_account,user.small_avatar user_small_avatar,
         p.id p_id, p.muc_id p_muc_id, p.manager_id p_manager_id, p.modify_info p_modify_info, p.modify_notice p_modify_notice, p.msg_pin p_msg_pin, p.add_member p_add_member, p.del_member p_del_member, p.mute_member p_mute_member, p.add_manager p_add_manager, p.revoke_manager p_revoke_manager, p.is_validation_tip p_is_validation_tip,p.is_anonymous p_is_anonymous
         from im_muc_member m
@@ -103,8 +102,8 @@
             <if test="q.role!=null">
                 and m.role = #{q.role}
             </if>
-            <if test="q.ts_create!=null">
-                and m.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.tsCreate!=null">
+                and m.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
         <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">
@@ -114,7 +113,7 @@
 
     <select id="findByMucIdOfUser" resultMap="BaseResultMap">
         select m.id, m.nickname,m.user_id,m.muc_id, m.title,m.back_img,m.is_msg_archive,ts_msg_visible, m.ts_join, m.ts_pin, m.is_no_disturb,m.is_hide,m.is_unread,m.is_read_del,m.unread_count,m.join_type,
-           m.role, m.level_id, m.coin,m.ts_mute,m.ts_mute_begin,m.mute_type,m.status,m.kicker,m.ts_quit,remark,last_ack_id,
+           m.role, m.level_id, m.coin,m.ts_mute,m.ts_mute_begin,m.mute_type,m.status,m.kicker,m.ts_quit,remark,
            user.nickname user_nickname,user.small_avatar user_small_avatar,
            p.id p_id, p.muc_id p_muc_id, p.manager_id p_manager_id, p.modify_info p_modify_info, p.modify_notice p_modify_notice, p.msg_pin p_msg_pin, p.add_member p_add_member, p.del_member p_del_member, p.mute_member p_mute_member, p.add_manager p_add_manager, p.revoke_manager p_revoke_manager, p.is_validation_tip p_is_validation_tip,p.is_anonymous p_is_anonymous
         from im_muc_member m
@@ -124,7 +123,7 @@
     </select>
     <select id="findById" resultMap="BaseResultMap">
         select m.id, m.nickname,m.user_id,m.muc_id,m.title, m.back_img,m.is_msg_archive,ts_msg_visible, m.ts_join, m.ts_pin, m.is_no_disturb,m.is_hide,m.is_unread,m.is_read_del,m.unread_count,m.join_type,
-           m.role, m.level_id, m.coin,m.ts_mute,m.ts_mute_begin,m.mute_type,m.status,m.kicker,m.ts_quit,remark,last_ack_id,
+           m.role, m.level_id, m.coin,m.ts_mute,m.ts_mute_begin,m.mute_type,m.status,m.kicker,m.ts_quit,remark,
            user.nickname user_nickname,user.small_avatar user_small_avatar
         from im_muc_member m
          left join im_user user on m.user_id = user.id
@@ -133,7 +132,7 @@
 
     <select id="pageApi" resultMap="BaseResultMap">
         select m.id, m.nickname,m.user_id,m.muc_id,m.title, m.back_img,m.is_msg_archive,ts_msg_visible, m.ts_join, m.ts_pin, m.is_no_disturb,m.is_hide,m.is_unread,m.is_read_del,m.unread_count,m.join_type,
-        m.role, m.level_id, m.coin,m.ts_mute,m.ts_mute_begin,m.mute_type,m.status,m.kicker,m.ts_quit,remark,last_ack_id,
+        m.role, m.level_id, m.coin,m.ts_mute,m.ts_mute_begin,m.mute_type,m.status,m.kicker,m.ts_quit,remark,
        user.nickname user_nickname,user.small_avatar user_small_avatar,
         p.id p_id, p.muc_id p_muc_id, p.manager_id p_manager_id, p.modify_info p_modify_info, p.modify_notice p_modify_notice, p.msg_pin p_msg_pin, p.add_member p_add_member, p.del_member p_del_member, p.mute_member p_mute_member, p.add_manager p_add_manager, p.revoke_manager p_revoke_manager, p.is_validation_tip p_is_validation_tip,p.is_anonymous p_is_anonymous
         from im_muc_member m
@@ -150,7 +149,7 @@
     </select>
     <select id="findAll" resultMap="BaseResultMap">
         select m.id, m.nickname,m.user_id,m.muc_id,m.title, m.back_img,m.is_msg_archive,ts_msg_visible, m.ts_join, m.ts_pin, m.is_no_disturb,m.is_hide,m.is_unread,m.is_read_del,m.unread_count,m.join_type,
-               m.role, m.level_id, m.coin,m.ts_mute,m.ts_mute_begin,m.mute_type,m.status,m.kicker,m.ts_quit,remark,last_ack_id,
+               m.role, m.level_id, m.coin,m.ts_mute,m.ts_mute_begin,m.mute_type,m.status,m.kicker,m.ts_quit,remark,
                user.nickname user_nickname,user.small_avatar user_small_avatar,
                p.id p_id, p.muc_id p_muc_id, p.manager_id p_manager_id, p.modify_info p_modify_info, p.modify_notice p_modify_notice, p.msg_pin p_msg_pin, p.add_member p_add_member, p.del_member p_del_member, p.mute_member p_mute_member, p.add_manager p_add_manager, p.revoke_manager p_revoke_manager, p.is_validation_tip p_is_validation_tip,p.is_anonymous p_is_anonymous
         from im_muc_member m
@@ -160,7 +159,7 @@
     </select>
     <select id="findMine" resultMap="BaseResultMap">
         select m.id, m.nickname,m.user_id,m.muc_id,m.title, m.back_img,m.is_msg_archive,ts_msg_visible, m.ts_join, m.ts_pin, m.is_no_disturb,m.is_hide,m.is_unread,m.is_read_del,m.unread_count,m.join_type,
-        m.role, m.level_id, m.coin,m.ts_mute,m.ts_mute_begin,m.mute_type,m.status,m.kicker,m.ts_quit,remark,last_ack_id,
+        m.role, m.level_id, m.coin,m.ts_mute,m.ts_mute_begin,m.mute_type,m.status,m.kicker,m.ts_quit,remark,
         user.nickname user_nickname,user.small_avatar user_small_avatar,
         p.id p_id, p.muc_id p_muc_id, p.manager_id p_manager_id, p.modify_info p_modify_info, p.modify_notice p_modify_notice, p.msg_pin p_msg_pin, p.add_member p_add_member, p.del_member p_del_member, p.mute_member p_mute_member, p.add_manager p_add_manager, p.revoke_manager p_revoke_manager, p.is_validation_tip p_is_validation_tip,p.is_anonymous p_is_anonymous
         from im_muc_member m
@@ -170,5 +169,9 @@
             and status = #{status}
         </if>
     </select>
+
+    <update id="updateTsVisible">
+        update im_muc_member set ts_msg_visible = #{tsVisible} where muc_id = #{mucId} and user_id = #{userId}
+    </update>
 
 </mapper>

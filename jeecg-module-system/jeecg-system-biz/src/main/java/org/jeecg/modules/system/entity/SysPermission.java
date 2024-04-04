@@ -151,7 +151,7 @@ public class SysPermission implements Serializable {
 	private Date updateTime;
 	
 	/**按钮权限状态(0无效1有效)*/
-	private java.lang.String status;
+	private Integer status;
 	
 	/**alwaysShow*/
     private boolean alwaysShow;
@@ -160,7 +160,10 @@ public class SysPermission implements Serializable {
     /** 外链菜单打开方式 0/内部打开 1/外部打开 */
     private boolean internalOrExternal;
 	/*update_end author:wuxianquan date:20190908 for:实体增加字段 */
-
+	//可授权给租户
+	private boolean canGrantToTenant;
+	@TableField(value="is_need_server")
+	private boolean needServer;
     public SysPermission() {
     	
     }

@@ -12,6 +12,7 @@
            <result column="way" property="way" />
            <result column="type" property="type" />
            <result column="ts_create" property="tsCreate" />
+           <result column="server_id" property="serverId" />
             <association property="user" javaType="org.jeecg.modules.im.entity.User">
                 <result column="u_id" property="id"/>
                 <result column="u_nickname" property="nickname"/>
@@ -57,8 +58,11 @@
             <if test="q.type!=null and q.type!=''">
                 and s.type=#{q.type}
             </if>
-            <if test="q.ts_create!=null">
-                and s.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.tsCreate!=null">
+                and s.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
+            </if>
+            <if test="q.serverId!=null">
+                and s.server_id=#{q.serverId}
             </if>
         </where>
         <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">

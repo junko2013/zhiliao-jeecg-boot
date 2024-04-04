@@ -43,7 +43,7 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfoMapper, UserInf
         info.setMucManage(mucService.getCountOfRole(userId, MucMember.Role.Manager));
         info.setMucJoin(mucService.getCountOfRole(userId, MucMember.Role.Member));
         info.setFriendCount(friendService.getCountOfUser(userId));
-        info.setDeviceCount(deviceService.getCountOfUser(userId));
+        info.setDeviceCount(deviceService.getCount(userId,null));
         info.setContactCount(contactService.getCountOfUser(userId));
         return info;
     }

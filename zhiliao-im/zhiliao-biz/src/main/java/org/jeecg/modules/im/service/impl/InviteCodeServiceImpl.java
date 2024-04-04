@@ -1,17 +1,14 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
-import org.jeecg.modules.im.entity.ClientConfig;
+import org.jeecg.modules.im.entity.ServerConfig;
 import org.jeecg.modules.im.entity.InviteCode;
-import org.jeecg.modules.im.entity.Link;
 import org.jeecg.modules.im.entity.query_helper.QInviteCode;
 import org.jeecg.modules.im.mapper.InviteCodeMapper;
-import org.jeecg.modules.im.service.ClientConfigService;
+import org.jeecg.modules.im.service.ServerConfigService;
 import org.jeecg.modules.im.service.InviteCodeService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +31,7 @@ public class InviteCodeServiceImpl extends BaseServiceImpl<InviteCodeMapper, Inv
     @Autowired
     private InviteCodeMapper inviteCodeMapper;
     @Resource
-    private ClientConfigService clientConfigService;
+    private ServerConfigService serverConfigService;
     @Override
     public InviteCode findByCode(String code) {
         return inviteCodeMapper.findByCode(code);
@@ -42,7 +39,7 @@ public class InviteCodeServiceImpl extends BaseServiceImpl<InviteCodeMapper, Inv
 
     @Override
     public Result<Object> checkCode(String code) {
-        ClientConfig config = clientConfigService.get();
+        ServerConfig config = getServerConfig();
         if(config.getInviteCodeType().equals(InviteCode.Type.require.getCode())&&isEmpty(code)){
             return fail("邀请码必填");
         }

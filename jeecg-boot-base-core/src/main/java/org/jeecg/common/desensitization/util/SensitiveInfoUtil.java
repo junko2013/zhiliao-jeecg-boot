@@ -83,7 +83,7 @@ public class SensitiveInfoUtil {
                         continue;
                     }
                     SensitiveField sf = field.getAnnotation(SensitiveField.class);
-                    if(isEncode==true){
+                    if(isEncode){
                         //加密
                         String value = SensitiveInfoUtil.getEncodeData(realValue,  sf.type());
                         field.set(obj, value);
@@ -158,7 +158,7 @@ public class SensitiveInfoUtil {
                 try {
                     result = AesEncryptUtil.encrypt(data);
                 } catch (Exception exception) {
-                    log.error("数据加密错误", exception.getMessage());
+                    log.error("数据加密错误{}", exception.getMessage());
                     result = data;
                 }
                 break;

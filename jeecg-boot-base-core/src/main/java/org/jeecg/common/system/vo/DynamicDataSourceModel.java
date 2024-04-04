@@ -23,36 +23,36 @@ public class DynamicDataSourceModel {
     /**
      * id
      */
-    private java.lang.String id;
+    private String id;
     /**
      * 数据源编码
      */
-    private java.lang.String code;
+    private String code;
     /**
      * 数据库类型
      */
-    private java.lang.String dbType;
+    private String dbType;
     /**
      * 驱动类
      */
-    private java.lang.String dbDriver;
+    private String dbDriver;
     /**
      * 数据源地址
      */
-    private java.lang.String dbUrl;
+    private String dbUrl;
 
 //    /**
 //     * 数据库名称
 //     */
-//    private java.lang.String dbName;
+//    private String dbName;
 
     /**
      * 用户名
      */
-    private java.lang.String dbUsername;
+    private String dbUsername;
     /**
      * 密码
      */
-    private java.lang.String dbPassword;
+    private String dbPassword;
 
 }

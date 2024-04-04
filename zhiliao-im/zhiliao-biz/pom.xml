@@ -10,7 +10,7 @@
     <artifactId>zhiliao-biz</artifactId>
 
     <properties>
-        <smack.version>4.5.0-alpha1</smack.version>
+        <smack.version>4.4.7</smack.version>
     </properties>
 
     <dependencies>
@@ -27,12 +27,12 @@
             <optional>true</optional>
         </dependency>
 
-
         <!--rabbitmq消息队列-->
         <dependency>
             <groupId>org.jeecgframework.boot</groupId>
             <artifactId>jeecg-boot-starter-rabbitmq</artifactId>
         </dependency>
+
 
         <dependency>
             <groupId>org.lionsoul</groupId>
@@ -52,11 +52,11 @@
             <version>0.4.15</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.sejda.imageio/webp-imageio -->
+        <!-- https://mvnrepository.com/artifact/io.github.darkxanter/webp-imageio -->
         <dependency>
-            <groupId>org.sejda.imageio</groupId>
+            <groupId>io.github.darkxanter</groupId>
             <artifactId>webp-imageio</artifactId>
-            <version>0.1.6</version>
+            <version>0.3.3</version>
         </dependency>
 
 
@@ -148,8 +148,9 @@
         <dependency>
             <groupId>cn.jpush.api</groupId>
             <artifactId>jpush-client</artifactId>
-            <version>3.6.6</version>
+            <version>3.7.3</version>
         </dependency>
+
         <dependency>
             <groupId>cn.jpush.api</groupId>
             <artifactId>jiguang-common</artifactId>
@@ -168,7 +169,7 @@
         </dependency>
 <!--        <dependency>-->
 <!--            <groupId>org.igniterealtime</groupId>-->
-<!--            <artifactId>rest-api-client</artifactId>-->
+<!--            <artifactId>rest-api-server</artifactId>-->
 <!--            <version>1.1.5</version>-->
 <!--        </dependency>-->
 

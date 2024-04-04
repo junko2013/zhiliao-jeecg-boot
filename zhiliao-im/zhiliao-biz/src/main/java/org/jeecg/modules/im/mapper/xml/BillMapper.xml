@@ -15,6 +15,7 @@
            <result column="body" property="body" />
            <result column="type" property="type" />
            <result column="pay_type" property="payType" />
+           <result column="server_id" property="serverId" />
             <association property="user" javaType="org.jeecg.modules.im.entity.User">
                 <result column="u_id" property="id"/>
                 <result column="u_nickname" property="nickname"/>
@@ -57,8 +58,11 @@
             <if test="q.payType!=null and q.payType!=''">
                 and pay_type=#{q.payType}
             </if>
-            <if test="q.ts_create!=null">
-                and b.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.serverId!=null">
+                and server_id=#{q.serverId}
+            </if>
+            <if test="q.tsCreate!=null">
+                and b.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
         <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">

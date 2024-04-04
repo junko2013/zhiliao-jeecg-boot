@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.im.mapper.FriendDeleteMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.im.entity.FriendDelete">
+        <id column="id" property="id" />
+        <result column="from_id" property="fromId" />
+        <result column="to_id" property="toId" />
+        <result column="ts_create" property="tsCreate" />
+        <association property="fromUser" javaType="org.jeecg.modules.im.entity.User">
+            <id column="fu_id" property="id"/>
+            <result column="fu_account" property="account"/>
+            <result column="fu_nickname" property="nickname"/>
+            <result column="fu_small_avatar" property="smallAvatar"/>
+            <result column="fu_is_online" property="isOnline"/>
+            <result column="fu_ts_create" property="tsCreate"/>
+            <association property="info"  javaType="org.jeecg.modules.im.entity.UserInfo">
+                <result column="fu_province" property="province"/>
+                <result column="fu_city" property="city"/>
+                <result column="fu_gender" property="gender"/>
+                <result column="fu_signature" property="signature"/>
+            </association>
+        </association>
+        <association property="toUser" javaType="org.jeecg.modules.im.entity.User">
+            <id column="tu_id" property="id"/>
+            <result column="tu_account" property="account"/>
+            <result column="tu_nickname" property="nickname"/>
+            <result column="tu_small_avatar" property="smallAvatar"/>
+            <result column="tu_is_online" property="isOnline"/>
+            <result column="tu_ts_create" property="tsCreate"/>
+            <association property="info"  javaType="org.jeecg.modules.im.entity.UserInfo">
+                <result column="tu_province" property="province"/>
+                <result column="tu_city" property="city"/>
+                <result column="tu_gender" property="gender"/>
+                <result column="tu_signature" property="signature"/>
+            </association>
+        </association>
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, from_id, to_id, ts_create
+    </sql>
+
+    <select id="pagination" resultMap="BaseResultMap">
+        select s.id, from_id, to_id, s.ts_create,
+        t.id tu_id,t.account tu_account,t.nickname tu_nickname,t.username tu_username,t.small_avatar tu_small_avatar,t.is_online tu_is_online,t.ts_create tu_ts_create,
+        ti.province tu_province,ti.city tu_city,ti.gender tu_gender,ti.signature tu_signature,
+        f.id fu_id,f.account fu_account,f.nickname fu_nickname,f.username fu_username,f.small_avatar fu_small_avatar,f.is_online fu_is_online,f.ts_create fu_ts_create,
+        fi.province fu_province,fi.city fu_city,fi.gender fu_gender,fi.signature fu_signature
+        from im_friend_delete s
+        left join im_user f on f.id = s.from_id
+        left join im_user_info fi on fi.user_id = f.id
+        left join im_user t on t.id = s.to_id
+        left join im_user_info ti on ti.user_id = t.id
+        <where>
+            1=1
+            <if test="q.fromId !=null and q.fromId !=''">
+                and s.from_id = #{q.fromId}
+            </if>
+            <if test="q.serverId !=null and q.serverId !=''">
+                and s.server_id = #{q.serverId}
+            </if>
+            <if test="q.toId !=null and q.toId !=''">
+                and s.to_id = #{q.toId}
+            </if>
+            <if test="q.fromUserSearch !=null and q.fromUserSearch !=''">
+                and(f.nickname like concat('%',#{q.fromUserSearch},'%') or f.account like concat('%',#{q.fromUserSearch},'%') or f.username like concat('%',#{q.fromUserSearch},'%') or f.mobile like concat('%',#{q.fromUserSearch},'%'))
+            </if>
+            <if test="q.toUserSearch !=null and q.toUserSearch !=''">
+                and(t.nickname like concat('%',#{q.toUserSearch},'%') or t.account like concat('%',#{q.toUserSearch},'%') or t.username like concat('%',#{q.toUserSearch},'%') or t.mobile like concat('%',#{q.toUserSearch},'%'))
+            </if>
+            <if test="q.tsCreate!=null">
+                and s.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
+            </if>
+        </where>
+        order by s.ts_create desc
+    </select>
+
+</mapper>

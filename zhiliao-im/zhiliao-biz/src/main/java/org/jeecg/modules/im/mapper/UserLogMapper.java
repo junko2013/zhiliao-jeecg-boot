@@ -18,5 +18,5 @@ import org.jeecg.modules.im.entity.query_helper.QUserLog;
  */
 @Mapper
 public interface UserLogMapper extends BaseMapper<UserLog> {
-    MyPage<UserLog> pagination(@Param("pg") MyPage<UserLog> pg, @Param("q") QUserLog q);
+    MyPage<UserLog> pagination(MyPage<UserLog> pg, @Param("q") QUserLog q);
 }

@@ -37,7 +37,7 @@ public class RedPackServiceImpl extends BaseServiceImpl<RedPackMapper, RedPack> 
     @Autowired
     private RedPackMapper redPackMapper;
     @Resource
-    private ClientConfigService clientConfigService;
+    private ServerConfigService serverConfigService;
     @Resource
     private UserService userService;
     @Resource
@@ -55,9 +55,9 @@ public class RedPackServiceImpl extends BaseServiceImpl<RedPackMapper, RedPack> 
     //发送单聊红包
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result<Object> send(RedPack redPack) {
+    public Result<Object> send(Integer userId,RedPack redPack) {
         try {
-            User user = getCurrentUser();
+            User user = userService.findById(userId);
             //判断用户是否设置了支付密码
             if (isEmpty(user.getPayPassword())) {
                 return fail("未设置支付密码");
@@ -65,7 +65,7 @@ public class RedPackServiceImpl extends BaseServiceImpl<RedPackMapper, RedPack> 
             if(!ToolPassword.checkPassword(user.getPaySalt(), user.getPayPassword(), redPack.getPayPwd())){
                 return fail("支付密码错误");
             }
-            ClientConfig config = clientConfigService.get();
+            ServerConfig config = getServerConfig();
             if (!config.getAllowRedPack()) {
                 return fail("红包功能未启用");
             }
@@ -122,14 +122,14 @@ public class RedPackServiceImpl extends BaseServiceImpl<RedPackMapper, RedPack> 
             return success();
         }catch (Exception e) {
             e.printStackTrace();
-            log.error("发送单聊红包异常：redPack={},e={}", redPack, e);
+            log.error("发送单聊红包异常：redPack={}", redPack, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return fail("发送失败，请稍后再试");
         }
     }
 
     @Override
-    public Result<Object> sendMuc(RedPack redPack) {
+    public Result<Object> sendMuc(Integer userId,RedPack redPack) {
         return null;
     }
 }

@@ -58,11 +58,13 @@ public class Statistic extends BaseModel<Statistic> {
     /**
      * 动态发布
      */
-    private Integer activity;
+    private Integer post;
 
     /**
      * 群聊消息
      */
     private Integer mucMsgSend;
+
+    private Integer serverId;
 
 }

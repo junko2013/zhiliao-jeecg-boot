@@ -17,6 +17,7 @@
 	    <result column="is_route" property="route"/>
 	    <result column="keep_alive" property="keepAlive"/>
 	    <result column="is_leaf" property="leaf"/>
+	    <result column="is_need_server" property="needServer"/>
 	</resultMap>
 	
 	
@@ -62,7 +63,9 @@
 						p.hide_tab,
 						p.rule_flag,
 						p.status,
-						p.internal_or_external
+						p.internal_or_external,
+						p.is_need_server,
+						p.can_grant_to_tenant
 			   FROM  sys_permission p
 			   WHERE p.del_flag = 0
 		       AND  ( p.id in (
@@ -97,7 +100,9 @@
 						p.hide_tab,
 						p.rule_flag,
 						p.status,
-						p.internal_or_external
+						p.internal_or_external,
+						p.is_need_server,
+						p.can_grant_to_tenant
 			FROM  sys_permission p
 			WHERE p.id in(
 		        SELECT DISTINCT a.permission_id
@@ -130,7 +135,9 @@
 					p.hide_tab,
 					p.rule_flag,
 					p.status,
-					p.internal_or_external
+					p.internal_or_external,
+					p.is_need_server,
+					p.can_grant_to_tenant
 			FROM  sys_permission p
 			WHERE p.id in (
 				SELECT distinct a.permission_id

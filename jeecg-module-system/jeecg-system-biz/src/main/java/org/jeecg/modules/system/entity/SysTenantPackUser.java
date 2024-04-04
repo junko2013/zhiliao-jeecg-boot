@@ -31,22 +31,22 @@ public class SysTenantPackUser implements Serializable {
     /**id*/
     @TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "id")
-    private java.lang.String id;
+    private String id;
     /**租户产品包ID*/
     @Excel(name = "租户产品包ID", width = 15)
     @ApiModelProperty(value = "租户产品包ID")
-    private java.lang.String packId;
+    private String packId;
     /**用户ID*/
     @Excel(name = "用户ID", width = 15)
     @ApiModelProperty(value = "用户ID")
-    private java.lang.String userId;
+    private String userId;
     /**租户ID*/
     @Excel(name = "租户ID", width = 15)
     @ApiModelProperty(value = "租户ID")
-    private java.lang.Integer tenantId;
+    private Integer tenantId;
     /**创建人*/
     @ApiModelProperty(value = "创建人")
-    private java.lang.String createBy;
+    private String createBy;
     /**创建时间*/
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
@@ -54,7 +54,7 @@ public class SysTenantPackUser implements Serializable {
     private java.util.Date createTime;
     /**更新人*/
     @ApiModelProperty(value = "更新人")
-    private java.lang.String updateBy;
+    private String updateBy;
     /**更新时间*/
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")

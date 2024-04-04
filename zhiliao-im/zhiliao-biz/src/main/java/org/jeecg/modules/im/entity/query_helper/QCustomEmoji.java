@@ -7,5 +7,5 @@ import org.jeecg.modules.im.entity.Gif;
 
 @Data
 public class QCustomEmoji extends CustomEmoji {
-
+    private String userSearch;
 }

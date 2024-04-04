@@ -1,12 +1,12 @@
 package org.jeecg.modules.im.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.base.vo.MyPage;
-import org.jeecg.modules.im.entity.Notice;
-import org.jeecg.modules.im.entity.Notice;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.modules.im.entity.Notice;
 import org.jeecg.modules.im.entity.query_helper.QNotice;
+
+import java.util.List;
 
 /**
  * <p>
@@ -17,8 +17,14 @@ import org.jeecg.modules.im.entity.query_helper.QNotice;
  * @since 2021-10-29
  */
 public interface NoticeService extends IService<Notice> {
-    IPage<Notice> pagination(MyPage<Notice> page, QNotice q);
     Result<Object> createOrUpdate(Notice notice);
+    Result<Object> del(String ids);
 
-    Notice findById(String id);
+    //逻辑删除相关
+    List<Notice> queryLogicDeleted();
+    List<Notice> queryLogicDeleted(LambdaQueryWrapper<Notice> wrapper);
+    boolean revertLogicDeleted(List<String> ids);
+    boolean removeLogicDeleted(List<String> ids);
+    //查询用户的
+    List<Notice> findAll(QNotice q);
 }

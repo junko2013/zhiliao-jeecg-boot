@@ -7,24 +7,52 @@
         <id column="id" property="id"/>
         <result column="hello_id" property="helloId"/>
         <result column="msg" property="msg"/>
-        <result column="is_send" property="isSend"/>
+        <result column="sender_id" property="senderId"/>
         <result column="ts_create" property="tsCreate"/>
+        <result column="ts_read" property="tsRead"/>
+        <association property="sender" javaType="org.jeecg.modules.im.entity.User">
+            <id column="u_id" property="id"/>
+            <result column="u_account" property="account"/>
+            <result column="u_nickname" property="nickname"/>
+            <result column="u_small_avatar" property="smallAvatar"/>
+            <result column="u_is_online" property="isOnline"/>
+            <result column="u_ts_create" property="tsCreate"/>
+            <association property="info"  javaType="org.jeecg.modules.im.entity.UserInfo">
+                <result column="u_province" property="province"/>
+                <result column="u_city" property="city"/>
+                <result column="u_gender" property="gender"/>
+                <result column="u_signature" property="signature"/>
+            </association>
+        </association>
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, hello_id, msg, is_send, ts_create
+        id, hello_id, msg, sender_id, ts_create,ts_read
     </sql>
 
-    <select id="findByHelloId" resultMap="BaseResultMap">
-        select * from im_say_hello_reply where hello_id = #{helloId}
-        <if test="isSend!=null">
-            and is_send =#{isSend}
-        </if>
-        order by ts_create desc
+    <select id="findLatestNByHelloId" resultMap="BaseResultMap">
+        select r.id, hello_id, msg, sender_id, r.ts_create,r.ts_read,
+            u.id u_id,u.account u_account,u.nickname u_nickname,u.username u_username,u.small_avatar u_small_avatar,u.is_online u_is_online,u.ts_create u_ts_create,
+            ui.province u_province,ui.city u_city,ui.gender u_gender,ui.signature u_signature
+            from im_say_hello_reply  r
+             left join im_user u on u.id = r.sender_id
+             left join im_user_info ui on ui.user_id = u.id
+            where hello_id = #{helloId}
+        order by ts_create desc limit #{n}
     </select>
     <select id="pagination" resultMap="BaseResultMap">
-        select * from im_say_hello_reply where hello_id = #{q.helloId}
+        select r.id, hello_id, msg, sender_id, r.ts_create,r.ts_read,
+               u.id u_id,u.account u_account,u.nickname u_nickname,u.username u_username,u.small_avatar u_small_avatar,u.is_online u_is_online,u.ts_create u_ts_create,
+               ui.province u_province,ui.city u_city,ui.gender u_gender,ui.signature u_signature
+        from im_say_hello_reply  r
+                 left join im_user u on u.id = r.sender_id
+                 left join im_user_info ui on ui.user_id = u.id
+        where hello_id = #{q.helloId}
         order by ts_create desc
     </select>
+
+    <update id="read">
+        update im_say_hello_reply set ts_read = #{ts} where hello_id = #{helloId} and sender_id != #{userId}
+    </update>
 
 </mapper>

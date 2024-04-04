@@ -98,7 +98,7 @@ public class oConvertUtils {
 	}
 
 	public static int getInt(String s) {
-		if (s == null || "".equals(s)) {
+		if (s == null || s.isEmpty()) {
 			return 0;
 		}
 		try {

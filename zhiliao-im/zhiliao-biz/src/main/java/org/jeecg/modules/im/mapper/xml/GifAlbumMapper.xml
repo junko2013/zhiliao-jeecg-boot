@@ -11,6 +11,7 @@
         <result column="ts_create" property="tsCreate" />
         <result column="counts" property="counts" />
         <result column="send_times" property="sendTimes" />
+        <result column="server_id" property="serverId" />
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
@@ -29,8 +30,11 @@
             <if test="q.addTimes!=null and q.addTimes !=''">
                 and ga.add_times >= #{q.addTimes}
             </if>
-            <if test="q.ts_create!=null">
-                and ga.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.tsCreate!=null">
+                and ga.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
+            </if>
+            <if test="q.serverId!=null">
+                and ga.server_id = #{q.serverId}
             </if>
         </where>
         group by ga.id
@@ -38,12 +42,12 @@
             order by ${q.column} ${q.order}
         </if>
     </select>
-    <select id="findUngroup" resultMap="BaseResultMap">
-        select * from im_gif_album where id = 0
-    </select>
     <select id="findAll" resultMap="BaseResultMap">
         SELECT a.id,a.name,a.counts,a.send_times,a.ts_create FROM (
-            SELECT ga.id,ga.name,sum(send_times) send_times,SUM(g.add_times) add_times,COUNT(g.id) counts,ga.ts_create FROM im_gif_album ga RIGHT JOIN im_gif g ON ga.id = g.album_id GROUP BY ga.id ORDER BY send_times desc,add_times desc,ga.order_no desc
+            SELECT ga.id,ga.name,sum(send_times) send_times,SUM(g.add_times) add_times,COUNT(g.id) counts,ga.ts_create
+            FROM im_gif_album ga RIGHT JOIN im_gif g ON ga.id = g.album_id
+            where server_id = #{serverId}
+            GROUP BY ga.id ORDER BY send_times desc,add_times desc,ga.order_no desc
         )a
     </select>
 

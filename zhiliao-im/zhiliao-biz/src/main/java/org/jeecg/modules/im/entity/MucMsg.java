@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
+
+import java.util.List;
 
 /**
  * <p>
@@ -42,20 +45,22 @@ public class MucMsg extends BaseModel<MucMsg> {
      */
     private String stanzaId;
     /**
+     * 回复的消息id
+     */
+    private String replyStanzaId;
+    /**
      * 内容
      */
     private String content;
     /**
-     * json
-     */
-    private String body;
-    /**
      * 加密
      */
+    @Dict(dicCode = "yon")
     private Boolean isEncrypt = false;
     /**
      * 敏感内容
      */
+    @Dict(dicCode = "yon")
     private Boolean isSpam = false;
     //置顶时间
     private Long tsPin;
@@ -64,6 +69,14 @@ public class MucMsg extends BaseModel<MucMsg> {
      * 发送时间戳
      */
     private Long tsSend;
+    /**
+     * 送达时间
+     */
+    private Long tsReceived;
+    /**
+     * 归档时间
+     */
+    private Long tsArchived;
     /**
      * 删除时间戳
      */
@@ -80,6 +93,21 @@ public class MucMsg extends BaseModel<MucMsg> {
      * 撤回人
      */
     private Integer revokerId;
+    /**
+     *0：正常，1：发送人撤回，2：群主或管理员撤回，3：系统撤回
+     */
+    private Integer revokeType=0;
+    /**
+     * 阅后即焚
+     */
+    @Dict(dicCode = "yon")
+    private Boolean isReadDel = false;
+
+    private Integer serverId;
+
+    //阅读记录
+    @TableField(exist = false)
+    private List<MucMsgRead> reads;
 
     @TableField(exist = false)
     public Boolean isSend;
@@ -87,5 +115,7 @@ public class MucMsg extends BaseModel<MucMsg> {
     public MucMember sender;
     @TableField(exist = false)
     public Muc muc;
+    @TableField(exist = false)
+    public String deleteUserIds;
 
 }

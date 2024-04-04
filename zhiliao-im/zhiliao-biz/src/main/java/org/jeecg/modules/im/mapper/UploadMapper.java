@@ -18,7 +18,7 @@ import org.jeecg.modules.im.entity.query_helper.QUpload;
  */
 @Mapper
 public interface UploadMapper extends BaseMapper<Upload> {
-    MyPage<Upload> pagination(@Param("pg") MyPage<Upload> pg, @Param("q") QUpload q);
+    MyPage<Upload> pagination(MyPage<Upload> pg, @Param("q") QUpload q);
 
     Upload findByHref(String href);
 }

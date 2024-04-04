@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.jeecg.modules.im.entity.OnlineData;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
+import java.util.List;
+
 /**
  * <p>
  * 在线数据 Mapper 接口
@@ -16,4 +18,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 @Mapper
 public interface OnlineDataMapper extends BaseMapper<OnlineData> {
 
+    List<OnlineData> findByDateOfServer(String date, Integer serverId);
 }

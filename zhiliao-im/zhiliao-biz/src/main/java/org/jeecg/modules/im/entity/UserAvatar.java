@@ -43,6 +43,8 @@ public class UserAvatar extends BaseModel<UserAvatar> {
 
     private Integer userId;
 
+    private Integer serverId;
+
     @TableField(exist = false)
     private User user;
 }

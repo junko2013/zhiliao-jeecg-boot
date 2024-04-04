@@ -37,13 +37,13 @@ public class Result<T> implements Serializable {
 	 */
 	@ApiModelProperty(value = "返回代码")
 	private Integer code = 0;
-	
+
 	/**
 	 * 返回数据对象 data
 	 */
 	@ApiModelProperty(value = "返回数据对象")
 	private T result;
-	
+
 	/**
 	 * 时间戳
 	 */
@@ -53,16 +53,16 @@ public class Result<T> implements Serializable {
 	public Result() {
 	}
 
-    /**
-     * 兼容VUE3版token失效不跳转登录页面
-     * @param code
-     * @param message
-     */
+	/**
+	 * 兼容VUE3版token失效不跳转登录页面
+	 * @param code
+	 * @param message
+	 */
 	public Result(Integer code, String message) {
 		this.code = code;
 		this.message = message;
 	}
-	
+
 	public Result<T> success(String message) {
 		this.message = message;
 		this.code = CommonConstant.SC_OK_200;
@@ -148,11 +148,17 @@ public class Result<T> implements Serializable {
 	public static<T> Result<T> error(String msg) {
 		return error(CommonConstant.SC_INTERNAL_SERVER_ERROR_500, msg);
 	}
-	
+
 	public static<T> Result<T> error(int code, String msg) {
 		Result<T> r = new Result<T>();
 		r.setCode(code);
 		r.setMessage(msg);
+		r.setSuccess(false);
+		return r;
+	}
+	public static<T> Result<T> error(int code) {
+		Result<T> r = new Result<T>();
+		r.setCode(code);
 		r.setSuccess(false);
 		return r;
 	}

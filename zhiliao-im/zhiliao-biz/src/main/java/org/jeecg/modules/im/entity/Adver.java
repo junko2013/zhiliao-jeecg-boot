@@ -2,9 +2,11 @@ package org.jeecg.modules.im.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
 
 /**
  * <p>
@@ -25,16 +27,28 @@ public class Adver extends BaseModel<Adver> {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    private String url;
+    private String title;
 
-    private String type;
+    private String cover;
+
+    @Dict(dicCode = "adver_location_type")
+    private Integer type;
+
+    @Dict(dicCode = "adver_jump_type")
+    private Integer jumpType;
 
     private String jumpUrl;
 
     private Integer timeout;
 
-    private Boolean isOn;
+    @Dict(dicCode = "status")
+    private Integer status;
 
     private Long tsCreate;
 
+    @TableLogic
+    private Integer delFlag;
+
+    //服务器
+    private Integer serverId;
 }

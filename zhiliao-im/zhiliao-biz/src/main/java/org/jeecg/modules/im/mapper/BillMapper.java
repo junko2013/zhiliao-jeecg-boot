@@ -19,6 +19,6 @@ import org.jeecg.modules.im.entity.query_helper.QBill;
  */
 @Mapper
 public interface BillMapper extends BaseMapper<Bill> {
-    MyPage<Bill> pagination(@Param("pg") MyPage<Bill> pg, @Param("q") QBill q);
+    MyPage<Bill> pagination(MyPage<Bill> pg, @Param("q") QBill q);
 
 }

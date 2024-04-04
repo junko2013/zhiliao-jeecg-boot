@@ -6,7 +6,6 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.ClientVer;
 import org.jeecg.modules.im.entity.query_helper.QClientVer;
 import org.jeecg.modules.im.service.ClientVerService;
-import org.jeecg.modules.im.service.base.BaseBackController;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
+
 /**
  * <p>
  * 群聊投票
@@ -54,11 +56,13 @@ public class Vote extends BaseModel<Vote> {
     /**
      * 多选
      */
+    @Dict(dicCode = "yon")
     private Boolean isMultiple;
 
     /**
-     * 测验模式
+     * 多选模式
      */
+    @Dict(dicCode = "yon")
     private Boolean isCheckMode;
 
     /**

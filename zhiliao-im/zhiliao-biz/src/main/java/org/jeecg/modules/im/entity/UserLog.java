@@ -41,6 +41,8 @@ public class UserLog extends BaseModel<UserLog> {
     private String deviceNo;
     private String deviceName;
     private String deviceSysVer;
+    //设备是真机
+    private Boolean deviceIsPhysic;
     private String deviceClientVer;
     /**
      * 操作
@@ -72,6 +74,8 @@ public class UserLog extends BaseModel<UserLog> {
     private String module;
 
     private Long tsCreate;
+
+    private Integer serverId;
 
     @TableField(exist = false)
     private User user;

@@ -20,7 +20,8 @@ import java.util.List;
  */
 @Mapper
 public interface SayHelloReplyMapper extends BaseMapper<SayHelloReply> {
-    List<SayHelloReply> findByHelloId(Integer helloId,Boolean isSend);
-    MyPage<SayHelloReply> pagination(@Param("pg") MyPage<SayHelloReply> pg, @Param("q") QSayHelloReply q);
+    List<SayHelloReply> findLatestNByHelloId(Integer helloId,Integer n);
+    MyPage<SayHelloReply> pagination(MyPage<SayHelloReply> pg, @Param("q") QSayHelloReply q);
 
+    void read(int helloId, Long ts,int userId);
 }

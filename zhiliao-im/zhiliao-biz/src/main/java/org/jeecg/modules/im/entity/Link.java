@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
+
 /**
  * <p>
  * 发现页网页链接
@@ -48,23 +50,29 @@ public class Link extends BaseModel<Link> {
     /**
      * 启用
      */
+    @Dict(dicCode = "yon")
     private Boolean isUse;
 
     /**
      * 测试号可见
      */
+    @Dict(dicCode = "yon")
     private Boolean visibleTester;
 
     /**
      * 业务号可见
      */
+    @Dict(dicCode = "yon")
     private Boolean visibleBusiness;
 
     /**
      * 普通用户可见
      */
+    @Dict(dicCode = "yon")
     private Boolean visibleCommon;
 
     private Long tsCreate;
+    //服务器id
+    private Integer serverId;
 
 }

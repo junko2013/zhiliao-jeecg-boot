@@ -20,6 +20,7 @@
         <result column="way" property="way"/>
         <result column="ts_create" property="tsCreate"/>
         <result column="is_register" property="isRegister"/>
+        <result column="server_id" property="serverId"/>
         <association property="user" javaType="org.jeecg.modules.im.entity.User">
             <result column="u_id" property="id"/>
             <result column="u_nickname" property="nickname"/>
@@ -84,8 +85,11 @@
             <if test="q.isRegister!=null">
                 and is_register=#{q.isRegister}
             </if>
-            <if test="q.ts_create!=null">
-                and l.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.serverId!=null">
+                and l.server_id=#{q.serverId}
+            </if>
+            <if test="q.tsCreate!=null">
+                and l.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
         <if test="q.column !=null and q.column!='' and q.order!=null and q.order!=''">
@@ -97,9 +101,11 @@
     </select>
     <select id="getRegisterCountOfIp" resultType="java.lang.Long">
         SELECT count(id) from im_login_log where ip = #{ip} and ts_create &gt;= #{begin} and ts_create &lt; #{end} and is_register is true
+        and server_id=#{serverId}
     </select>
     <select id="getRegisterCountOfDevice" resultType="java.lang.Long">
         SELECT count(id) from im_login_log where device_no = #{deviceNo} and ts_create &gt;= #{begin} and ts_create &lt; #{end} and is_register is true
+        and server_id=#{serverId}
     </select>
 
 </mapper>

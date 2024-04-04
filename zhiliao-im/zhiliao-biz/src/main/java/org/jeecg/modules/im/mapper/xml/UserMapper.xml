@@ -25,6 +25,8 @@
         <result column="pay_password" property="payPassword"/>
         <result column="is_online" property="isOnline"/>
         <result column="type" property="type"/>
+        <result column="server_id" property="serverId"/>
+        <result column="verify" property="verify"/>
         <result column="ts_online" property="tsOnline"/>
         <result column="ts_offline" property="tsOffline"/>
         <result column="ts_mute" property="tsMute"/>
@@ -32,17 +34,12 @@
         <result column="mute_type" property="muteType"/>
         <result column="ts_no_connect" property="tsNoConnect"/>
         <result column="is_default_friend" property="isDefaultFriend"/>
+        <result column="is_public" property="isPublic"/>
         <result column="welcomes" property="welcomes"/>
         <result column="reg_no" property="regNo"/>
         <result column="resource" property="resource"/>
         <result column="match_type" property="matchType"/>
 
-        <association property="friend" javaType="org.jeecg.modules.im.entity.Friend">
-            <result column="friend_id" property="id"/>
-            <result column="friend_status" property="status"/>
-            <result column="friend_ts_black" property="tsBlack"/>
-            <result column="friend_ts_been_black" property="tsBeenBlack"/>
-        </association>
         <association property="info" javaType="org.jeecg.modules.im.entity.UserInfo">
             <id column="info_id" property="id" />
             <result column="province" property="province" />
@@ -53,7 +50,7 @@
             <result column="signature" property="signature" />
             <result column="balance" property="balance" />
             <result column="balance_freeze" property="balanceFreeze" />
-            <result column="continue_sign_in_day" property="continueSignInDay" />
+            <result column="coin" property="coin" />
             <result column="sign_in_day" property="signInDay" />
             <result column="state" property="state" />
             <result column="friendCount" property="friendCount" />
@@ -99,16 +96,16 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         nickname, account,username, email,home_bg,password, password_is_init,salt, u.ts_create, small_avatar,avatar,qr_code,pay_salt,pay_password,u.is_online,u.ts_locked,u.mobile,
-        u.ts_online,u.ts_offline,ts_mute,ts_mute_begin,mute_type,ts_no_connect,type,enable_google_code,google_code,resource,is_default_friend
+        u.ts_online,u.verify,u.ts_offline,ts_mute,ts_mute_begin,mute_type,ts_no_connect,type,enable_google_code,google_code,resource,is_default_friend
     </sql>
     <sql id="UserInfo_Column_List">
-        province, city, district, welcomes,country, gender, signature,  balance, balance_freeze, continue_sign_in_day, sign_in_day, state
+        province, city, district, welcomes,country, gender, signature,  coin,balance, balance_freeze, sign_in_day, state
     </sql>
     <sql id="Setting_Column_List">
         is_nickname_can_modify, mobile_search, account_search, username_search, nickname_search, is_no_add_friend,
         max_muc_create,max_muc_join,max_muc_manage,max_friend,max_friend_per_day,
         nickname_add,mobile_add,account_add,username_add,card_add,muc_add,scan_add,
-        is_no_be_add_friend, is_no_join_muc,allow_send_red_pack,allow_transfer,enable_video_call,enable_voice_call,
+        is_no_be_add_friend, is_no_join_muc,allow_send_red_pack,allow_transfer,enable_video_call,
         msg_notify,msg_preview,msg_sound,muc_msg_notify,muc_msg_preview,muc_msg_sound,app_inner_alert,app_inner_vibration,app_inner_preview
     </sql>
 
@@ -132,7 +129,7 @@
                 and (username=#{q.username} or username in (${q.username}))
             </if>
             <if test="q.mobile != null and q.mobile != ''">
-                and mobile=#{q.mobile}
+                and u.mobile=#{q.mobile}
             </if>
             <if test="q.email != null and q.email != ''">
                 and email=#{q.email}
@@ -181,10 +178,13 @@
                 </choose>
             </if>
             <if test="q.isOnline!=null">
-                and is_online=#{q.isOnline}
+                and u.is_online=#{q.isOnline}
             </if>
             <if test="q.isDefaultFriend!=null">
                 and is_default_friend=#{q.isDefaultFriend}
+            </if>
+            <if test="q.isPublic!=null">
+                and is_public=#{q.isPublic}
             </if>
             <if test="q.resource!=null">
                 and resource=#{q.resource}
@@ -212,8 +212,8 @@
             <if test="q.userSearch !=null and q.userSearch !=''">
                 and(u.nickname like concat('%',#{q.userSearch},'%') or u.account like concat('%',#{q.userSearch},'%') or u.username like concat('%',#{q.userSearch},'%') or u.mobile like concat('%',#{q.userSearch},'%'))
             </if>
-            <if test="q.ts_create!=null">
-                and u.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.tsCreate!=null">
+                and u.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
         group by u.id
@@ -282,10 +282,8 @@
                     then 'nickname'
                 end as match_type,
             u.id,nickname,account,avatar,small_avatar,gender,country,province,city,signature,
-           mobile_search, account_search, username_search, nickname_search,
-           f.id friend_id,f.status friend_status,f.ts_black friend_ts_black,f.ts_been_black friend_ts_been_black
+           mobile_search, account_search, username_search, nickname_search
             from im_user u
-            left join im_friend f on u.id = f.to_user_id and f.user_id = #{userId}
             left join im_user_setting s on u.id = s.user_id
             left join im_user_info info on u.id = info.user_id
            where type &lt;= #{type} and ts_locked = 0)a
@@ -293,7 +291,7 @@
     </select>
 
     <select id="getOnlineCount" resultType="java.lang.Integer">
-        select count(*) from im_user where is_online is true and type = 0
+        select count(*) from im_user where is_online is true and type = 0 and server_id = #{serverId}
     </select>
 
     <select id="getTotalUser" resultType="java.lang.Integer">
@@ -312,5 +310,17 @@
             </if>
         </where>
     </select>
+
+    <update id="updateOffline">
+        UPDATE im_user u
+        SET is_online = FALSE,ts_offline = #{ts}
+        WHERE is_online = TRUE
+          AND NOT EXISTS (
+            SELECT 1
+            FROM im_device d
+            WHERE d.user_id = u.id
+              AND d.is_online = TRUE
+        );
+    </update>
 
 </mapper>

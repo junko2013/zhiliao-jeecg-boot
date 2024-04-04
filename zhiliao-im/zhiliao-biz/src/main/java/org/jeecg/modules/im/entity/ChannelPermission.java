@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jeecg.common.aspect.annotation.Dict;
+
 /**
  * <p>
  * 频道管理员权限
@@ -31,35 +33,42 @@ public class ChannelPermission extends BaseModel<ChannelPermission> {
     /**
      * 更改频道信息
      */
+    @Dict(dicCode = "yon")
     private Boolean modifyInfo;
 
     /**
      * 发布消息
      */
+    @Dict(dicCode = "yon")
     private Boolean publishNews;
 
     /**
      * 编辑其他管理员的消息
      */
+    @Dict(dicCode = "yon")
     private Boolean editOthersPublish;
 
     /**
      * 删除其他管理员的消息
      */
+    @Dict(dicCode = "yon")
     private Boolean deleteOthersPublish;
 
     /**
      * 添加成员
      */
+    @Dict(dicCode = "yon")
     private Boolean addMember;
 
     /**
      * 管理直播
      */
+    @Dict(dicCode = "yon")
     private Boolean manageLive;
 
     /**
      * 添加新管理员
      */
+    @Dict(dicCode = "yon")
     private Boolean addAdmin;
 }

@@ -13,50 +13,65 @@
         <result column="status" property="status"/>
         <result column="ts_create" property="tsCreate"/>
         <result column="ts_deal" property="tsDeal"/>
+        <result column="ts_read" property="tsRead"/>
         <result column="type" property="type"/>
+        <result column="server_id" property="serverId"/>
         <association property="fromUser" javaType="org.jeecg.modules.im.entity.User">
-            <id column="from_user_id" property="id"/>
-            <result column="from_user_account" property="account"/>
-            <result column="from_user_nickname" property="nickname"/>
-            <result column="from_user_small_avatar" property="smallAvatar"/>
+            <id column="fu_id" property="id"/>
+            <result column="fu_account" property="account"/>
+            <result column="fu_nickname" property="nickname"/>
+            <result column="fu_small_avatar" property="smallAvatar"/>
+            <result column="fu_is_online" property="isOnline"/>
+            <result column="fu_ts_create" property="tsCreate"/>
             <association property="info"  javaType="org.jeecg.modules.im.entity.UserInfo">
-                <result column="from_user_province" property="province"/>
-                <result column="from_user_city" property="city"/>
-                <result column="from_user_gender" property="gender"/>
-                <result column="from_user_signature" property="signature"/>
+                <result column="fu_province" property="province"/>
+                <result column="fu_city" property="city"/>
+                <result column="fu_gender" property="gender"/>
+                <result column="fu_signature" property="signature"/>
             </association>
         </association>
         <association property="toUser" javaType="org.jeecg.modules.im.entity.User">
-            <id column="to_user_id" property="id"/>
-            <result column="to_user_account" property="account"/>
-            <result column="to_user_nickname" property="nickname"/>
-            <result column="to_user_small_avatar" property="smallAvatar"/>
+            <id column="tu_id" property="id"/>
+            <result column="tu_account" property="account"/>
+            <result column="tu_nickname" property="nickname"/>
+            <result column="tu_small_avatar" property="smallAvatar"/>
+            <result column="tu_is_online" property="isOnline"/>
+            <result column="tu_ts_create" property="tsCreate"/>
             <association property="info"  javaType="org.jeecg.modules.im.entity.UserInfo">
-                <result column="to_user_province" property="province"/>
-                <result column="to_user_city" property="city"/>
-                <result column="to_user_gender" property="gender"/>
-                <result column="to_user_signature" property="signature"/>
+                <result column="tu_province" property="province"/>
+                <result column="tu_city" property="city"/>
+                <result column="tu_gender" property="gender"/>
+                <result column="tu_signature" property="signature"/>
             </association>
         </association>
         <collection property="replies" ofType="org.jeecg.modules.im.entity.SayHelloReply">
             <id column="r_id" property="id" />
+            <result column="r_hello_id" property="helloId" />
             <result column="r_msg" property="msg" />
-            <result column="r_is_send" property="isSend" />
+            <result column="r_sender_id" property="senderId" />
             <result column="r_ts_create" property="tsCreate" />
+            <result column="r_ts_read" property="tsRead" />
         </collection>
     </resultMap>
 
     <select id="pagination" resultMap="BaseResultMap">
-        select s.id, from_id, to_id, msg, s.resource,s.ts_create,is_valid,status,ts_deal,
-        t.id to_user_id,t.account to_user_account,t.nickname to_user_nickname,t.username to_user_username,t.small_avatar to_user_small_avatar,t.avatar to_user_avatar,
-        f.id from_user_id,f.account from_user_account,f.nickname from_user_nickname,f.username from_user_username,f.small_avatar from_user_small_avatar,f.avatar from_user_avatar
+        select s.id, from_id, to_id, msg, s.resource,s.ts_create,is_valid,status,ts_deal,ts_read,
+        t.id tu_id,t.account tu_account,t.nickname tu_nickname,t.username tu_username,t.small_avatar tu_small_avatar,t.is_online tu_is_online,t.ts_create tu_ts_create,
+        ti.province tu_province,ti.city tu_city,ti.gender tu_gender,ti.signature tu_signature,
+        f.id fu_id,f.account fu_account,f.nickname fu_nickname,f.username fu_username,f.small_avatar fu_small_avatar,f.is_online fu_is_online,f.ts_create fu_ts_create,
+        fi.province fu_province,fi.city fu_city,fi.gender fu_gender,fi.signature fu_signature
         from im_say_hello s
         left join im_user f on f.id = s.from_id
+        left join im_user_info fi on fi.user_id = f.id
         left join im_user t on t.id = s.to_id
+        left join im_user_info ti on ti.user_id = t.id
         <where>
             1=1
             <if test="q.fromId !=null and q.fromId !=''">
                 and s.from_id = #{q.fromId}
+            </if>
+            <if test="q.serverId !=null and q.serverId !=''">
+                and s.server_id = #{q.serverId}
             </if>
             <if test="q.toId !=null and q.toId !=''">
                 and s.to_id = #{q.toId}
@@ -76,8 +91,8 @@
             <if test="q.isValid !=null">
                 and s.is_valid = #{q.isValid}
             </if>
-            <if test="q.ts_create!=null">
-                and s.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.tsCreate!=null">
+                and s.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
             <if test="q.ts_deal!=null">
                 and s.ts_deal &lt;= UNIX_TIMESTAMP(#{q.ts_deal})*1000
@@ -87,10 +102,10 @@
     </select>
 
     <select id="findAllSend" resultMap="BaseResultMap">
-        select sh.id,to_id,from_id,sh.msg,sh.resource,sh.ts_create,sh.ts_deal,sh.status,sh.is_valid,
-           toUser.id to_user_id,toUser.account to_user_account,toUser.nickname to_user_nickname,toUser.small_avatar to_user_small_avatar,
-           info.province to_user_province,info.city to_user_city,info.gender to_user_gender,info.signature to_user_signature,
-           r.id r_id,r.is_send r_is_send,r.msg r_msg,r.ts_create r_ts_create
+        select sh.id,to_id,from_id,sh.msg,sh.resource,sh.ts_create,sh.ts_deal,sh.ts_read,sh.status,sh.is_valid,
+           toUser.id tu_id,toUser.account tu_account,toUser.nickname tu_nickname,toUser.small_avatar tu_small_avatar,
+           info.province tu_province,info.city tu_city,info.gender tu_gender,info.signature tu_signature,
+           r.id r_id,r.sender_id r_sender_id,r.msg r_msg,r.hello_id r_hello_id,r.ts_create r_ts_create,r.ts_read r_ts_read
         from im_say_hello sh
         left join im_user toUser on toUser.id = sh.to_id
         left join im_user_info info on toUser.id = info.user_id
@@ -99,10 +114,10 @@
     </select>
 
     <select id="findAllReceive" resultMap="BaseResultMap">
-        select sh.id,to_id,from_id,sh.msg,sh.resource,sh.ts_create,sh.ts_deal,sh.status,sh.is_valid,
-            fromUser.id from_user_id,fromUser.account from_user_account,fromUser.nickname from_user_nickname,fromUser.small_avatar from_user_small_avatar,
-            info.province from_user_province,info.city from_user_city,info.gender from_user_gender,info.signature from_user_signature,
-            r.id r_id,r.is_send r_is_send,r.msg r_msg,r.ts_create r_ts_create
+        select sh.id,to_id,from_id,sh.msg,sh.resource,sh.ts_create,sh.ts_deal,sh.ts_read,sh.status,sh.is_valid,
+            fromUser.id fu_id,fromUser.account fu_account,fromUser.nickname fu_nickname,fromUser.small_avatar fu_small_avatar,
+            info.province fu_province,info.city fu_city,info.gender fu_gender,info.signature fu_signature,
+            r.id r_id,r.sender_id r_sender_id,r.msg r_msg,r.hello_id r_hello_id,r.ts_create r_ts_create,r.ts_read r_ts_read
         from im_say_hello sh
         left join im_user fromUser on fromUser.id = sh.from_id
         left join im_user_info info on fromUser.id = info.user_id

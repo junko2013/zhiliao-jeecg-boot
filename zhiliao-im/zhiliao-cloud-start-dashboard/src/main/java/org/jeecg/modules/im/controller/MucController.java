@@ -6,7 +6,6 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Muc;
 import org.jeecg.modules.im.entity.query_helper.QMuc;
 import org.jeecg.modules.im.service.MucService;
-import org.jeecg.modules.im.service.base.BaseBackController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +35,7 @@ public class MucController extends BaseBackController {
             }
             q.setIds(s.substring(0,s.toString().length()-1));
         }
+        q.setServerId(getServerId());
         return success(mucService.pagination(new MyPage<>(getPage(),getPageSize()),q));
     }
 

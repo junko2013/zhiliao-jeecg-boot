@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 敏感数据切面处理类
@@ -62,7 +63,7 @@ public class SensitiveDataAspect {
         }
 
         long startTime=System.currentTimeMillis();
-        if(resultClass.equals(entity) || entity.equals(Object.class)){
+        if(resultClass.equals(entity) || Objects.equals(entity, Object.class)){
             // 方法返回实体和注解的entity一样，如果注解没有申明entity属性则认为是(方法返回实体和注解的entity一样)
             SensitiveInfoUtil.handlerObject(result, isEncode);
         } else if(result instanceof List){

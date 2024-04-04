@@ -5,19 +5,53 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="org.jeecg.modules.im.entity.Adver">
         <id column="id" property="id" />
-           <result column="url" property="url" />
+           <result column="title" property="title" />
+           <result column="cover" property="cover" />
            <result column="type" property="type" />
+           <result column="jump_type" property="jump_type" />
            <result column="jump_url" property="jumpUrl" />
            <result column="timeout" property="timeout" />
-           <result column="is_on" property="isOn" />
+           <result column="status" property="status" />
            <result column="ts_create" property="tsCreate" />
+           <result column="del_flag" property="delFlag" />
+           <result column="server_id" property="serverId" />
        </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, url, type, jump_url, timeout, is_on, ts_create
+        id, title,cover, type, jump_type,jump_url, timeout, status,del_flag, ts_create
     </sql>
-    <select id="pagination" resultType="org.jeecg.modules.im.entity.Adver">
-        SELECT <include refid="Base_Column_List" /> from im_adver
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> from im_adver where del_flag = 0 and status = 1 order by ts_create desc
     </select>
+
+    <select id="findLatest" resultMap="BaseResultMap">
+        select id,title,cover,type,jump_type,jump_url,timeout from im_adver where server_id = #{serverId} and status = 1 and del_flag = 0
+        order by ts_pin desc,ts_create desc limit 1
+    </select>
+
+    <select id="selectLogicDeleted" resultType="org.jeecg.modules.im.entity.Adver">
+        SELECT * FROM im_adver ${ew.customSqlSegment}
+    </select>
+
+    <update id="revertLogicDeleted">
+        UPDATE
+        im_adver
+        SET
+        del_flag = 0
+        WHERE
+        del_flag = 1
+        AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="deleteLogicDeleted">
+        DELETE FROM im_adver WHERE del_flag = 1 AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </delete>
+
 
 </mapper>

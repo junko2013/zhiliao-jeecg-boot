@@ -1748,7 +1748,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 							sysDepart.setTenantId(tenantId);
 							sysDepart.setDepartName(name);
 							sysDepart.setIzLeaf(CommonConstant.IS_LEAF);
-							sysDepart.setDelFlag(String.valueOf(CommonConstant.DEL_FLAG_0));
+							sysDepart.setDelFlag(CommonConstant.DEL_FLAG_0);
 							sysDepart.setStatus(CommonConstant.STATUS_1);
 							sysDepartMapper.insert(sysDepart);
 						} else {

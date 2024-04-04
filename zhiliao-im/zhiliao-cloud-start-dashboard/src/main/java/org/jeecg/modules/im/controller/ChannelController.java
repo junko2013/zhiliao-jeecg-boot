@@ -5,7 +5,6 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Channel;
 import org.jeecg.modules.im.entity.query_helper.QChannel;
 import org.jeecg.modules.im.service.ChannelService;
-import org.jeecg.modules.im.service.base.BaseBackController;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

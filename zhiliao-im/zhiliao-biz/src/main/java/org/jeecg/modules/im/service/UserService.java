@@ -3,13 +3,11 @@ package org.jeecg.modules.im.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.base.util.Kv;
+import org.jeecg.common.util.Kv;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.User;
 import org.jeecg.modules.im.entity.query_helper.QUser;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,11 +35,6 @@ public interface UserService extends IService<User> {
     //查询密码
     String getPassword(Integer id);
 
-    /**
-     * 
-     * @param id
-     * @return
-     */
     User findBaseById(Integer id);
     //关联查询信息
     User findByIdWithInfo(Integer id);
@@ -104,7 +97,7 @@ public interface UserService extends IService<User> {
     /**
      * token登录
      */
-    Result<Object> tokenLogin(Boolean isScan);
+    Result<Object> tokenLogin(String token,Boolean isScan);
 
     /**
      * 更新资料
@@ -115,7 +108,7 @@ public interface UserService extends IService<User> {
      * 状态
      * 头像
      */
-    Result<Object> updateInfo(QUser param);
+    Result<Object> updateInfo(Integer userId,QUser param);
 
     /**
      * 修改密码
@@ -135,7 +128,7 @@ public interface UserService extends IService<User> {
 
     void closeConnection(Integer id, String resource, boolean userOffline) ;
     //注销
-    Result<Object> logout();
+    Result<Object> logout(Integer userId);
     //控制台创建或更新用户
     Result<Object> consoleCreateOrUpdate(User user);
     //控制台踢下线
@@ -163,7 +156,9 @@ public interface UserService extends IService<User> {
 
     List<User> findByTypes(List<Integer> types);
     //批量添加好友
-    int batchAddFriend(Integer userId, List<User> users);
+    int batchAddFriend(User user, List<User> users);
     //批量关注系统号
-    int batchFollowSys(Integer userId, List<User> users);
+    int batchFollowSys(User user, List<User> users);
+
+    int updateOffline(long ts);
 }

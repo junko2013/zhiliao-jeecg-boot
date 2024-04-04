@@ -21,7 +21,7 @@ import java.util.List;
 @Mapper
 public interface ClientVerMapper extends BaseMapper<ClientVer> {
 
-    MyPage<ClientVer> pagination(@Param("pg") MyPage<ClientVer> pg, @Param("q") QClientVer q);
+    MyPage<ClientVer> pagination(MyPage<ClientVer> pg, @Param("q") QClientVer q);
 
     ClientVer findLatestByPlatform(String platform);
 

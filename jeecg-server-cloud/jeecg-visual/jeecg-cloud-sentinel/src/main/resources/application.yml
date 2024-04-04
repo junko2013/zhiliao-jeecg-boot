@@ -32,7 +32,6 @@ nacos:
     ip: @config.server-addr@
 sentinel:
   dashboard:
-    version: 1.8.2
     auth:
       username: sentinel
       password: sentinel

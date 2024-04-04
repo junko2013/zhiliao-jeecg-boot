@@ -32,11 +32,11 @@ public class JeecgDemo extends JeecgEntity implements Serializable {
 	/** 姓名 */
 	@Excel(name="姓名",width=25)
 	@ApiModelProperty(value = "姓名")
-	private java.lang.String name;
+	private String name;
 	/** 关键词 */
 	@ApiModelProperty(value = "关键词")
 	@Excel(name="关键词",width=15)
-	private java.lang.String keyWord;
+	private String keyWord;
 	/** 打卡时间 */
 	@ApiModelProperty(value = "打卡时间")
 	@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
@@ -50,15 +50,15 @@ public class JeecgDemo extends JeecgEntity implements Serializable {
 	/** 奖金 */
 	@ApiModelProperty(value = "奖金",example = "0")
 	@Excel(name="奖金",type = 4,width=15)
-	private java.lang.Double bonusMoney;
+	private Double bonusMoney;
 	/** 性别 {男:1,女:2} */
 	@ApiModelProperty(value = "性别")
 	@Excel(name = "性别", width = 15, dicCode = "sex")
-	private java.lang.String sex;
+	private String sex;
 	/** 年龄 */
 	@ApiModelProperty(value = "年龄",example = "0")
 	@Excel(name="年龄",type = 4,width=15)
-	private java.lang.Integer age;
+	private Integer age;
 	/** 生日 */
 	@ApiModelProperty(value = "生日")
 	@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
@@ -68,19 +68,19 @@ public class JeecgDemo extends JeecgEntity implements Serializable {
 	/** 邮箱 */
 	@ApiModelProperty(value = "邮箱")
 	@Excel(name="邮箱",width=30)
-	private java.lang.String email;
+	private String email;
 	/** 个人简介 */
 	@ApiModelProperty(value = "个人简介")
-	private java.lang.String content;
+	private String content;
 	/** 部门编码 */
 	@Excel(name="部门编码",width=25)
 	@ApiModelProperty(value = "部门编码")
-	private java.lang.String sysOrgCode;
+	private String sysOrgCode;
 
 	@ApiModelProperty(value = "租户ID")
-	private java.lang.Integer tenantId;
+	private Integer tenantId;
 	/** 乐观锁字段 */
 	@Version
-	private java.lang.Integer updateCount;
+	private Integer updateCount;
 
 }

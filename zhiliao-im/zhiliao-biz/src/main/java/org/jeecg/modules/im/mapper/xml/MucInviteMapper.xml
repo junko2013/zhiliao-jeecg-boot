@@ -12,9 +12,12 @@
         <result column="handler" property="handler"/>
         <result column="ts_create" property="tsCreate"/>
         <result column="status" property="status"/>
+        <result column="way" property="way"/>
         <result column="is_valid" property="isValid"/>
         <result column="is_need_verify" property="isNeedVerify"/>
         <result column="ts_deal" property="tsDeal"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="server_id" property="serverId"/>
         <association property="inviterMember" javaType="org.jeecg.modules.im.entity.MucMember">
             <id column="irm_id" property="id"/>
             <result column="irm_nickname" property="nickname"/>
@@ -41,12 +44,12 @@
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, muc_id, inviter,invitee,handler, comment, ts_create, status, is_valid,is_need_verify, ts_deal
+        id, muc_id, inviter,invitee,handler, comment, ts_create, status,way, is_valid,is_need_verify, ts_deal
     </sql>
 
-    <select id="pagination" resultMap="BaseResultMap">
+    <select id="paginationApi" resultMap="BaseResultMap">
         select
-            i.id, i.muc_id, inviter,invitee,handler, i.comment, i.ts_create, i.status, i.is_valid,i.is_need_verify, i.ts_deal,
+            i.id, i.muc_id, inviter,invitee,handler, i.comment, i.ts_create, i.status,i.way, i.is_valid,i.is_need_verify, i.ts_deal,
             irm.id irm_id,irm.nickname irm_nickname,
             irmu.small_avatar irmu_small_avatar,irmu.nickname irmu_nickname,
             ie.small_avatar ie_small_avatar,ie.nickname ie_nickname,
@@ -71,6 +74,9 @@
             <if test="q.status!=null">
                 and i.status = #{q.status}
             </if>
+            <if test="q.way!=null">
+                and i.way = #{q.way}
+            </if>
             <if test="q.inviter!=null">
                 and i.inviter = #{q.inviter}
             </if>
@@ -81,7 +87,6 @@
                 and i.handler = #{q.handler}
             </if>
         </where>
-
     </select>
     <select id="findLatestUnDeal" resultMap="BaseResultMap">
         select *
@@ -99,4 +104,28 @@
         where invitee = #{invitee}
           and muc_id = #{mucId}
     </update>
+
+    <select id="selectLogicDeleted" resultType="org.jeecg.modules.im.entity.MucInvite">
+        SELECT * FROM im_muc_invite ${ew.customSqlSegment}
+    </select>
+
+    <update id="revertLogicDeleted">
+        UPDATE
+        im_muc_invite
+        SET
+        del_flag = 0
+        WHERE
+        del_flag = 1
+        AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="deleteLogicDeleted">
+        DELETE FROM im_muc_invite WHERE del_flag = 1 AND id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+    </delete>
 </mapper>

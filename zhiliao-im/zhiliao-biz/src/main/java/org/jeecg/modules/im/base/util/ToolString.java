@@ -243,22 +243,23 @@ public abstract class ToolString {
     }
     //一个emoji算4个字符
     public static int getNicknameLength(String nickname){
-        int len = 0;
-
-        GraphemeMatcher m=new GraphemeMatcher(nickname);
-        while(m.find()) {
-            len+=4;
-        }
-        nickname = EmojiUtils.removeAllEmojis(nickname);
-        //一个中文占用2个字符
-        for(int i=0;i<nickname.length();i++){
-            if(126>=nickname.charAt(i)&&nickname.charAt(i)>=32){
-                len+=1;
-            }else{
-                len+=2;
-            }
-        }
-        return len;
+        return StringUtils.length(nickname);
+//        int len = 0;
+//
+//        GraphemeMatcher m=new GraphemeMatcher(nickname);
+//        while(m.find()) {
+//            len+=4;
+//        }
+//        nickname = EmojiUtils.removeAllEmojis(nickname);
+//        //一个中文占用2个字符
+//        for(int i=0;i<nickname.length();i++){
+//            if(126>=nickname.charAt(i)&&nickname.charAt(i)>=32){
+//                len+=1;
+//            }else{
+//                len+=2;
+//            }
+//        }
+//        return len;
     }
 
 

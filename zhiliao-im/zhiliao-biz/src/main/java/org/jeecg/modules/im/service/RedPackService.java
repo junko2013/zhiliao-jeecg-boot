@@ -18,7 +18,7 @@ import org.jeecg.modules.im.entity.query_helper.QRedPack;
 public interface RedPackService extends IService<RedPack> {
     IPage<RedPack> pagination(MyPage<RedPack> page, QRedPack q);
     //单聊发送
-    Result<Object> send(RedPack redPack);
+    Result<Object> send(Integer userId,RedPack redPack);
     //群聊发送
-    Result<Object> sendMuc(RedPack redPack);
+    Result<Object> sendMuc(Integer userId,RedPack redPack);
 }

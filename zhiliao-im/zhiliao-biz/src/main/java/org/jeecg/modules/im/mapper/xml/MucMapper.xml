@@ -24,6 +24,7 @@
         <result column="ts_update" property="tsUpdate"/>
         <result column="ts_create" property="tsCreate"/>
         <result column="ts_delete" property="tsDelete"/>
+        <result column="server_id" property="serverId"/>
         <result column="role" property="role"/>
         <association property="mucConfig" javaType="org.jeecg.modules.im.entity.MucConfig">
             <result column="muc_id" property="mucId" />
@@ -31,6 +32,7 @@
             <result column="mute_notice" property="muteNotice" />
             <result column="kick_notice" property="kickNotice" />
             <result column="quit_notice" property="quitNotice" />
+            <result column="modify_nickname_notice" property="modifyNicknameNotice" />
             <result column="revoke_notice" property="revokeNotice" />
             <result column="revoke_duration" property="revokeDuration" />
             <result column="is_public" property="isPublic" />
@@ -143,6 +145,16 @@
             <result column="creator_nickname" property="nickname"/>
             <result column="creator_account" property="account"/>
             <result column="creator_small_avatar" property="smallAvatar"/>
+            <result column="creator_is_online" property="isOnline"/>
+            <result column="creator_ts_create" property="tsCreate"/>
+            <association property="info" javaType="org.jeecg.modules.im.entity.UserInfo">
+                <id column="fi_id" property="id" />
+                <result column="fi_province" property="province" />
+                <result column="fi_city" property="city" />
+                <result column="fi_district" property="district" />
+                <result column="fi_country" property="country" />
+                <result column="fi_gender" property="gender" />
+            </association>
         </association>
     </resultMap>
     <!-- 通用查询结果列 -->
@@ -164,7 +176,7 @@
     <select id="findMyAll" resultMap="BaseResultMap">
         SELECT
             r.id, r.user_id,r.name,r.info, r.avatar, r.small_avatar,master_id,r.qr_code,r.account, subject,member_count,fake_member,fake_online, r.ts_locked, r.ts_mute, ts_last_talk, r.ts_create,
-            max_member_count, kick_notice,mute_notice, quit_notice,revoke_notice,revoke_duration, is_public, is_show_read, is_show_nickname, is_allow_talk_after_join,is_revoke_all_when_kicked, is_show_msg_before_join, is_default_join, is_join_verify, is_show_member_list,is_update_nickname_notify,
+            max_member_count, kick_notice,mute_notice, quit_notice,modify_nickname_notice,revoke_notice,revoke_duration, rc.is_public, is_show_read, is_show_nickname, is_allow_talk_after_join,is_revoke_all_when_kicked, is_show_msg_before_join, is_default_join, is_join_verify, is_show_member_list,is_update_nickname_notify,
             view_member,show_member_count,show_online_count,invite,modify_nickname,pin,capture,msg_rate,msg_count,send_image,send_video,send_gif,send_sticker,send_voice,send_location,send_red_pack,send_link,send_card,send_file,rc.welcomes rc_welcomes,
             m.id member_id,m.nickname, m.user_id member_user_id,m.title,m.back_img,m.is_msg_archive,m.ts_msg_visible, m.ts_join,m.ts_update, m.ts_pin,
             m.is_no_disturb,m.is_unread,m.is_hide,m.is_read_del, m.unread_count,m.role, m.level_id, m.coin,m.ts_mute m_ts_mute,m.ts_mute_begin m_ts_mute_begin,m.mute_type m_mute_type,m.status,m.join_type,
@@ -184,7 +196,7 @@
     <select id="findByIdOfUser" resultMap="BaseResultMap">
         SELECT
             r.id, r.user_id,r.name,r.info, r.avatar, r.small_avatar,master_id,r.qr_code,r.account, subject,member_count,fake_member,fake_online, r.ts_locked, r.ts_mute, ts_last_talk, r.ts_create,
-            max_member_count, kick_notice,mute_notice, quit_notice,revoke_notice,revoke_duration, is_public, is_show_read, is_show_nickname, is_allow_talk_after_join,is_revoke_all_when_kicked, is_show_msg_before_join, is_default_join, is_join_verify, is_show_member_list,is_update_nickname_notify,
+            max_member_count, kick_notice,mute_notice, quit_notice,modify_nickname_notice,revoke_notice,revoke_duration, rc.is_public, is_show_read, is_show_nickname, is_allow_talk_after_join,is_revoke_all_when_kicked, is_show_msg_before_join, is_default_join, is_join_verify, is_show_member_list,is_update_nickname_notify,
             view_member,show_member_count,show_online_count,invite,modify_nickname,pin,capture,msg_rate,msg_count,send_image,send_video,send_gif,send_sticker,send_voice,send_location,send_red_pack,send_link,send_card,send_file, rc.welcomes rc_welcomes,
             m.id member_id,m.nickname, m.user_id member_user_id,m.title,m.back_img,m.is_msg_archive,m.ts_msg_visible, m.ts_join,m.ts_update, m.ts_pin,
             m.is_no_disturb,m.is_unread,m.is_hide,m.is_read_del, m.unread_count,m.role, m.level_id, m.coin,m.ts_mute m_ts_mute,m.ts_mute_begin m_ts_mute_begin,m.mute_type m_mute_type,m.status,m.join_type,
@@ -216,11 +228,13 @@
     <select id="pagination" resultMap="BaseResultMap">
         select
         r.id, r.name,r.info, r.avatar,r.small_avatar,r.master_id, r.qr_code,r.account,subject, r.member_count,fake_member,fake_online, r.ts_locked,r.ts_mute,r.ts_create,ts_last_talk,r.ts_update,ts_delete,is_default_join,
-        creator.id creator_id,creator.nickname creator_nickname,creator.account creator_account,creator.small_avatar creator_small_avatar,
+        creator.id creator_id,creator.nickname creator_nickname,creator.account creator_account,creator.small_avatar creator_small_avatar,creator.is_online creator_is_online,creator.ts_create creator_ts_create,
+        fi.id fi_id,fi.province fi_province,fi.city fi_city,fi.country fi_country,fi.district fi_district,fi.gender fi_gender,
         master.id master_id,master.nickname master_nickname,
         master_user.id master_user_id,master_user.nickname master_user_nickname,master_user.account master_user_account,master_user.small_avatar master_user_small_avatar
         from im_muc r
         left join im_user creator on creator.id = r.user_id
+        left join im_user_info fi on fi.user_id = creator.id
         left join im_muc_member master on master.id = r.master_id
         left join im_user master_user on master_user.id = master.user_id
         left join im_muc_config rc on r.id = rc.muc_id
@@ -236,6 +250,9 @@
             </if>
             <if test="q.isDefaultJoin!=null">
                 and rc.is_default_join = #{q.isDefaultJoin}
+            </if>
+            <if test="q.serverId!=null">
+                and r.server_id = #{q.serverId}
             </if>
             <if test="q.userAccount!=null and q.userAccount !=''">
                 and user.account = #{q.userAccount}
@@ -262,8 +279,8 @@
                 </otherwise>
             </choose>
 
-            <if test="q.ts_create!=null">
-                and r.ts_create &lt;= UNIX_TIMESTAMP(#{q.ts_create})*1000
+            <if test="q.tsCreate!=null">
+                and r.ts_create &lt;= UNIX_TIMESTAMP(#{q.tsCreate})*1000
             </if>
         </where>
     </select>

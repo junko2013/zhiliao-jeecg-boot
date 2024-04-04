@@ -1,12 +1,15 @@
 package org.jeecg.modules.im.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.constant.CacheConstant;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.modules.im.base.constant.MsgType;
 import org.jeecg.modules.im.base.exception.BusinessException;
-import org.jeecg.modules.im.base.util.Kv;
+import org.jeecg.common.util.Kv;
 import org.jeecg.modules.im.base.util.UUIDTool;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.*;
@@ -18,11 +21,15 @@ import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.modules.im.base.xmpp.MessageBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
+import java.lang.System;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * <p>
@@ -47,7 +54,7 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
     @Resource
     private MucConfigService mucConfigService;
     @Resource
-    private ClientConfigService clientConfigService;
+    private ServerConfigService serverConfigService;
     @Autowired
     private MucMemberMapper mucMemberMapper;
     @Resource
@@ -58,8 +65,8 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
     private XMPPService xmppService;
 
     @Override
-    public IPage<MucInvite> pagination(MyPage<MucInvite> page, QMucInvite q) {
-        return mucInviteMapper.pagination(page,q);
+    public IPage<MucInvite> paginationApi(MyPage<MucInvite> page, QMucInvite q) {
+        return mucInviteMapper.paginationApi(page,q);
     }
 
     @Override
@@ -76,7 +83,7 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
                 return fail("该群成员人数已达上限");
             }
             MucMember inviter = mucMemberService.findByMucIdOfUser(mucId, userId);
-            if (inviter == null|| inviter.getStatus()!= MucMember.Status.Normal.getCode()) {
+            if (inviter == null|| inviter.getStatus()!= MucMember.Status.normal.getCode()) {
                 return fail("你不是该群的成员，无法邀请");
             }
 
@@ -87,7 +94,7 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
             }
             MucMember invitee = mucMemberService.findByMucIdOfUser(mucId, toUserId);
             if (invitee != null) {
-                if(invitee.getStatus()== MucMember.Status.Normal.getCode()){
+                if(invitee.getStatus()== MucMember.Status.normal.getCode()){
                     return fail("该用户已在群里");
                 }
             }
@@ -114,7 +121,7 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
             return success(data);
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("邀请用户进群异常：userId={},mucId={},toUserId={},e={}", userId, mucId, toUserId, e);
+            log.error("邀请用户进群异常：userId={},mucId={},toUserId={}", userId, mucId, toUserId, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return fail("邀请失败，请稍后再试");
         }
@@ -136,7 +143,7 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
                 return fail("该群成员人数已达上限");
             }
             MucMember handler = mucMemberService.findByMucIdOfUser(mucId, userId);
-            if (handler != null&& handler.getStatus()== MucMember.Status.Normal.getCode()) {
+            if (handler != null&& handler.getStatus()== MucMember.Status.normal.getCode()) {
                 return fail("你已在群里");
             }
             MucInvite invite = findLatestUnDeal(fromId, mucId,userId);
@@ -145,7 +152,7 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
             }
             User toUser = userService.findById(userId);
             if(handler !=null){
-                handler.setStatus(MucMember.Status.Normal.getCode());
+                handler.setStatus(MucMember.Status.normal.getCode());
                 handler.setTsJoin(getTs());
                 handler.setRole(MucMember.Role.Member.getCode());
             }else {
@@ -176,7 +183,7 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
                     throw new BusinessException("保存群成员失败");
                 }
             }
-            muc.setMemberCount(mucMemberService.getCount(mucId, MucMember.Status.Normal.getCode()));
+            muc.setMemberCount(mucMemberService.getCount(mucId, MucMember.Status.normal.getCode()));
             if(!mucService.updateById(muc)){
                 throw new BusinessException("更新群组失败");
             }
@@ -190,7 +197,7 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
             return success();
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("进群邀请通过异常：userId={},mucId={},fromId={},e={}", userId, mucId, fromId, e);
+            log.error("进群邀请通过异常：userId={},mucId={},fromId={}", userId, mucId, fromId, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return fail("通过邀请失败，请稍后再试");
         }
@@ -255,12 +262,13 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
         boolean isManager = inviter.getRole() == MucMember.Role.Master.getCode() || inviter.getRole() == MucMember.Role.Manager.getCode();
         //判断用户是否已在群里
         MucMember member = mucMemberService.findByMucIdOfUser(mucId,userId);
-        if(member!=null&&member.getStatus().equals(MucMember.Status.Normal.getCode())){
+        if(member!=null&&member.getStatus().equals(MucMember.Status.normal.getCode())){
             throw new BusinessException("该用户已在群里！");
         }
         //删除该群对该用户之前的邀请记录
         invalidOfUserByMuc(userId,mucId);
         //普通成员邀请，且开启了邀请验证
+        User user = userService.getById(userId);
         if(!isManager&&mucConfig.getIsJoinVerify()){
             //生成邀请记录
             MucInvite invite = new MucInvite();
@@ -273,10 +281,11 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
             invite.setIsValid(true);
             save(invite);
             //发送邀请新成员申请
-            Kv data = Kv.by("invite",invite);
             MessageBean messageBean = new MessageBean();
             messageBean.setUserId(inviter.getUserId());
-            messageBean.setContent(JSONObject.toJSONString(data));
+            invite.setInviterMember(inviter);
+            invite.setInviteeUser(user);
+            messageBean.setContent(JSONObject.toJSONString(invite));
             messageBean.setType(MsgType.mucInvite.getType());
             messageBean.setMucId(mucId);
             if(xmppService.sendMucMsg(messageBean)){
@@ -295,12 +304,12 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
             invite.setStatus(MucInvite.Status.Accept.getCode());
             invite.setInviter(inviter.getId());
             invite.setIsValid(true);
+            invite.setServerId(user.getServerId());
             save(invite);
             xmppService.inviteUsers(inviter.getUserId(),mucId,userId.toString());
             //保存群成员
-            User user = userService.getById(userId);
             if(member!=null){
-                member.setStatus(MucMember.Status.Normal.getCode());
+                member.setStatus(MucMember.Status.normal.getCode());
                 member.setKicker(0);
                 member.setTsQuit(0L);
             }else{
@@ -308,7 +317,7 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
                 member.setUserId(userId);
                 member.setTsJoin(getTs());
                 member.setNickname(user.getNickname());
-                member.setJoinType(MucMember.JoinType.Invite.getCode());
+                member.setJoinType(MucMember.JoinType.invite.getCode());
                 member.setRole(MucMember.Role.Member.getCode());
                 member.setMucId(mucId);
             }
@@ -323,6 +332,8 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
                 member.setMuteType(User.MuteType.newMember.getCode());
             }
             mucMemberService.saveOrUpdate(member);
+            invite.setInviterMember(inviter);
+            invite.setInviteeUser(user);
             //发送新的成员入群
             MessageBean messageBean = new MessageBean();
             messageBean.setUserId(inviter.getUserId());
@@ -345,4 +356,39 @@ public class MucInviteServiceImpl extends BaseServiceImpl<MucInviteMapper, MucIn
         }
     }
 
+
+    @Override
+    public Result<Object> del(String ids) {
+        if(isEmpty(ids)){
+            return fail();
+        }
+        mucInviteMapper.deleteBatchIds(Arrays.asList(org.apache.commons.lang3.StringUtils.split(ids,",")));
+        return success();
+    }
+
+    @Override
+    public List<MucInvite> queryLogicDeleted() {
+        return this.queryLogicDeleted(null);
+    }
+
+    @Override
+    public List<MucInvite> queryLogicDeleted(LambdaQueryWrapper<MucInvite> wrapper) {
+        if (wrapper == null) {
+            wrapper = new LambdaQueryWrapper<>();
+        }
+        wrapper.eq(MucInvite::getDelFlag, CommonConstant.DEL_FLAG_1);
+        return mucInviteMapper.selectLogicDeleted(wrapper);
+    }
+
+    @Override
+    @CacheEvict(value={CacheConstant.SYS_USERS_CACHE}, allEntries=true)
+    public boolean revertLogicDeleted(List<String> ids) {
+        return mucInviteMapper.revertLogicDeleted(ids) > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean removeLogicDeleted(List<String> ids) {
+        return mucInviteMapper.deleteLogicDeleted(ids)!=0;
+    }
 }

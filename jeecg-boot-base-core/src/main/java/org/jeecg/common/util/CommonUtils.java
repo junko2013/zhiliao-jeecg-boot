@@ -131,7 +131,7 @@ public class CommonUtils {
      * @Return: java.lang.String
      */
     public static String upload(MultipartFile file, String bizPath, String uploadType) {
-        String url = "";
+        String url;
         try {
             if (CommonConstant.UPLOAD_TYPE_MINIO.equals(uploadType)) {
                 url = MinioUtil.upload(file, bizPath);

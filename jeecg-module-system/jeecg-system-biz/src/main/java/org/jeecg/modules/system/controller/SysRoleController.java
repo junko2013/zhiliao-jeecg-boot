@@ -1,26 +1,22 @@
 package org.jeecg.modules.system.controller;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import cn.hutool.core.util.RandomUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.plugins.pagination.PageDTO;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.config.TenantContext;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.constant.SymbolConstant;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.config.mybatis.MybatisPlusSaasConfig;
 import org.jeecg.modules.base.service.BaseCommonService;
@@ -34,26 +30,15 @@ import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
-import org.jeecg.common.system.vo.LoginUser;
-import org.apache.shiro.SecurityUtils;
-import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * <p>
@@ -69,7 +54,9 @@ import lombok.extern.slf4j.Slf4j;
 public class SysRoleController {
 	@Autowired
 	private ISysRoleService sysRoleService;
-	
+	@Autowired
+	private ISysUserService sysUserService;
+
 	@Autowired
 	private ISysPermissionDataRuleService sysPermissionDataRuleService;
 	
@@ -98,12 +85,21 @@ public class SysRoleController {
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 									  HttpServletRequest req) {
+//		Result<IPage<SysRole>> result = new Result<IPage<SysRole>>();
+//		//QueryWrapper<SysRole> queryWrapper = QueryGenerator.initQueryWrapper(role, req.getParameterMap());
+//		//IPage<SysRole> pageList = sysRoleService.page(page, queryWrapper);
+//		Page<SysRole> page = new Page<SysRole>(pageNo, pageSize);
+//		//换成不做租户隔离的方法，实际上还是存在缺陷（缺陷：如果开启租户隔离，虽然能看到其他租户下的角色，编辑会提示报错）
+//		IPage<SysRole> pageList = sysRoleService.listAllSysRole(page, role);
+//		result.setSuccess(true);
+//		result.setResult(pageList);
+//		return result;
+
 		Result<IPage<SysRole>> result = new Result<IPage<SysRole>>();
-		//QueryWrapper<SysRole> queryWrapper = QueryGenerator.initQueryWrapper(role, req.getParameterMap());
-		//IPage<SysRole> pageList = sysRoleService.page(page, queryWrapper);
+		role.setTenantId(0);
+		QueryWrapper<SysRole> queryWrapper = QueryGenerator.initQueryWrapper(role, req.getParameterMap());
 		Page<SysRole> page = new Page<SysRole>(pageNo, pageSize);
-		//换成不做租户隔离的方法，实际上还是存在缺陷（缺陷：如果开启租户隔离，虽然能看到其他租户下的角色，编辑会提示报错）
-		IPage<SysRole> pageList = sysRoleService.listAllSysRole(page, role);
+		IPage<SysRole> pageList = sysRoleService.page(page, queryWrapper);
 		result.setSuccess(true);
 		result.setResult(pageList);
 		return result;
@@ -157,7 +153,7 @@ public class SysRoleController {
 		}
 		return result;
 	}
-	
+
 	/**
 	  *  编辑
 	 * @param role
@@ -489,18 +485,25 @@ public class SysRoleController {
 	@RequestMapping(value = "/queryTreeList", method = RequestMethod.GET)
 	public Result<Map<String,Object>> queryTreeList(HttpServletRequest request) {
 		Result<Map<String,Object>> result = new Result<>();
+		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		SysUser sysUser = sysUserService.getUserByName(loginUser.getUsername());
 		//全部权限ids
 		List<String> ids = new ArrayList<>();
 		try {
 			LambdaQueryWrapper<SysPermission> query = new LambdaQueryWrapper<SysPermission>();
 			query.eq(SysPermission::getDelFlag, CommonConstant.DEL_FLAG_0);
 			query.orderByAsc(SysPermission::getSortNo);
-			List<SysPermission> list = sysPermissionService.list(query);
+			List<SysPermission> list;
+			if(sysUser.getLoginTenantId()>0){
+				list = sysPermissionService.queryByUser(loginUser.getId());
+			}else{
+				list = sysPermissionService.list(query);
+			}
 			for(SysPermission sysPer : list) {
 				ids.add(sysPer.getId());
 			}
 			List<TreeModel> treeList = new ArrayList<>();
-			getTreeModelList(treeList, list, null);
+			getTreeModelList(treeList, list, null,sysUser);
 			Map<String,Object> resMap = new HashMap(5);
             //全部树节点数据
 			resMap.put("treeList", treeList);
@@ -514,19 +517,22 @@ public class SysRoleController {
 		return result;
 	}
 	
-	private void getTreeModelList(List<TreeModel> treeList,List<SysPermission> metaList,TreeModel temp) {
+	private void getTreeModelList(List<TreeModel> treeList,List<SysPermission> metaList,TreeModel temp,SysUser sysUser) {
 		for (SysPermission permission : metaList) {
+			if(sysUser.getLoginTenantId()>0&&!permission.isCanGrantToTenant()){
+				continue;
+			}
 			String tempPid = permission.getParentId();
 			TreeModel tree = new TreeModel(permission.getId(), tempPid, permission.getName(),permission.getRuleFlag(), permission.isLeaf());
 			if(temp==null && oConvertUtils.isEmpty(tempPid)) {
 				treeList.add(tree);
 				if(!tree.getIsLeaf()) {
-					getTreeModelList(treeList, metaList, tree);
+					getTreeModelList(treeList, metaList, tree,sysUser);
 				}
 			}else if(temp!=null && tempPid!=null && tempPid.equals(temp.getKey())){
 				temp.getChildren().add(tree);
 				if(!tree.getIsLeaf()) {
-					getTreeModelList(treeList, metaList, tree);
+					getTreeModelList(treeList, metaList, tree,sysUser);
 				}
 			}
 			

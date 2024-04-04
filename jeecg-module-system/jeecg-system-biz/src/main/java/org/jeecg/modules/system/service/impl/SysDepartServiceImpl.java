@@ -200,7 +200,7 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
 			String orgType = codeArray[1];
 			sysDepart.setOrgType(String.valueOf(orgType));
 			sysDepart.setCreateTime(new Date());
-			sysDepart.setDelFlag(CommonConstant.DEL_FLAG_0.toString());
+			sysDepart.setDelFlag(CommonConstant.DEL_FLAG_0);
 			//新添加的部门是叶子节点
 			sysDepart.setIzLeaf(CommonConstant.IS_LEAF);
 			// 【QQYUN-7172】数据库默认值兼容
@@ -1032,7 +1032,7 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
 			//没有错误的时候才会导入数据
 			if(izExport){
 				sysDepart.setOrgType(sysDepart.getOrgCode().length()/codeLength+"");
-				sysDepart.setDelFlag(CommonConstant.DEL_FLAG_0.toString());
+				sysDepart.setDelFlag(CommonConstant.DEL_FLAG_0);
 				sysDepart.setOrgCategory("1");
 				sysDepart.setTenantId(tenantId);
 				ImportExcelUtil.importDateSaveOne(sysDepart, ISysDepartService.class, errorMessageList, num, CommonConstant.SQL_INDEX_UNIQ_DEPART_ORG_CODE);
@@ -1324,7 +1324,7 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
 				}else{
 					sysDepart.setOrgType(sysDepart.getOrgCode().length()/codeLength+"");
 				}
-				sysDepart.setDelFlag(CommonConstant.DEL_FLAG_0.toString());
+				sysDepart.setDelFlag(CommonConstant.DEL_FLAG_0);
 				sysDepart.setDepartNameEn(departExportVo.getDepartNameEn());
 				sysDepart.setDepartOrder(departExportVo.getDepartOrder());
 				sysDepart.setOrgCategory(oConvertUtils.getString(departExportVo.getOrgCategory(),"1"));

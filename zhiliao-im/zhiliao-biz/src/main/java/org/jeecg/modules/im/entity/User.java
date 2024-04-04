@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import org.jeecg.common.aspect.annotation.Dict;
 
 /**
  * <p>
@@ -53,6 +55,7 @@ public class User extends BaseModel<User> {
     /**
      * 是初始密码
      */
+    @Dict(dicCode = "yon")
     private Boolean passwordIsInit;
 
     /**
@@ -88,10 +91,14 @@ public class User extends BaseModel<User> {
     //手机号
     private String mobile;
     //在线
+    @Dict(dicCode = "yon")
     private Boolean isOnline;
     //二维码随机数
     private String qrCode;
-
+    /**
+     * 启用谷歌验证
+     */
+    @Dict(dicCode = "yon")
     private Boolean enableGoogleCode;
     /**
      * 谷歌密钥
@@ -114,11 +121,19 @@ public class User extends BaseModel<User> {
     //账号来源
     private Integer resource;
     //默认好友
+    @Dict(dicCode = "yon")
     private Boolean isDefaultFriend;
+    //服务号
+    @Dict(dicCode = "yon")
+    private Boolean isPublic;
     //被添加时的自动回复
     private String welcomes;
     //注册编号，第N个注册
     private Integer regNo;
+    //认证类型
+    private Integer verify;
+    //服务器id
+    private Integer serverId;
 
     @TableField(exist = false)
     private String matchType;
@@ -131,31 +146,25 @@ public class User extends BaseModel<User> {
     @TableField(exist = false)
     private UserInfo info;
 
+    @Getter
     public enum Type {
         common(0, "普通用户"),
         business(1, "业务号"),
         sysAccount(2, "系统号"),
         zombie(3, "僵尸号"),
-        publicAccount(4, "公众号"),
         bot(5, "机器人"),
         tourist(6, "游客"),
         ;
-        int code;
-        String name;
+        final int code;
+        final String name;
 
         Type(int code, String name) {
             this.code = code;
             this.name = name;
         }
 
-        public int getCode() {
-            return code;
-        }
-
-        public String getName() {
-            return name;
-        }
     }
+    @Getter
     public enum Resource {
         CONSOLE_CREATE(0, "后台创建"),
         MOBILE_REG(1, "手机号注册"),
@@ -163,22 +172,16 @@ public class User extends BaseModel<User> {
         USERNAME_REG(3, "用户名注册"),
         THIRD_AUTH(4, "第三方授权登录"),
         ;
-        int code;
-        String name;
+        final int code;
+        final String name;
 
         Resource(int code, String name) {
             this.code = code;
             this.name = name;
         }
 
-        public int getCode() {
-            return code;
-        }
-
-        public String getName() {
-            return name;
-        }
     }
+    @Getter
     public enum MuteType{
         normal(0),//正常
         newMember(1),//新群成员
@@ -190,9 +193,17 @@ public class User extends BaseModel<User> {
             this.code = code;
         }
 
-        public int getCode() {
-            return code;
+    }
+    @Getter
+    public enum VerifyType{
+        no(0),//未认证
+        common(1),//普通认证 提交资料实名认证
+        premium(2);//高级认证 付费
+        private final int code;
+        VerifyType(int code){
+            this.code = code;
         }
+
     }
 
 }

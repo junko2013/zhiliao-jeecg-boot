@@ -62,19 +62,7 @@ public class GifAlbumServiceImpl extends BaseServiceImpl<GifAlbumMapper, GifAlbu
     }
 
     @Override
-    public Result<Object> findUngroup() {
-        GifAlbum album = gifAlbumMapper.findUngroup();
-        if(album==null){
-            album = new GifAlbum();
-            album.setId(0);
-            album.setName("未分组");
-            album.setTsCreate(getTs());
-            save(album);
-        }
-        return success(album);
-    }
-    @Override
-    public List<GifAlbum> findAll() {
-        return gifAlbumMapper.findAll();
+    public List<GifAlbum> findAll(Integer serverId) {
+        return gifAlbumMapper.findAll(serverId);
     }
 }

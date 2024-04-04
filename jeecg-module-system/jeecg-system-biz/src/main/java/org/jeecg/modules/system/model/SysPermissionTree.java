@@ -129,14 +129,14 @@ public class SysPermissionTree implements Serializable {
     private boolean hidden;
     
     /**按钮权限状态(0无效1有效)*/
-	private java.lang.String status;
+	private Integer status;
 
-	/*update_begin author:wuxianquan date:20190908 for:model增加字段 */
 	/** 外链菜单打开方式 0/内部打开 1/外部打开 */
 	private boolean internalOrExternal;
-	/*update_end author:wuxianquan date:20190908 for:model增加字段 */
-
-	/*update_begin author:liusq date:20230601 for:【issues/4986】model增加hideTab字段 */
+	//可授权给租户
+	private boolean canGrantToTenant;
+	//需要选定服务器后才能访问
+	private boolean isNeedServer;
 	/**
 	 * 是否隐藏Tab: 0否,1是（默认值0）
 	 */
@@ -171,13 +171,11 @@ public class SysPermissionTree implements Serializable {
 		this.route = permission.isRoute();
 		this.keepAlive = permission.isKeepAlive();
 		this.alwaysShow= permission.isAlwaysShow();
-		/*update_begin author:wuxianquan date:20190908 for:赋值 */
 		this.internalOrExternal = permission.isInternalOrExternal();
-		/*update_end author:wuxianquan date:20190908 for:赋值 */
+		this.canGrantToTenant = permission.isCanGrantToTenant();
+		this.isNeedServer = permission.isNeedServer();
 		this.title=permission.getName();
-		/*update_end author:liusq date:20230601 for:【issues/4986】model增加hideTab字段 */
 		this.hideTab = permission.isHideTab();
-		/*update_end author:liusq date:20230601 for:【issues/4986】model增加hideTab字段 */
 		if (!permission.isLeaf()) {
 			this.children = new ArrayList<SysPermissionTree>();
 		}
@@ -401,15 +399,14 @@ public class SysPermissionTree implements Serializable {
 		this.permsType = permsType;
 	}
 
-	public java.lang.String getStatus() {
+	public Integer getStatus() {
 		return status;
 	}
 
-	public void setStatus(java.lang.String status) {
+	public void setStatus(Integer status) {
 		this.status = status;
 	}
 
-	/*update_begin author:wuxianquan date:20190908 for:get set方法 */
 	public boolean isInternalOrExternal() {
 		return internalOrExternal;
 	}
@@ -417,8 +414,20 @@ public class SysPermissionTree implements Serializable {
 	public void setInternalOrExternal(boolean internalOrExternal) {
 		this.internalOrExternal = internalOrExternal;
 	}
-	/*update_end author:wuxianquan date:20190908 for:get set 方法 */
+	public boolean isCanGrantToTenant() {
+		return canGrantToTenant;
+	}
 
+	public void isCanGrantToTenant(boolean canGrantToTenant) {
+		this.canGrantToTenant = canGrantToTenant;
+	}
+	public boolean isNeedServer() {
+		return isNeedServer;
+	}
+
+	public void isNeedServer(boolean isNeedServer) {
+		this.isNeedServer = isNeedServer;
+	}
 	public boolean isHideTab() {
 		return hideTab;
 	}

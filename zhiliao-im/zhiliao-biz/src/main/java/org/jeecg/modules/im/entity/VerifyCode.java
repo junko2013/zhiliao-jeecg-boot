@@ -57,6 +57,8 @@ public class VerifyCode extends BaseModel<VerifyCode> {
 
     private Long tsCreate;
 
+    private Integer serverId;
+
 
     @TableField(exist = false)
     private User user;
