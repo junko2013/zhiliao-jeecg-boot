@@ -22,7 +22,6 @@ import java.util.List;
  */
 @Mapper
 public interface FeedbackMapper extends BaseMapper<Feedback> {
-    MyPage<Feedback> pagination(MyPage<Feedback> pg, @Param("q") QFeedback q);
     MyPage<Feedback> paginationApi(MyPage<Feedback> pg, @Param("q") QFeedback q);
 
     List<Feedback> selectLogicDeleted(@Param(Constants.WRAPPER) Wrapper<Feedback> wrapper);

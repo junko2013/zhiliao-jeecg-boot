@@ -48,7 +48,7 @@ public class SysUserTenant implements Serializable {
     @ApiModelProperty(value = "创建人登录名称")
     private String createBy;
 	/**创建日期*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+	@JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "创建日期")
     private Date createTime;
@@ -56,7 +56,7 @@ public class SysUserTenant implements Serializable {
     @ApiModelProperty(value = "更新人登录名称")
     private String updateBy;
 	/**更新日期*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+	@JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "更新日期")
     private Date updateTime;

@@ -7,16 +7,10 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.modules.im.base.vo.MyPage;
-import org.jeecg.modules.im.entity.ClientVer;
 import org.jeecg.modules.im.entity.CustomEmoji;
-import org.jeecg.modules.im.entity.CustomEmoji;
-import org.jeecg.modules.im.entity.CustomEmoji;
-import org.jeecg.modules.im.entity.query_helper.QClientVer;
 import org.jeecg.modules.im.entity.query_helper.QCustomEmoji;
 import org.jeecg.modules.im.mapper.CustomEmojiMapper;
-import org.jeecg.modules.im.mapper.CustomEmojiMapper;
-import org.jeecg.modules.im.service.CustomEmojiService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.jeecg.modules.im.service.ICustomEmojiService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -35,7 +29,7 @@ import java.util.List;
  * @since 2023-02-21
  */
 @Service
-public class CustomEmojiServiceImpl extends BaseServiceImpl<CustomEmojiMapper, CustomEmoji> implements CustomEmojiService {
+public class CustomEmojiServiceImpl extends BaseServiceImpl<CustomEmojiMapper, CustomEmoji> implements ICustomEmojiService {
 
     @Autowired
     private CustomEmojiMapper mapper;

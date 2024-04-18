@@ -12,10 +12,10 @@ import org.jeecg.modules.im.entity.Device;
 import org.jeecg.modules.im.entity.User;
 import org.jeecg.modules.im.entity.query_helper.QDevice;
 import org.jeecg.modules.im.mapper.DeviceMapper;
-import org.jeecg.modules.im.service.DeviceService;
-import org.jeecg.modules.im.service.LoginLogService;
-import org.jeecg.modules.im.service.UserInfoService;
-import org.jeecg.modules.im.service.XMPPService;
+import org.jeecg.modules.im.service.IDeviceService;
+import org.jeecg.modules.im.service.ILoginLogService;
+import org.jeecg.modules.im.service.IUserInfoService;
+import org.jeecg.modules.im.service.IXMPPService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.modules.im.base.xmpp.MessageBean;
@@ -36,15 +36,15 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> implements DeviceService {
+public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> implements IDeviceService {
     @Autowired
     private DeviceMapper deviceMapper;
     @Resource
-    private UserInfoService userInfoService;
+    private IUserInfoService IUserInfoService;
     @Resource
-    private LoginLogService loginLogService;
+    private ILoginLogService ILoginLogService;
     @Resource
-    private XMPPService xmppService;
+    private IXMPPService IXMPPService;
 
     @Override
     public IPage<Device> pagination(MyPage<Device> page, QDevice q) {
@@ -55,7 +55,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     public List<Device> findAll(Integer userId) {
         List<Device> devices = deviceMapper.findAll(userId);
         for (Device device : devices) {
-            device.setLoginLog(loginLogService.findLatestByDeviceId(device.getId()));
+            device.setLoginLog(ILoginLogService.findLatestByDeviceId(device.getId()));
         }
         return devices;
     }
@@ -112,8 +112,8 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
             device.setNo(no);
             device.setPlatform(platform);
             device.setUserId(user.getId());
-            device.setTsCreate(getTs());
-            device.setTsDisabled(0L);
+            device.setTsCreate(getDate());
+            device.setTsDisabled(null);
             device.setServerId(user.getServerId());
             save(device);
         }
@@ -153,7 +153,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
         Kv data = Kv.by("no",device.getNo()).set("except",except);
         messageBean.setContent(JSONObject.toJSONString(data));
         messageBean.setType(MsgType.terminate.getType());
-        xmppService.sendMsgToSelf(messageBean);
+        IXMPPService.sendMsgToSelf(messageBean);
         return success();
     }
     @Override

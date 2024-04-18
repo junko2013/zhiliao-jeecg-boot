@@ -7,7 +7,7 @@ import org.jeecg.boot.starter.rabbitmq.core.BaseRabbiMqHandler;
 import org.jeecg.boot.starter.rabbitmq.listenter.MqListener;
 import org.jeecg.common.annotation.RabbitComponent;
 import org.jeecg.modules.im.base.constant.ConstantMQ;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.IUserService;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
@@ -24,7 +24,7 @@ import javax.annotation.Resource;
 @RabbitComponent(value = "mqUserStatusReceiver")
 public class MQUserStatusReceiver extends BaseRabbiMqHandler<String> {
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
 
     @RabbitHandler
     public void onMessage(String message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
@@ -44,9 +44,9 @@ public class MQUserStatusReceiver extends BaseRabbiMqHandler<String> {
                     if(id!=null){
                         log.info("用户状态更新：id={}，status={}，resource={}", strs[0], strs[1], strs[2]);
                         if ("1".equals(strs[1])) {
-                            userService.handleLogin(id, strs[2]);
+                            IUserService.handleLogin(id, strs[2]);
                         } else {
-                            userService.closeConnection(id, strs[2],"1".equals(strs[3]));
+                            IUserService.closeConnection(id, strs[2],"1".equals(strs[3]));
                         }
                     }
                 } catch (Exception e) {

@@ -7,13 +7,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
-import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Post;
-import org.jeecg.modules.im.entity.MucMemberLevelCtg;
-import org.jeecg.modules.im.entity.Post;
-import org.jeecg.modules.im.entity.Post;
-import org.jeecg.modules.im.entity.query_helper.QPost;
-import org.jeecg.modules.im.service.PostService;
+import org.jeecg.modules.im.service.IPostService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/im/post")
-public class PostController extends BaseBackController {
-    @Resource
-    private PostService postService;
+public class PostController extends BaseBackController<Post, IPostService> {
 
     @RequestMapping("/pagination")
     public Result<IPage<Post>> list(Post post, @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
@@ -39,7 +32,7 @@ public class PostController extends BaseBackController {
         Result<IPage<Post>> result = new Result<>();
         QueryWrapper<Post> queryWrapper = QueryGenerator.initQueryWrapper(post, req.getParameterMap());
         Page<Post> page = new Page<>(pageNo, pageSize);
-        IPage<Post> pageList = postService.page(page, queryWrapper);
+        IPage<Post> pageList = service.page(page, queryWrapper);
         result.setSuccess(true);
         result.setResult(pageList);
         return result;
@@ -53,12 +46,12 @@ public class PostController extends BaseBackController {
         if(bindingResult.hasErrors()){
             return fail(bindingResult.getAllErrors().get(0));
         }
-        return postService.edit(item);
+        return service.edit(item);
     }
 
     @RequestMapping("/detail")
     public Result<Object> detail(@RequestParam Integer id){
-        return success(postService.getById(id));
+        return success(service.getById(id));
     }
 
     /**
@@ -68,7 +61,7 @@ public class PostController extends BaseBackController {
      */
     @GetMapping("/recycleBin")
     public Result getRecycleBin() {
-        List<Post> logicDeletedUserList = postService.queryLogicDeleted();
+        List<Post> logicDeletedUserList = service.queryLogicDeleted();
         return Result.ok(logicDeletedUserList);
     }
 
@@ -82,7 +75,7 @@ public class PostController extends BaseBackController {
     public Result putRecycleBin(@RequestBody JSONObject jsonObject, HttpServletRequest request) {
         String ids = jsonObject.getString("ids");
         if (StringUtils.isNotBlank(ids)) {
-            postService.revertLogicDeleted(Arrays.asList(ids.split(",")));
+            service.revertLogicDeleted(Arrays.asList(ids.split(",")));
         }
         return Result.ok("还原成功");
     }
@@ -96,7 +89,7 @@ public class PostController extends BaseBackController {
     @RequestMapping(value = "/deleteRecycleBin", method = RequestMethod.DELETE)
     public Result deleteRecycleBin(@RequestParam("ids") String ids) {
         if (StringUtils.isNotBlank(ids)) {
-            postService.removeLogicDeleted(Arrays.asList(ids.split(",")));
+            service.removeLogicDeleted(Arrays.asList(ids.split(",")));
         }
         return Result.ok("删除成功");
     }

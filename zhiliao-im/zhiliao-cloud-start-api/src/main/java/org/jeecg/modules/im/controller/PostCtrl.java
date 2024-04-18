@@ -2,9 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
-import org.jeecg.modules.im.entity.query_helper.QMucNotice;
 import org.jeecg.modules.im.entity.query_helper.QPost;
-import org.jeecg.modules.im.entity.query_helper.QRedPack;
 import org.jeecg.modules.im.service.*;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +20,7 @@ import javax.annotation.Resource;
 public class PostCtrl extends BaseApiCtrl {
 
     @Resource
-    private PostService postService;
+    private IPostService postService;
 
     @RequestMapping("/pagination")
     public Result<Object> pagination(QPost q){

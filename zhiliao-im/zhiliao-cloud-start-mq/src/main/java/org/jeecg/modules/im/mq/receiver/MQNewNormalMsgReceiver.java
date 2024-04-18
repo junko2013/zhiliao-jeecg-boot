@@ -31,33 +31,33 @@ import javax.annotation.Resource;
 @RabbitListener(queues = ConstantMQ.NEW_NORMAL_MSG)
 public class MQNewNormalMsgReceiver extends BaseRabbiMqHandler<String> {
     @Resource
-    private FriendService friendService;
+    private IFriendService IFriendService;
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
     @Resource
-    private MucService mucService;
+    private IMucService IMucService;
     @Resource
-    private MucConfigService mucConfigService;
+    private IMucConfigService IMucConfigService;
     @Resource
-    private MucMsgService mucMsgService;
+    private IMucMsgService IMucMsgService;
     @Resource
-    private MsgService msgService;
+    private IMsgService IMsgService;
     @Resource
-    private CallService callService;
+    private ICallService ICallService;
     @Resource
-    private GifService gifService;
+    private IGifService IGifService;
     @Resource
-    private MyGifService myGifService;
+    private IMyGifService IMyGifService;
     @Resource
-    private MyStickerService myStickerService;
+    private IMyStickerService IMyStickerService;
     @Resource
-    private CustomEmojiService customEmojiService;
+    private ICustomEmojiService ICustomEmojiService;
     @Resource
-    private MucMemberService mucMemberService;
+    private IMucMemberService IMucMemberService;
     @Resource
-    private MucMsgDeleteService mucMsgDeleteService;
+    private IMucMsgDeleteService IMucMsgDeleteService;
     @Resource
-    private TagService tagService;
+    private ITagService ITagService;
     @Autowired
     private StickerHandler stickerHandler;
     @Lazy

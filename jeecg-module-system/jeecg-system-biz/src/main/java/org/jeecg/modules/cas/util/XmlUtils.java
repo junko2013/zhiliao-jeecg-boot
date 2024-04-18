@@ -279,7 +279,7 @@ public final class XmlUtils {
 				"        <cas:attributes>\r\n" + 
 				"            <cas:credentialType>UsernamePasswordCredential</cas:credentialType>\r\n" + 
 				"            <cas:isFromNewLogin>true</cas:isFromNewLogin>\r\n" + 
-				"            <cas:authenticationDate>2019-08-01T19:33:21.527+08:00[Asia/Shanghai]</cas:authenticationDate>\r\n" + 
+				"            <cas:authenticationDate>2019-08-01T19:33:21.527+08:00[UTC]</cas:authenticationDate>\r\n" + 
 				"            <cas:authenticationMethod>RestAuthenticationHandler</cas:authenticationMethod>\r\n" + 
 				"            <cas:successfulAuthenticationHandlers>RestAuthenticationHandler</cas:successfulAuthenticationHandlers>\r\n" + 
 				"            <cas:longTermAuthenticationRequestTokenUsed>false</cas:longTermAuthenticationRequestTokenUsed>\r\n" + 

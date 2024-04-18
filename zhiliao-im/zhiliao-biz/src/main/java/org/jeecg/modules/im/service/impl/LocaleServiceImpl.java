@@ -6,9 +6,8 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.modules.im.entity.Locale;
-import org.jeecg.modules.im.mapper.ChatBgMapper;
 import org.jeecg.modules.im.mapper.LocaleMapper;
-import org.jeecg.modules.im.service.LocaleService;
+import org.jeecg.modules.im.service.ILocaleService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -27,7 +26,7 @@ import java.util.List;
  * @since 2023-12-18
  */
 @Service
-public class LocaleServiceImpl extends BaseServiceImpl<LocaleMapper, Locale> implements LocaleService {
+public class LocaleServiceImpl extends BaseServiceImpl<LocaleMapper, Locale> implements ILocaleService {
     @Autowired
     private LocaleMapper localeMapper;
     @Override
@@ -39,7 +38,7 @@ public class LocaleServiceImpl extends BaseServiceImpl<LocaleMapper, Locale> imp
     @Override
     public String getContent(int id) {
         LambdaQueryWrapper<Locale> query = new LambdaQueryWrapper<>();
-        query.eq(Locale::getStatus,CommonConstant.STATUS_1);
+        query.eq(Locale::getEnable,1);
         query.eq(Locale::getId,id);
         query.select(Locale::getContent);
         Locale locale = getOne(query);
@@ -49,29 +48,6 @@ public class LocaleServiceImpl extends BaseServiceImpl<LocaleMapper, Locale> imp
         return locale.getContent();
     }
 
-    @Override
-    public Result<Object> createOrUpdate(Locale locale) {
-        if(locale.getId()==null){
-            locale.setTsCreate(getTs());
-            if(!save(locale)){
-                return fail("添加失败");
-            }
-        }else{
-            if(!updateById(locale)){
-                return fail("更新失败");
-            }
-        }
-        return success();
-    }
-
-    @Override
-    public Result<Object> del(String ids) {
-        if(isEmpty(ids)){
-            return fail();
-        }
-        localeMapper.deleteBatchIds(Arrays.asList(StringUtils.split(ids,",")));
-        return success();
-    }
 
     @Override
     public List<Locale> queryLogicDeleted() {

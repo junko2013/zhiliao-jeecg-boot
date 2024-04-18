@@ -2,7 +2,7 @@ package org.jeecg.modules.im.service.impl;
 
 import org.jeecg.modules.im.entity.SysConfig;
 import org.jeecg.modules.im.mapper.SysConfigMapper;
-import org.jeecg.modules.im.service.SysConfigService;
+import org.jeecg.modules.im.service.ISysConfigService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  * @since 2021-02-03
  */
 @Service
-public class SysConfigServiceImpl extends BaseServiceImpl<SysConfigMapper, SysConfig> implements SysConfigService {
+public class SysConfigServiceImpl extends BaseServiceImpl<SysConfigMapper, SysConfig> implements ISysConfigService {
 
     @Autowired
     private SysConfigMapper sysConfigMapper;

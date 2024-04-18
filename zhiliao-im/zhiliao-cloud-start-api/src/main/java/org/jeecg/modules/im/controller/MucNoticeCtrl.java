@@ -1,9 +1,8 @@
 package org.jeecg.modules.im.controller;
 
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.entity.MucNotice;
 import org.jeecg.modules.im.entity.query_helper.QMucNotice;
-import org.jeecg.modules.im.service.MucNoticeService;
+import org.jeecg.modules.im.service.IMucNoticeService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +18,7 @@ import javax.annotation.Resource;
 @RequestMapping("/a/mucNotice")
 public class MucNoticeCtrl extends BaseApiCtrl {
     @Resource
-    private MucNoticeService mucNoticeService;
+    private IMucNoticeService mucNoticeService;
 
     @RequestMapping("/findByMuc")
     public Result<Object> findByMuc(@RequestParam Integer mucId){

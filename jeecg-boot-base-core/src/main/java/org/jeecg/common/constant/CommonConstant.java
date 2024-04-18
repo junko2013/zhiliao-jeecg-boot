@@ -211,8 +211,8 @@ public interface CommonConstant {
     /**
      * online参数值设置（是：Y, 否：N）
      */
-    String ONLINE_PARAM_VAL_IS_TURE = "Y";
-    String ONLINE_PARAM_VAL_IS_FALSE = "N";
+//    String YES = "Y";
+//    String NO = "N";
 
     /**
      * 文件上传类型（本地：local，Minio：minio，阿里云：alioss）

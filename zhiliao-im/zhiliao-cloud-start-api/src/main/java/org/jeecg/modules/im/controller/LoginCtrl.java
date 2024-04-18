@@ -9,12 +9,12 @@ import org.jeecg.common.util.Kv;
 import org.jeecg.modules.im.base.util.ToolString;
 import org.jeecg.modules.im.configuration.ClientOperLog;
 import org.jeecg.modules.im.base.util.TCaptchaVerify;
-import org.jeecg.modules.im.entity.Param;
+import org.jeecg.modules.im.entity.SysConfig;
 import org.jeecg.modules.im.entity.User;
 import org.jeecg.modules.im.entity.VerifyCode;
-import org.jeecg.modules.im.service.ParamService;
-import org.jeecg.modules.im.service.VerifyCodeService;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.ISysConfigService;
+import org.jeecg.modules.im.service.IVerifyCodeService;
+import org.jeecg.modules.im.service.IUserService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
@@ -31,11 +31,11 @@ import java.util.UUID;
 public class LoginCtrl extends BaseApiCtrl {
 
     @Resource
-    private UserService userService;
+    private IUserService userService;
     @Resource
-    private ParamService paramService;
+    private IVerifyCodeService verifyCodeService;
     @Resource
-    private VerifyCodeService verifyCodeService;
+    private ISysConfigService sysConfigService;
     @Resource
     @Lazy
     private RedisUtil redisUtil;
@@ -48,9 +48,10 @@ public class LoginCtrl extends BaseApiCtrl {
     @PostMapping({"", "/"})
     @ClientOperLog(module = "用户登录", type = "手机号/账号登录", desc = "")
     public Result<Object> index(@RequestParam String account, @RequestParam String password,String ticket,String randstr) {
-        if ("1".equals(paramService.getByName(Param.Name.tencent_captcha_on))) {
+        SysConfig sysConfig = sysConfigService.get();
+        if (sysConfig.getTencentCaptchaOn()) {
             //腾讯防水墙校验
-            int checkCode = TCaptchaVerify.verifyTicket(paramService.getByName(Param.Name.tencent_captcha_app_id), paramService.getByName(Param.Name.tencent_captcha_app_secret), ticket, randstr, getIp());
+            int checkCode = TCaptchaVerify.verifyTicket(sysConfig.getTencentCaptchaAppId(), sysConfig.getTencentCaptchaAppSecret(), ticket, randstr, getIp());
             if (checkCode == -1) {
                 return fail("行为验证失败");
             }
@@ -81,9 +82,10 @@ public class LoginCtrl extends BaseApiCtrl {
         if (!ToolString.regExpValiMobile(mobile)) {
             return fail("手机号格式不正确");
         }
-        if ("1".equals(paramService.getByName(Param.Name.tencent_captcha_on))) {
+        SysConfig sysConfig = sysConfigService.get();
+        if (sysConfig.getTencentCaptchaOn()) {
             //腾讯防水墙校验
-            int checkCode = TCaptchaVerify.verifyTicket(paramService.getByName(Param.Name.tencent_captcha_app_id), paramService.getByName(Param.Name.tencent_captcha_app_secret), ticket, randstr, getIp());
+            int checkCode = TCaptchaVerify.verifyTicket(sysConfig.getTencentCaptchaAppId(), sysConfig.getTencentCaptchaAppSecret(), ticket, randstr, getIp());
             if (checkCode == -1) {
                 return fail("行为验证失败");
             }
@@ -169,7 +171,7 @@ public class LoginCtrl extends BaseApiCtrl {
                 String refreshToken = JwtUtilApp.getRefreshToken(user.getId(), user.getPassword());
                 kv.set("accessToken",accessToken);
                 kv.set("refreshToken",refreshToken);
-                kv.set("user",userService.getBasicInfoById(user.getId()));
+                kv.set("user", userService.getBasicInfoById(user.getId()));
             }
         }
         return success(kv);

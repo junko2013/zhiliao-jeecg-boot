@@ -13,11 +13,11 @@ spring:
 db:
   num: 1
   password:
-    '0': ${MYSQL-PWD:mPK6wBtNP8WCLzZ4}
+    '0': ${MYSQL-PWD:6A6HPJLSS6AnZ3kE}
   url:
-    '0': jdbc:mysql://${MYSQL-HOST:jeecg-boot-mysql}:${MYSQL-PORT:3306}/${MYSQL-DB:zhiliao_nacos_new}?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    '0': jdbc:mysql://${MYSQL-HOST:jeecg-boot-mysql}:${MYSQL-PORT:3306}/${MYSQL-DB:zhiliao_nacos_2}?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
   user:
-    '0': ${MYSQL-USER:zhiliao_nacos_new}
+    '0': ${MYSQL-USER:zhiliao_nacos_2}
 management:
   metrics:
     export:

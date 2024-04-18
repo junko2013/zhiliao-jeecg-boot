@@ -5,10 +5,9 @@ import org.jeecg.modules.im.base.constant.ConstantWeb;
 import org.jeecg.modules.im.base.util.IPUtil;
 import org.jeecg.modules.im.entity.Server;
 import org.jeecg.modules.im.entity.ServerConfig;
-import org.jeecg.modules.im.service.ParamService;
-import org.jeecg.modules.im.service.ServerConfigService;
-import org.jeecg.modules.im.service.ServerService;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.IServerService;
+import org.jeecg.modules.im.service.IServerConfigService;
+import org.jeecg.modules.im.service.IUserService;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +36,11 @@ public class BaseController {
     @Autowired
     protected HttpServletRequest request;
     @Resource
-    private ParamService paramService;
+    private IUserService userService;
     @Resource
-    private UserService userService;
+    private IServerService serverService;
     @Resource
-    private ServerService serverService;
-    @Resource
-    private ServerConfigService serverConfigService;
+    private IServerConfigService serverConfigService;
     @Autowired
     private MessageSource messageSource;
 
@@ -303,6 +300,9 @@ public class BaseController {
     //获取当前时间戳
     protected Long getTs(){
         return new Date().getTime();
+    }
+    protected Date getDate(){
+        return new Date();
     }
 
 }

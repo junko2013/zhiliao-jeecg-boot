@@ -14,9 +14,9 @@ import org.jeecg.modules.im.config.XMPPConfig;
 import org.jeecg.modules.im.entity.Muc;
 import org.jeecg.modules.im.entity.MucMember;
 import org.jeecg.modules.im.entity.User;
-import org.jeecg.modules.im.service.MucMemberService;
-import org.jeecg.modules.im.service.MucService;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.IMucMemberService;
+import org.jeecg.modules.im.service.IMucService;
+import org.jeecg.modules.im.service.IUserService;
 import org.jeecg.modules.im.base.xmpp.MessageBean;
 import org.jeecg.modules.im.xmpp.XMPPManager;
 import org.jivesoftware.smack.ConnectionListener;
@@ -55,11 +55,11 @@ public class MQXmppMessageReceiver extends BaseRabbiMqHandler<BaseMap> {
     @Autowired
     private XMPPConfig xmppConfig;
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
     @Resource
-    private MucService mucService;
+    private IMucService IMucService;
     @Resource
-    private MucMemberService mucMemberService;
+    private IMucMemberService IMucMemberService;
     //xmpp管理账号连接集合
     private Map<String, XMPPTCPConnection> connMap = new ConcurrentHashMap<>();
 
@@ -96,7 +96,7 @@ public class MQXmppMessageReceiver extends BaseRabbiMqHandler<BaseMap> {
     //单聊消息
     private void sendChat(MessageBean messageBean) throws Exception {
         Integer fromUserId = messageBean.getUserId();
-        XMPPTCPConnection conn = xmppManager.getUserConnection(fromUserId,userService.getPassword(fromUserId));
+        XMPPTCPConnection conn = xmppManager.getUserConnection(fromUserId, IUserService.getPassword(fromUserId));
         String toJid = messageBean.getToUserId()+xmppManager.getServiceName(conn);
         Message message = StanzaBuilder.buildMessage(UUIDTool.getUUID())
                 .setBody(JSONObject.toJSONString(messageBean))
@@ -115,21 +115,21 @@ public class MQXmppMessageReceiver extends BaseRabbiMqHandler<BaseMap> {
         Integer fromUserId = messageBean.getUserId();
         User fromUser;
         if(fromUserId!=null){
-            fromUser = userService.findById(fromUserId);
+            fromUser = IUserService.findById(fromUserId);
         }else{
             Integer mucId = messageBean.getMucId();
-            Muc muc = mucService.getById(mucId);
-            if(muc==null||muc.getTsDelete()>0){
+            Muc muc = IMucService.getById(mucId);
+            if(muc==null||muc.getTsDelete()!=null){
                 log.info("群组不存在！");
                 return;
             }
-            MucMember master = mucMemberService.getMaster(mucId);
+            MucMember master = IMucMemberService.getMaster(mucId);
             if(master==null){
                 log.info("群主不存在！");
                 return;
             }
             messageBean.setUserId(master.getUserId());
-            fromUser = userService.findById(master.getUserId());
+            fromUser = IUserService.findById(master.getUserId());
         }
         XMPPTCPConnection conn = xmppManager.getUserConnection(fromUser.getId(),fromUser.getPassword());
         String mucJid = messageBean.getMucId() + xmppManager.getMucChatServiceName(conn);

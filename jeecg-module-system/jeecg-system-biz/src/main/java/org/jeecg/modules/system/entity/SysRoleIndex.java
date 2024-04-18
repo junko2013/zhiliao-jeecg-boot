@@ -65,7 +65,7 @@ public class SysRoleIndex {
 	private String createBy;
 	/**创建日期*/
 	@Excel(name = "创建日期", width = 20, format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建日期")
 	private java.util.Date createTime;
@@ -75,7 +75,7 @@ public class SysRoleIndex {
 	private String updateBy;
 	/**更新日期*/
 	@Excel(name = "更新日期", width = 20, format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新日期")
 	private java.util.Date updateTime;

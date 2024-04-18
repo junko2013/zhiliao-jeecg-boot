@@ -5,8 +5,8 @@ import org.jeecg.modules.im.entity.Friend;
 import org.jeecg.modules.im.entity.Msg;
 import org.jeecg.modules.im.entity.query_helper.QFriend;
 import org.jeecg.modules.im.entity.query_helper.QMsg;
-import org.jeecg.modules.im.service.FriendService;
-import org.jeecg.modules.im.service.MsgService;
+import org.jeecg.modules.im.service.IFriendService;
+import org.jeecg.modules.im.service.IMsgService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,9 +21,9 @@ import java.util.List;
 @RequestMapping("/a/msg")
 public class MsgCtrl extends BaseApiCtrl {
     @Resource
-    private FriendService friendService;
+    private IFriendService IFriendService;
     @Resource
-    private MsgService msgService;
+    private IMsgService IMsgService;
 
     /**
      * 分页查询
@@ -34,7 +34,7 @@ public class MsgCtrl extends BaseApiCtrl {
         if(q.getAfter()){
             q.setPageSize(Integer.MAX_VALUE);
         }
-        return success(msgService.paginationApi(q));
+        return success(IMsgService.paginationApi(q));
     }
     /**
      * 分页查询
@@ -45,11 +45,11 @@ public class MsgCtrl extends BaseApiCtrl {
         //查询我的好友
         QFriend qf = new QFriend();
         qf.setUserId(getCurrentUserId());
-        List<Friend> friends = friendService.findAll(qf);
+        List<Friend> friends = IFriendService.findAll(qf);
         List<Msg> msgs = new ArrayList<>();
         for (Friend friend : friends) {
             q.setToUserId(friend.getToUser().getId());
-            msgs.addAll(msgService.paginationApi(q));
+            msgs.addAll(IMsgService.paginationApi(q));
         }
         return success(msgs);
     }

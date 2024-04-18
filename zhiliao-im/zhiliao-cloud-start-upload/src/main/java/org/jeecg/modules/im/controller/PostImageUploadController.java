@@ -2,7 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.service.UploadImageService;
+import org.jeecg.modules.im.service.IUploadImageService;
 import org.jeecg.modules.im.service.base.BaseUploadCtrl;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +22,7 @@ import javax.annotation.Resource;
 public class PostImageUploadController extends BaseUploadCtrl {
 
     @Resource
-    private UploadImageService uploadImageService;
+    private IUploadImageService IUploadImageService;
 
 
     @PostMapping({"","/"})
@@ -37,7 +37,7 @@ public class PostImageUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的图片");
         }
         try {
-            return uploadImageService.savePostImg(getCurrentUserId(),getAdmin(),multipartFile);
+            return IUploadImageService.savePostImg(getCurrentUserId(),getAdmin(),multipartFile);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("图片上传失败", e);

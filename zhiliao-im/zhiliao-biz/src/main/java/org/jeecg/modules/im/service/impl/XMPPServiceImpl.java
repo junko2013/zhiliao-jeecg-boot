@@ -12,8 +12,8 @@ import org.jeecg.modules.im.base.exception.BusinessException;
 import org.jeecg.modules.im.base.util.UUIDTool;
 import org.jeecg.modules.im.entity.Muc;
 import org.jeecg.modules.im.entity.User;
-import org.jeecg.modules.im.service.UserService;
-import org.jeecg.modules.im.service.XMPPService;
+import org.jeecg.modules.im.service.IUserService;
+import org.jeecg.modules.im.service.IXMPPService;
 import org.jeecg.modules.im.xmpp.XMPPManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,11 +24,11 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class XMPPServiceImpl implements XMPPService {
+public class XMPPServiceImpl implements IXMPPService {
     @Autowired
     private XMPPManager xmppManager;
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
     /**
      * 初始化xmpp系统账号
      */
@@ -37,7 +37,7 @@ public class XMPPServiceImpl implements XMPPService {
             User user;
             for (ConstantXmpp.SystemNo sys : ConstantXmpp.SystemNo.values()) {
                 //保存用户
-                user = userService.findByAccount(sys.getAccount().toString());
+                user = IUserService.findByAccount(sys.getAccount().toString());
                 if(user!=null){
                     continue;
                 }
@@ -53,7 +53,7 @@ public class XMPPServiceImpl implements XMPPService {
                 user.setResource(User.Resource.CONSOLE_CREATE.getCode());
                 user.setRegNo(0);
                 user.setTsCreate(new Date().getTime());
-                if(!userService.save(user)){
+                if(!IUserService.save(user)){
                     throw new BusinessException("创建系统账号失败");
                 }
 

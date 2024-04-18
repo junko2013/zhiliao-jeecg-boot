@@ -6,7 +6,7 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.MucMsg;
 import org.jeecg.modules.im.entity.query_helper.QMucMsg;
 import org.jeecg.modules.im.mapper.MucMsgMapper;
-import org.jeecg.modules.im.service.MucMsgService;
+import org.jeecg.modules.im.service.IMucMsgService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import java.util.List;
  * @since 2021-01-26
  */
 @Service
-public class MucMsgServiceImpl extends BaseServiceImpl<MucMsgMapper, MucMsg> implements MucMsgService {
+public class MucMsgServiceImpl extends BaseServiceImpl<MucMsgMapper, MucMsg> implements IMucMsgService {
 
     @Autowired
     private MucMsgMapper mucMsgMapper;

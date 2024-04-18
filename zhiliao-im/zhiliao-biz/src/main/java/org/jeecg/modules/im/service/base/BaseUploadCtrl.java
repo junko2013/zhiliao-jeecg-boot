@@ -4,16 +4,15 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.util.JwtUtilApp;
-import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.im.entity.User;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.IUserService;
 
 import javax.annotation.Resource;
 
 public class BaseUploadCtrl extends BaseController {
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
     /**
      * 根据token获取当前用户
      *
@@ -30,7 +29,7 @@ public class BaseUploadCtrl extends BaseController {
             }
 
             // 查询用户信息
-            User user = userService.findById(userId);
+            User user = IUserService.findById(userId);
             if (user == null) {
                 throw new AuthenticationException("用户不存在");
             }

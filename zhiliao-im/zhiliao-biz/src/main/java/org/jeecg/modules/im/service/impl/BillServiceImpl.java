@@ -1,18 +1,14 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Bill;
 import org.jeecg.modules.im.entity.query_helper.QBill;
 import org.jeecg.modules.im.mapper.BillMapper;
-import org.jeecg.modules.im.service.BillService;
+import org.jeecg.modules.im.service.IBillService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 /**
  * <p>
@@ -23,7 +19,7 @@ import java.util.Date;
  * @since 2021-11-13
  */
 @Service
-public class BillServiceImpl extends BaseServiceImpl<BillMapper, Bill> implements BillService {
+public class BillServiceImpl extends BaseServiceImpl<BillMapper, Bill> implements IBillService {
     @Autowired
     private BillMapper mapper;
 

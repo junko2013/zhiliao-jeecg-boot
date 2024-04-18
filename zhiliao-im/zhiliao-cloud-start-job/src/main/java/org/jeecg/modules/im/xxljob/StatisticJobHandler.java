@@ -24,15 +24,15 @@ import java.util.List;
 public class StatisticJobHandler {
 
     @Resource
-    private UserService userService;
+    private IUserService userService;
     @Resource
-    private DeviceService deviceService;
+    private IDeviceService deviceService;
     @Resource
-    private StatisticService statisticService;
+    private IStatisticService statisticService;
     @Resource
-    private OnlineDataService onlineDataService;
+    private IOnlineDataService onlineDataService;
     @Resource
-    private ServerService serverService;
+    private IServerService serverService;
 
     @XxlJob(value = "online")
     public ReturnT<String> online(String params) {

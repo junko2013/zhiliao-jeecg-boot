@@ -2,7 +2,7 @@ FROM mysql:8.0.19
 
 MAINTAINER jeecgos@163.com
 
-ENV TZ=Asia/Shanghai
+ENV TZ=UTC
 
 RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 

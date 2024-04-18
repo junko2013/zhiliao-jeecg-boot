@@ -5,7 +5,7 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.StickerItem;
 import org.jeecg.modules.im.entity.query_helper.QStickerItem;
-import org.jeecg.modules.im.service.StickerItemService;
+import org.jeecg.modules.im.service.IStickerItemService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,9 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  */
 @RestController
 @RequestMapping("/im/stickerItem")
-public class StickerItemController extends BaseBackController {
-    @Resource
-    private StickerItemService stickerItemService;
+public class StickerItemController extends BaseBackController<StickerItem, IStickerItemService> {
     private final EmojiConverter emojiConverter = EmojiConverter.getInstance();
 
     @RequestMapping("/pagination")
@@ -31,7 +29,7 @@ public class StickerItemController extends BaseBackController {
         if(isNotEmpty(q.getEmoji())){
             q.setEmojiCode(emojiConverter.toAlias(q.getEmoji()));
         }
-        return success(stickerItemService.pagination(new MyPage<>(getPage(),getPageSize()),q));
+        return success(service.pagination(new MyPage<>(getPage(),getPageSize()),q));
     }
 
     /**
@@ -42,7 +40,7 @@ public class StickerItemController extends BaseBackController {
         if(bindingResult.hasErrors()){
             return fail(bindingResult.getAllErrors().get(0));
         }
-        return stickerItemService.createOrUpdate(item);
+        return service.createOrUpdate(item);
     }
 
     /**
@@ -50,11 +48,11 @@ public class StickerItemController extends BaseBackController {
      */
     @RequestMapping("/del")
     public Result<Object> del(@RequestParam String ids){
-        return stickerItemService.del(ids);
+        return service.del(ids);
     }
     //详情
     @RequestMapping("/detail")
     public Result<Object> detail(@RequestParam String id){
-        return success(stickerItemService.getById(id));
+        return success(service.getById(id));
     }
 }

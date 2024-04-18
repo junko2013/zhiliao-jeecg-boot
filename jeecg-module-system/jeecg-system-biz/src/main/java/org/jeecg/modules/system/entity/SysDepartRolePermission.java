@@ -50,7 +50,7 @@ public class SysDepartRolePermission {
 	private String dataRuleIds;
 	/** 操作时间 */
 	@Excel(name = "操作时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	@ApiModelProperty(value = "操作时间")
 	private java.util.Date operateDate;

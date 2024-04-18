@@ -6,8 +6,9 @@ import com.xxl.job.core.log.XxlJobLogger;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.constant.ConstantCache;
+import org.jeecg.modules.im.base.tools.ToolDateTime;
 import org.jeecg.modules.im.entity.Msg;
-import org.jeecg.modules.im.service.MsgService;
+import org.jeecg.modules.im.service.IMsgService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,7 @@ public class SyncMsgReadJobHandler {
     @Autowired
     private RedisUtil redisUtil;
     @Resource
-    private MsgService msgService;
+    private IMsgService IMsgService;
 
     @XxlJob(value = "syncMsgRead")
     public ReturnT<String> syncMsgRead(String params) {
@@ -41,16 +42,16 @@ public class SyncMsgReadJobHandler {
                 for (String key : keys) {
                     String stanzaId = key.replace(prefix, "");
                     Long tsRead = Long.parseLong (redisUtil.get(key).toString());
-                    msg = msgService.findByStanzaIdOfSend(stanzaId,true);
+                    msg = IMsgService.findByStanzaIdOfSend(stanzaId,true);
                     if(msg!=null){
-                        msg.setTsRead(tsRead);
+                        msg.setTsRead(ToolDateTime.getDate(tsRead));
                         msgs.add(msg);
                     }
                     redisUtil.del(key);
                 }
             }
             if(msgs!=null&&!msgs.isEmpty()){
-                msgService.updateBatchById(msgs);
+                IMsgService.updateBatchById(msgs);
             }
             return ReturnT.SUCCESS;
         }catch (Exception e){

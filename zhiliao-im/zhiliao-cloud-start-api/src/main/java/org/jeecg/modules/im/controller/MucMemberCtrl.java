@@ -6,7 +6,7 @@ import org.jeecg.common.util.Kv;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.MucMember;
 import org.jeecg.modules.im.entity.query_helper.QMucMember;
-import org.jeecg.modules.im.service.MucMemberService;
+import org.jeecg.modules.im.service.IMucMemberService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +19,7 @@ import javax.annotation.Resource;
 @RequestMapping("/a/mucMember")
 public class MucMemberCtrl extends BaseApiCtrl {
     @Resource
-    private MucMemberService mucMemberService;
+    private IMucMemberService IMucMemberService;
 
     /**
      * 群的成员分页
@@ -34,11 +34,11 @@ public class MucMemberCtrl extends BaseApiCtrl {
                     continue;
                 }
                 q.setMucId(Integer.parseInt(mucId));
-                data.put(mucId, mucMemberService.pageApi(new MyPage<>(getPage(),getPageSize()),q));
+                data.put(mucId, IMucMemberService.pageApi(new MyPage<>(getPage(),getPageSize()),q));
             }
             return success(data);
         }
-        return success(mucMemberService.pageApi(new MyPage<>(getPage(),getPageSize()),q));
+        return success(IMucMemberService.pageApi(new MyPage<>(getPage(),getPageSize()),q));
     }
 
     /**
@@ -47,12 +47,12 @@ public class MucMemberCtrl extends BaseApiCtrl {
      */
     @RequestMapping("/mine")
     public Result<Object> mine(){
-        return success(mucMemberService.findMine(getCurrentUserId()));
+        return success(IMucMemberService.findMine(getCurrentUserId()));
     }
 
     @RequestMapping("/getOne")
     public Result<Object> getOne(Integer id){
-        return success(mucMemberService.findById(id));
+        return success(IMucMemberService.findById(id));
     }
 
     /**
@@ -60,12 +60,12 @@ public class MucMemberCtrl extends BaseApiCtrl {
      */
     @RequestMapping("/kick")
     public Result<Object> kick(@RequestParam Integer mucId,@RequestParam String memberIds){
-        return mucMemberService.kick(getCurrentUserId(),mucId,memberIds);
+        return IMucMemberService.kick(getCurrentUserId(),mucId,memberIds);
     }
     //用户主动退群
     @RequestMapping("/quit")
     public Result<Object> quit(@RequestParam Integer mucId){
-        return mucMemberService.quit(getCurrentUserId(),mucId);
+        return IMucMemberService.quit(getCurrentUserId(),mucId);
     }
 
 
@@ -77,7 +77,7 @@ public class MucMemberCtrl extends BaseApiCtrl {
      */
     @RequestMapping("/getByUserIdOfMuc")
     public Result<Object> getByUserIdOfMuc(@RequestParam Integer mucId,@RequestParam Integer userId){
-        return success(mucMemberService.findByMucIdOfUser(mucId,userId));
+        return success(IMucMemberService.findByMucIdOfUser(mucId,userId));
     }
 
     /**
@@ -87,7 +87,7 @@ public class MucMemberCtrl extends BaseApiCtrl {
      */
     @RequestMapping("/getAll")
     public Result<Object> getAll(@RequestParam Integer mucId){
-        return success(mucMemberService.findAll(mucId));
+        return success(IMucMemberService.findAll(mucId));
     }
     /**
      * 更新群聊设置
@@ -95,6 +95,6 @@ public class MucMemberCtrl extends BaseApiCtrl {
      */
     @PostMapping("/update")
     public Result<Object> updateMember(MucMember member){
-        return success(mucMemberService.updateMember(getCurrentUserId(),member));
+        return success(IMucMemberService.updateMember(getCurrentUserId(),member));
     }
 }

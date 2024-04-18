@@ -14,10 +14,10 @@ import org.jeecg.modules.im.entity.Gif;
 import org.jeecg.modules.im.entity.SysConfig;
 import org.jeecg.modules.im.entity.Upload;
 import org.jeecg.modules.im.mapper.UploadMapper;
-import org.jeecg.modules.im.service.GifService;
-import org.jeecg.modules.im.service.SysConfigService;
-import org.jeecg.modules.im.service.UploadGifService;
-import org.jeecg.modules.im.service.UploadService;
+import org.jeecg.modules.im.service.IGifService;
+import org.jeecg.modules.im.service.ISysConfigService;
+import org.jeecg.modules.im.service.IUploadGifService;
+import org.jeecg.modules.im.service.IUploadService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,13 +42,13 @@ import java.util.*;
  */
 @Service
 @Slf4j
-public class UploadGifServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements UploadGifService {
+public class UploadGifServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements IUploadGifService {
     @Resource
-    private SysConfigService sysConfigService;
+    private ISysConfigService ISysConfigService;
     @Resource
-    private GifService gifService;
+    private IGifService IGifService;
     @Resource
-    private UploadService uploadService;
+    private IUploadService IUploadService;
     @Autowired
     private BaseConfig baseConfig;
 
@@ -74,7 +74,7 @@ public class UploadGifServiceImpl extends BaseServiceImpl<UploadMapper, Upload> 
         String fileName2 = gifAlbumId +"/"+uuid + ".webp";
         Kv data = Kv.create();
         FileInputStream f1 = null,f2=null;
-        SysConfig sysConfig = sysConfigService.get();
+        SysConfig sysConfig = ISysConfigService.get();
         File originFile,thumbnailFile;
         String originWebp=null,destWebp=null;
         try {
@@ -140,11 +140,11 @@ public class UploadGifServiceImpl extends BaseServiceImpl<UploadMapper, Upload> 
                 originUrl = aliyunOss.uploadLocalFile(basePath + Upload.FileType.动图.getType()+"/"+gifAlbumId+"/o/"+uuid+".webp", f1);
                 thumbnailUrl = aliyunOss.uploadLocalFile(basePath + Upload.FileType.动图.getType() +"/"+gifAlbumId+"/t/"+uuid+".webp", f2);
             } else {
-                originUrl = uploadService.uploadToMinio(f1,Upload.FileType.动图.getType() +"/"+gifAlbumId+"/o/"+uuid+".webp",false);
-                thumbnailUrl = uploadService.uploadToMinio(f2,Upload.FileType.动图.getType() +"/"+gifAlbumId+"/t/"+uuid+".webp",false);
+                originUrl = IUploadService.uploadToMinio(f1,Upload.FileType.动图.getType() +"/"+gifAlbumId+"/o/"+uuid+".webp",false);
+                thumbnailUrl = IUploadService.uploadToMinio(f2,Upload.FileType.动图.getType() +"/"+gifAlbumId+"/t/"+uuid+".webp",false);
             }
             if(!isEmpty(originUrl)){
-                uploadService.addUpload(admin,
+                IUploadService.addUpload(admin,
                         userId,
                         contentType,
                         originUrl,
@@ -160,7 +160,7 @@ public class UploadGifServiceImpl extends BaseServiceImpl<UploadMapper, Upload> 
                 );
             }
             if(!isEmpty(thumbnailUrl)){
-                uploadService.addUpload(admin,
+                IUploadService.addUpload(admin,
                         userId,
                         contentType,
                         thumbnailUrl,
@@ -220,7 +220,7 @@ public class UploadGifServiceImpl extends BaseServiceImpl<UploadMapper, Upload> 
         File zipFile = null;
         List<Gif> gifs = null;
         try {
-            SysConfig sysConfig = sysConfigService.get();
+            SysConfig sysConfig = ISysConfigService.get();
             //物理路径
             String targetPhysicalPath = baseConfig.getBaseUploadPath() + "/" + Upload.FileType.动图.getType();
             String zipFilePath = targetPhysicalPath + "/" + fileName;
@@ -316,15 +316,15 @@ public class UploadGifServiceImpl extends BaseServiceImpl<UploadMapper, Upload> 
                         destGif = aliyunOss.uploadLocalFile(basePath + destPath.replace(baseConfig.getBaseUploadPath(),"").substring(1), f1);
                         destThumbGif = aliyunOss.uploadLocalFile(basePath + destThumbPath.replace(baseConfig.getBaseUploadPath(),"").substring(1), f2);
                     }else{
-                        destGif = uploadService.uploadToMinio(f1,destPath.replace(baseConfig.getBaseUploadPath(),"").substring(1),false);
-                        destThumbGif = uploadService.uploadToMinio(f2,destThumbPath.replace(baseConfig.getBaseUploadPath(),"").substring(1),false);
+                        destGif = IUploadService.uploadToMinio(f1,destPath.replace(baseConfig.getBaseUploadPath(),"").substring(1),false);
+                        destThumbGif = IUploadService.uploadToMinio(f2,destThumbPath.replace(baseConfig.getBaseUploadPath(),"").substring(1),false);
                     }
                     okCount++;
                     gif = new Gif();
                     gif.setAlbumId(gifAlbumId);
                     gif.setOrigin(destGif);
                     gif.setThumb(destThumbGif);
-                    gif.setTsCreate(getTs());
+                    gif.setTsCreate(getDate());
                     gif.setMd5(gifMd5);
                     gif.setHeight(height);
                     gif.setWidth(width);
@@ -352,7 +352,7 @@ public class UploadGifServiceImpl extends BaseServiceImpl<UploadMapper, Upload> 
             return fail();
         } finally {
             if(gifs!=null&&!gifs.isEmpty()){
-                gifService.saveBatch(gifs);
+                IGifService.saveBatch(gifs);
             }
             if(zipFile!=null){
                 FileUtils.deleteQuietly(zipFile);

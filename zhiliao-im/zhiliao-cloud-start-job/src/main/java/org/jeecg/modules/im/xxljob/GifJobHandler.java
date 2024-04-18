@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.constant.ConstantCache;
 import org.jeecg.modules.im.entity.Gif;
-import org.jeecg.modules.im.service.GifService;
+import org.jeecg.modules.im.service.IGifService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ import java.util.Set;
 public class GifJobHandler {
 
     @Resource
-    private GifService gifService;
+    private IGifService IGifService;
     @Lazy
     @Autowired
     private RedisUtil redisUtil;
@@ -36,14 +36,14 @@ public class GifJobHandler {
         Gif gif;
         for (String key : keys) {
             int gifId = Integer.parseInt(key.replace(prefix,""));
-            gif = gifService.getById(gifId);
+            gif = IGifService.getById(gifId);
             if(gif==null){
                 continue;
             }
             gif.setSendTimes(gif.getSendTimes()+(int)redisUtil.get(key));
             gifs.add(gif);
         }
-        gifService.updateBatchById(gifs);
+        IGifService.updateBatchById(gifs);
         redisUtil.removeAll(prefix);
         return ReturnT.SUCCESS;
     }
@@ -55,14 +55,14 @@ public class GifJobHandler {
         Gif gif;
         for (String key : keys) {
             int gifId = Integer.parseInt(key.replace(prefix,""));
-            gif = gifService.getById(gifId);
+            gif = IGifService.getById(gifId);
             if(gif==null){
                 continue;
             }
             gif.setAddTimes(gif.getAddTimes()+(int)redisUtil.get(key));
             gifs.add(gif);
         }
-        gifService.updateBatchById(gifs);
+        IGifService.updateBatchById(gifs);
         redisUtil.removeAll(prefix);
         return ReturnT.SUCCESS;
     }

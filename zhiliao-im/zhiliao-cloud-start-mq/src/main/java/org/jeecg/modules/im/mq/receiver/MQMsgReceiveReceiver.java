@@ -9,8 +9,8 @@ import org.jeecg.boot.starter.rabbitmq.listenter.MqListener;
 import org.jeecg.common.annotation.RabbitComponent;
 import org.jeecg.modules.im.base.constant.ConstantMQ;
 import org.jeecg.common.util.Kv;
-import org.jeecg.modules.im.service.MsgService;
-import org.jeecg.modules.im.service.MucMsgService;
+import org.jeecg.modules.im.service.IMsgService;
+import org.jeecg.modules.im.service.IMucMsgService;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
@@ -31,9 +31,9 @@ import java.util.HashMap;
 public class MQMsgReceiveReceiver extends BaseRabbiMqHandler<String> {
 
     @Resource
-    private MucMsgService mucMsgService;
+    private IMucMsgService IMucMsgService;
     @Resource
-    private MsgService msgService;
+    private IMsgService IMsgService;
 
 
     @RabbitHandler
@@ -50,9 +50,9 @@ public class MQMsgReceiveReceiver extends BaseRabbiMqHandler<String> {
                     Long ts = kv.getLong("ts");
                     int count = 0;
                     if(kv.getBoolean("isMuc")){
-                        count = (int) mucMsgService.updateTsReceive(stanzaId,ts).getResult();
+                        count = (int) IMucMsgService.updateTsReceive(stanzaId,ts).getResult();
                     }else{
-                        count = (int) msgService.updateTsReceive(stanzaId,ts).getResult();
+                        count = (int) IMsgService.updateTsReceive(stanzaId,ts).getResult();
                     }
                     if(count==0){
                         throw new Exception("未更新");

@@ -4,10 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.anotation.NoNeedUserToken;
 import org.jeecg.modules.im.base.tools.ToolDateTime;
+import org.jeecg.modules.im.base.util.TCaptchaVerify;
 import org.jeecg.modules.im.base.util.ToolString;
 import org.jeecg.modules.im.configuration.ClientOperLog;
-import org.jeecg.modules.im.base.util.TCaptchaVerify;
-import org.jeecg.modules.im.entity.*;
+import org.jeecg.modules.im.entity.ServerConfig;
+import org.jeecg.modules.im.entity.SysConfig;
+import org.jeecg.modules.im.entity.VerifyCode;
 import org.jeecg.modules.im.entity.query_helper.QUser;
 import org.jeecg.modules.im.service.*;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
@@ -27,17 +29,17 @@ import java.util.Date;
 public class RegisterCtrl extends BaseApiCtrl {
 
     @Resource
-    private UserService userService;
+    private IUserService userService;
     @Resource
-    private ParamService paramService;
+    private IVerifyCodeService verifyCodeService;
     @Resource
-    private VerifyCodeService verifyCodeService;
+    private IServerConfigService serverConfigService;
     @Resource
-    private ServerConfigService serverConfigService;
+    private IInviteCodeService inviteCodeService;
     @Resource
-    private InviteCodeService inviteCodeService;
+    private ILoginLogService loginLogService;
     @Resource
-    private LoginLogService loginLogService;
+    private ISysConfigService sysConfigService;
 
 
     /**
@@ -50,9 +52,10 @@ public class RegisterCtrl extends BaseApiCtrl {
         if(!ToolString.regExpValiMobile(mobile)){
             return fail("手机号格式不正确");
         }
-        if ("1".equals(paramService.getByName(Param.Name.tencent_captcha_on))) {
+        SysConfig sysConfig = sysConfigService.get();
+        if (sysConfig.getTencentCaptchaOn()) {
             //腾讯防水墙校验
-            int checkCode = TCaptchaVerify.verifyTicket(paramService.getByName(Param.Name.tencent_captcha_app_id), paramService.getByName(Param.Name.tencent_captcha_app_secret), ticket, randstr, getIp());
+            int checkCode = TCaptchaVerify.verifyTicket(sysConfig.getTencentCaptchaAppId(), sysConfig.getTencentCaptchaAppSecret(), ticket, randstr, getIp());
             if (checkCode == -1) {
                 return fail("行为验证失败");
             }
@@ -103,9 +106,10 @@ public class RegisterCtrl extends BaseApiCtrl {
         if (!ToolString.regExpVali(ToolString.pattern_username, username)) {
             return fail("用户名不符合要求");
         }
-        if ("1".equals(paramService.getByName(Param.Name.tencent_captcha_on))) {
+        SysConfig sysConfig = sysConfigService.get();
+        if (sysConfig.getTencentCaptchaOn()) {
             //腾讯防水墙校验
-            int checkCode = TCaptchaVerify.verifyTicket(paramService.getByName(Param.Name.tencent_captcha_app_id), paramService.getByName(Param.Name.tencent_captcha_app_secret), ticket, randstr, getIp());
+            int checkCode = TCaptchaVerify.verifyTicket(sysConfig.getTencentCaptchaAppId(), sysConfig.getTencentCaptchaAppSecret(), ticket, randstr, getIp());
             if (checkCode == -1) {
                 return fail("行为验证失败");
             }
@@ -166,7 +170,7 @@ public class RegisterCtrl extends BaseApiCtrl {
         }
         ServerConfig config = getServerConfig();
         //昵称唯一
-        if(config.getNicknameUnique()&&userService.getCountOfNickname(nickname)>0){
+        if(config.getNicknameUnique() && userService.getCountOfNickname(nickname)>0){
             return fail("昵称已存在");
         }
         //校验邀请码

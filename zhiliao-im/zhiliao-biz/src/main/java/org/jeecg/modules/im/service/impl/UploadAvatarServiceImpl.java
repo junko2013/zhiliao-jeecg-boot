@@ -16,10 +16,10 @@ import org.jeecg.modules.im.entity.SysConfig;
 import org.jeecg.modules.im.entity.Upload;
 import org.jeecg.modules.im.entity.UserAvatar;
 import org.jeecg.modules.im.mapper.UploadMapper;
-import org.jeecg.modules.im.service.SysConfigService;
-import org.jeecg.modules.im.service.UploadAvatarService;
-import org.jeecg.modules.im.service.UploadService;
-import org.jeecg.modules.im.service.UserAvatarService;
+import org.jeecg.modules.im.service.ISysConfigService;
+import org.jeecg.modules.im.service.IUploadAvatarService;
+import org.jeecg.modules.im.service.IUploadService;
+import org.jeecg.modules.im.service.IUserAvatarService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,13 +42,13 @@ import java.util.Set;
  */
 @Service
 @Slf4j
-public class UploadAvatarServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements UploadAvatarService {
+public class UploadAvatarServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements IUploadAvatarService {
     @Resource
-    private SysConfigService sysConfigService;
+    private ISysConfigService ISysConfigService;
     @Resource
-    private UserAvatarService userAvatarService;
+    private IUserAvatarService IUserAvatarService;
     @Resource
-    private UploadService uploadService;
+    private IUploadService IUploadService;
     @Autowired
     private BaseConfig baseConfig;
 
@@ -65,7 +65,7 @@ public class UploadAvatarServiceImpl extends BaseServiceImpl<UploadMapper, Uploa
             return fail("图片格式不支持");
         }
 
-        SysConfig sysConfig = sysConfigService.get();
+        SysConfig sysConfig = ISysConfigService.get();
         String originalFileName = multipartFile.getOriginalFilename();//文件名
         String suffix = ToolFile.getExtension(originalFileName);
         String uuid = UUIDTool.getUUID();
@@ -140,11 +140,11 @@ public class UploadAvatarServiceImpl extends BaseServiceImpl<UploadMapper, Uploa
                 originUrl = aliyunOss.uploadLocalFile(basePath + Upload.FileType.头像.getType() +"/o/"+fileName2, destFile);
                 thumbnailUrl = aliyunOss.uploadLocalFile(basePath + Upload.FileType.头像.getType() + "/t/" + fileName2, destThumbFile);
             }else {
-                originUrl =  uploadService.uploadToMinio(f1,Upload.FileType.头像.getType() + "/o/"+fileName2,false);
-                thumbnailUrl =  uploadService.uploadToMinio(f2,Upload.FileType.头像.getType() + "/t/"+fileName2,false);
+                originUrl =  IUploadService.uploadToMinio(f1,Upload.FileType.头像.getType() + "/o/"+fileName2,false);
+                thumbnailUrl =  IUploadService.uploadToMinio(f2,Upload.FileType.头像.getType() + "/t/"+fileName2,false);
             }
             if(!isEmpty(originUrl)){
-                uploadService.addUpload(admin,
+                IUploadService.addUpload(admin,
                         userId,
                         contentType,
                         originUrl,
@@ -160,7 +160,7 @@ public class UploadAvatarServiceImpl extends BaseServiceImpl<UploadMapper, Uploa
                 );
             }
             if(!isEmpty(thumbnailUrl)){
-                uploadService.addUpload(admin,
+                IUploadService.addUpload(admin,
                         userId,
                         contentType,
                         thumbnailUrl,
@@ -179,9 +179,9 @@ public class UploadAvatarServiceImpl extends BaseServiceImpl<UploadMapper, Uploa
             userAvatar.setUserId(userId);
             userAvatar.setThumb(thumbnailUrl);
             userAvatar.setOrigin(originUrl);
-            userAvatar.setTsCreate(getTs());
-            userAvatar.setTsAudit(getTs());
-            userAvatarService.save(userAvatar);
+            userAvatar.setTsCreate(getDate());
+            userAvatar.setTsAudit(getDate());
+            IUserAvatarService.save(userAvatar);
             data.put("origin", originUrl);
             data.put("thumb", thumbnailUrl);
             return success(data);
@@ -237,7 +237,7 @@ public class UploadAvatarServiceImpl extends BaseServiceImpl<UploadMapper, Uploa
             fileName2 = mucId + ".webp";
         }
         Kv data = Kv.create();
-        SysConfig sysConfig = sysConfigService.get();
+        SysConfig sysConfig = ISysConfigService.get();
         FileInputStream f1 = null,f2=null;
         File destFile = null,destThumbFile = null;
         try {
@@ -301,11 +301,11 @@ public class UploadAvatarServiceImpl extends BaseServiceImpl<UploadMapper, Uploa
                 originUrl = aliyunOss.uploadLocalFile(basePath + Upload.FileType.群组头像.getType() +"/o/"+fileName2, destFile);
                 thumbnailUrl = aliyunOss.uploadLocalFile(basePath + Upload.FileType.群组头像.getType() + "/t/" + fileName2, destThumbFile);
             }else{
-                originUrl =  uploadService.uploadToMinio(f1,Upload.FileType.群组头像.getType() + "/o/"+fileName2,false);
-                thumbnailUrl =  uploadService.uploadToMinio(f2,Upload.FileType.群组头像.getType() + "/t/"+fileName2,false);
+                originUrl =  IUploadService.uploadToMinio(f1,Upload.FileType.群组头像.getType() + "/o/"+fileName2,false);
+                thumbnailUrl =  IUploadService.uploadToMinio(f2,Upload.FileType.群组头像.getType() + "/t/"+fileName2,false);
             }
             if(!isEmpty(originUrl)){
-                uploadService.addUpload(admin,
+                IUploadService.addUpload(admin,
                         userId,
                         contentType,
                         originUrl,
@@ -321,7 +321,7 @@ public class UploadAvatarServiceImpl extends BaseServiceImpl<UploadMapper, Uploa
                 );
             }
             if(!isEmpty(thumbnailUrl)){
-                uploadService.addUpload(admin,
+                IUploadService.addUpload(admin,
                         userId,
                         contentType,
                         thumbnailUrl,

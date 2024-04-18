@@ -1,7 +1,7 @@
 package org.jeecg.modules.im.controller;
 
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.service.MyStickerService;
+import org.jeecg.modules.im.service.IMyStickerService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,27 +17,27 @@ import javax.annotation.Resource;
 @RequestMapping("/a/mySticker")
 public class MyStickerCtrl extends BaseApiCtrl {
     @Resource
-    private MyStickerService myStickerService;
+    private IMyStickerService IMyStickerService;
 
     /**
      * 所有
      */
     @PostMapping("/all")
     public Result<Object> my(){
-        return success(myStickerService.findMyAll(getCurrentUserId()));
+        return success(IMyStickerService.findMyAll(getCurrentUserId()));
     }
     /**
      * 添加
      */
     @PostMapping("/add")
     public Result<Object> add(@RequestParam Integer stickerId){
-        return myStickerService.add(getCurrentUserId(),stickerId);
+        return IMyStickerService.add(getCurrentUserId(),stickerId);
     }
     /**
      * 删除
      */
     @PostMapping("/del")
     public Result<Object> del(@RequestParam String ids){
-        return myStickerService.del(getCurrentUserId(),ids);
+        return IMyStickerService.del(getCurrentUserId(),ids);
     }
 }

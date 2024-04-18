@@ -1,20 +1,16 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.annotations.Update;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Msg;
 import org.jeecg.modules.im.entity.query_helper.QMsg;
 import org.jeecg.modules.im.mapper.MsgMapper;
-import org.jeecg.modules.im.service.MsgService;
+import org.jeecg.modules.im.service.IMsgService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,7 +22,7 @@ import java.util.List;
  * @since 2021-01-26
  */
 @Service
-public class MsgServiceImpl extends BaseServiceImpl<MsgMapper, Msg> implements MsgService {
+public class MsgServiceImpl extends BaseServiceImpl<MsgMapper, Msg> implements IMsgService {
     @Autowired
     private MsgMapper msgMapper;
     @Override

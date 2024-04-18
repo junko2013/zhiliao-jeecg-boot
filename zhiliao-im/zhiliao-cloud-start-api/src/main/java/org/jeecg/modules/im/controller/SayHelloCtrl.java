@@ -3,7 +3,7 @@ package org.jeecg.modules.im.controller;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.util.Kv;
 import org.jeecg.modules.im.entity.SayHello;
-import org.jeecg.modules.im.service.SayHelloService;
+import org.jeecg.modules.im.service.ISayHelloService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +20,7 @@ import java.util.List;
 @RequestMapping("/a/sayHello")
 public class SayHelloCtrl extends BaseApiCtrl {
     @Resource
-    private SayHelloService sayHelloService;
+    private ISayHelloService sayHelloService;
 
     /**
      * 发送加好友请求

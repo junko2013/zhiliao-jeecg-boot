@@ -36,7 +36,7 @@ public class AnnouncementSendModel implements Serializable {
 	/**阅读状态*/
 	private Integer readFlag;
 	/**发布时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private java.util.Date sendTime;
 	/**页数*/

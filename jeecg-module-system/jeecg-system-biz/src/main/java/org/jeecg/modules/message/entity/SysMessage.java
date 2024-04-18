@@ -44,7 +44,7 @@ public class SysMessage extends JeecgEntity {
 	private String esSendStatus;
 	/**推送时间*/
 	@Excel(name = "推送时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private java.util.Date esSendTime;
 	/**消息标题*/

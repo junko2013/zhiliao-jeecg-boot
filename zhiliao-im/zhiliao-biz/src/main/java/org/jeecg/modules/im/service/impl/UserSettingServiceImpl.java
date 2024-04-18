@@ -6,9 +6,9 @@ import org.jeecg.modules.im.base.constant.MsgType;
 import org.jeecg.modules.im.entity.User;
 import org.jeecg.modules.im.entity.UserSetting;
 import org.jeecg.modules.im.mapper.UserSettingMapper;
-import org.jeecg.modules.im.service.UserService;
-import org.jeecg.modules.im.service.UserSettingService;
-import org.jeecg.modules.im.service.XMPPService;
+import org.jeecg.modules.im.service.IUserService;
+import org.jeecg.modules.im.service.IUserSettingService;
+import org.jeecg.modules.im.service.IXMPPService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.jeecg.modules.im.base.xmpp.MessageBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,14 +25,14 @@ import javax.annotation.Resource;
  * @since 2021-04-13
  */
 @Service
-public class UserSettingServiceImpl extends BaseServiceImpl<UserSettingMapper, UserSetting> implements UserSettingService {
+public class UserSettingServiceImpl extends BaseServiceImpl<UserSettingMapper, UserSetting> implements IUserSettingService {
 
     @Autowired
     private UserSettingMapper userSettingMapper;
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
     @Resource
-    private XMPPService xmppService;
+    private IXMPPService IXMPPService;
     @Override
     public UserSetting findByUserId(Integer userId) {
         return userSettingMapper.findByUserId(userId);
@@ -41,7 +41,7 @@ public class UserSettingServiceImpl extends BaseServiceImpl<UserSettingMapper, U
     @Override
     public Result<Object> updateSetting(UserSetting setting) {
         try{
-            User user = userService.findById(setting.getUserId());
+            User user = IUserService.findById(setting.getUserId());
             setting.setId(findByUserId(setting.getUserId()).getId());
             if(updateById(setting)){
                 //发送邀请入群消息给用户
@@ -49,7 +49,7 @@ public class UserSettingServiceImpl extends BaseServiceImpl<UserSettingMapper, U
                 messageBean.setUserId(user.getId());
                 messageBean.setContent(JSONObject.toJSONString(setting));
                 messageBean.setType(MsgType.updateSetting.getType());
-                xmppService.sendMsgToSelf(messageBean);
+                IXMPPService.sendMsgToSelf(messageBean);
                 return success();
             }
         }catch (Exception e){

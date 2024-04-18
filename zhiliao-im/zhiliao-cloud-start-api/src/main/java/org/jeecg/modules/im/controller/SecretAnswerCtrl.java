@@ -10,9 +10,9 @@ import org.jeecg.modules.im.anotation.NoNeedUserToken;
 import org.jeecg.modules.im.entity.SecretAnswer;
 import org.jeecg.modules.im.entity.SecretQuestion;
 import org.jeecg.modules.im.entity.User;
-import org.jeecg.modules.im.service.SecretAnswerService;
-import org.jeecg.modules.im.service.SecretQuestionService;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.ISecretAnswerService;
+import org.jeecg.modules.im.service.ISecretQuestionService;
+import org.jeecg.modules.im.service.IUserService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,11 +31,11 @@ import java.util.List;
 @RequestMapping("/a/secretAnswer")
 public class SecretAnswerCtrl extends BaseApiCtrl {
     @Resource
-    private SecretQuestionService secretQuestionService;
+    private ISecretQuestionService secretQuestionService;
     @Resource
-    private SecretAnswerService secretAnswerService;
+    private ISecretAnswerService secretAnswerService;
     @Resource
-    private UserService userService;
+    private IUserService userService;
 
     /**
      * 设置密保问题答案

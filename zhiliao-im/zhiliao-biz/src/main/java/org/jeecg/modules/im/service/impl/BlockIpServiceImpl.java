@@ -11,7 +11,7 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.BlockIp;
 import org.jeecg.modules.im.entity.query_helper.QBlockIp;
 import org.jeecg.modules.im.mapper.BlockIpMapper;
-import org.jeecg.modules.im.service.BlockIpService;
+import org.jeecg.modules.im.service.IBlockIpService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ import java.util.List;
  * @since 2021-01-19
  */
 @Service
-public class BlockIpServiceImpl extends BaseServiceImpl<BlockIpMapper, BlockIp> implements BlockIpService {
+public class BlockIpServiceImpl extends BaseServiceImpl<BlockIpMapper, BlockIp> implements IBlockIpService {
 
     @Autowired
     private BlockIpMapper blockIpMapper;
@@ -117,7 +117,7 @@ public class BlockIpServiceImpl extends BaseServiceImpl<BlockIpMapper, BlockIp> 
     @Override
     public Result<Object> createOrUpdate(BlockIp blockIp) {
         if(blockIp.getId()==null){
-            blockIp.setTsCreate(getTs());
+            blockIp.setTsCreate(getDate());
             if(blockIp.getType().equals(BlockIp.Type.单个.toString())){
                 blockIp.setInfo(IPUtil.getCityInfo(blockIp.getIp()));
             }else if(blockIp.getType().equals(BlockIp.Type.区间.toString())){

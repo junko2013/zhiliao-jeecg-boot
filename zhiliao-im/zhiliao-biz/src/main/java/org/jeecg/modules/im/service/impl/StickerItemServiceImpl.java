@@ -1,6 +1,5 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.binarywang.java.emoji.EmojiConverter;
 import org.jeecg.common.api.vo.Result;
@@ -8,8 +7,8 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.StickerItem;
 import org.jeecg.modules.im.entity.query_helper.QStickerItem;
 import org.jeecg.modules.im.mapper.StickerItemMapper;
-import org.jeecg.modules.im.service.StickerItemService;
-import org.jeecg.modules.im.service.UploadService;
+import org.jeecg.modules.im.service.IStickerItemService;
+import org.jeecg.modules.im.service.IUploadService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
-import java.util.Date;
 
 /**
  * <p>
@@ -28,10 +26,10 @@ import java.util.Date;
  * @since 2021-01-27
  */
 @Service
-public class StickerItemServiceImpl extends BaseServiceImpl<StickerItemMapper, StickerItem> implements StickerItemService {
+public class StickerItemServiceImpl extends BaseServiceImpl<StickerItemMapper, StickerItem> implements IStickerItemService {
 
     @Resource
-    private UploadService uploadService;
+    private IUploadService IUploadService;
     @Autowired
     private StickerItemMapper stickerItemMapper;
     private EmojiConverter emojiConverter = EmojiConverter.getInstance();

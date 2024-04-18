@@ -137,7 +137,25 @@ public class SysConfig extends BaseModel<SysConfig> {
     //agora appSecret
     private String agoraAppCertificate;
 
+    //短信渠道 多个用,隔开，为空则不启用
+    private String smsWay;
+
+    //阿里云短信
+    private String aliSmsKeyId;
+    private String aliSmsKeySecret;
+    private String aliSmsRegionId;
+    private String aliSmsTplSign;
+    private String aliSmsTplCode;
+
+    //腾讯防水墙
+    private Boolean tencentCaptchaOn;
+    private String tencentCaptchaAppId;
+    private String tencentCaptchaAppSecret;
+
     public enum StorageType{
         aliyun_oss,minio
+    }
+    public enum SmsWay{
+        aliyun,juhe
     }
 }

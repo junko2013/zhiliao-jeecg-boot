@@ -1,22 +1,13 @@
 package org.jeecg.modules.im.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
-import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.MucInviteLink;
-import org.jeecg.modules.im.entity.Link;
-import org.jeecg.modules.im.entity.MucInviteLink;
-import org.jeecg.modules.im.entity.SecretAnswer;
-import org.jeecg.modules.im.entity.query_helper.QLink;
-import org.jeecg.modules.im.entity.query_helper.QMucInviteLink;
-import org.jeecg.modules.im.mapper.LinkMapper;
 import org.jeecg.modules.im.mapper.MucInviteLinkMapper;
-import org.jeecg.modules.im.service.MucInviteLinkService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.jeecg.modules.im.service.IMucInviteLinkService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -35,14 +26,14 @@ import java.util.List;
  * @since 2023-07-22
  */
 @Service
-public class MucInviteLinkServiceImpl extends BaseServiceImpl<MucInviteLinkMapper, MucInviteLink> implements MucInviteLinkService {
+public class MucInviteLinkServiceImpl extends BaseServiceImpl<MucInviteLinkMapper, MucInviteLink> implements IMucInviteLinkService {
     @Autowired
     private MucInviteLinkMapper linkMapper;
 
     @Override
     public Result<Object> createOrUpdate(MucInviteLink link) {
         if(link.getId()==null){
-            link.setTsCreate(getTs());
+            link.setTsCreate(getDate());
             if(!save(link)){
                 return fail("添加失败");
             }

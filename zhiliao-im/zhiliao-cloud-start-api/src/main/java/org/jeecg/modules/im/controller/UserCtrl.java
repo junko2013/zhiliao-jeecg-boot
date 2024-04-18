@@ -8,8 +8,8 @@ import org.jeecg.modules.im.base.util.ToolPassword;
 import org.jeecg.modules.im.entity.User;
 import org.jeecg.modules.im.entity.UserSetting;
 import org.jeecg.modules.im.entity.query_helper.QUser;
-import org.jeecg.modules.im.service.UserService;
-import org.jeecg.modules.im.service.UserSettingService;
+import org.jeecg.modules.im.service.IUserService;
+import org.jeecg.modules.im.service.IUserSettingService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,9 +27,9 @@ import javax.annotation.Resource;
 public class UserCtrl extends BaseApiCtrl {
 
     @Resource
-    private UserService userService;
+    private IUserService userService;
     @Resource
-    private UserSettingService userSettingService;
+    private IUserSettingService userSettingService;
 
     /**
      * 注销登录

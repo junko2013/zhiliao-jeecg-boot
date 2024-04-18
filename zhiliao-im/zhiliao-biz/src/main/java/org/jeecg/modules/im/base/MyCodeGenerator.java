@@ -62,7 +62,7 @@ public class MyCodeGenerator {
 
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
-        dsc.setUrl("jdbc:mysql://jeecg-boot-mysql:3306/zhiliao_db?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai");
+        dsc.setUrl("jdbc:mysql://jeecg-boot-mysql:3306/zhiliao_db?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=UTC");
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");
         dsc.setUsername("zhiliao_db");
         dsc.setPassword("Rz4JE4CM6ihtXmww");

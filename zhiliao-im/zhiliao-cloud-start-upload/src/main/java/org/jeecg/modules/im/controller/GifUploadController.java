@@ -2,7 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.service.UploadGifService;
+import org.jeecg.modules.im.service.IUploadGifService;
 import org.jeecg.modules.im.service.base.BaseUploadCtrl;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +20,7 @@ import javax.annotation.Resource;
 public class GifUploadController extends BaseUploadCtrl {
 
     @Resource
-    private UploadGifService uploadGifService;
+    private IUploadGifService IUploadGifService;
 
 
     @PostMapping({"","/"})
@@ -35,7 +35,7 @@ public class GifUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的gif");
         }
         try {
-            return uploadGifService.saveGif(getCurrentUserId(),getAdmin(),multipartFile, gifAlbumId,w);
+            return IUploadGifService.saveGif(getCurrentUserId(),getAdmin(),multipartFile, gifAlbumId,w);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("gif上传失败", e);
@@ -49,7 +49,7 @@ public class GifUploadController extends BaseUploadCtrl {
             return fail("请选择要导入的文件");
         }
         try {
-            return uploadGifService.saveGifBatch(getCurrentUserId(),getAdmin(),multipartFile, gifAlbumId);
+            return IUploadGifService.saveGifBatch(getCurrentUserId(),getAdmin(),multipartFile, gifAlbumId);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("gif导入失败", e);

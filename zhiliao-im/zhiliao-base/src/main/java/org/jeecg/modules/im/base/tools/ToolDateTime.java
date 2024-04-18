@@ -1053,4 +1053,12 @@ public abstract class ToolDateTime {
 			return 0;
 		}
 	}
+	//”永久“
+	public static Date forever(){
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, 9999);
+		calendar.set(Calendar.MONTH, Calendar.DECEMBER);
+		calendar.set(Calendar.DAY_OF_MONTH, 31);
+		return calendar.getTime();
+	}
 }

@@ -1,9 +1,8 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import org.jeecg.modules.im.entity.StickerSend;
 import org.jeecg.modules.im.mapper.StickerSendMapper;
-import org.jeecg.modules.im.service.StickerSendService;
+import org.jeecg.modules.im.service.IStickerSendService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +15,6 @@ import org.springframework.stereotype.Service;
  * @since 2021-12-13
  */
 @Service
-public class StickerSendServiceImpl extends BaseServiceImpl<StickerSendMapper, StickerSend> implements StickerSendService {
+public class StickerSendServiceImpl extends BaseServiceImpl<StickerSendMapper, StickerSend> implements IStickerSendService {
 
 }

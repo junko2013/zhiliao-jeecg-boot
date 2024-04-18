@@ -8,13 +8,9 @@ import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Feedback;
-import org.jeecg.modules.im.entity.Feedback;
-import org.jeecg.modules.im.entity.Feedback;
 import org.jeecg.modules.im.entity.query_helper.QFeedback;
 import org.jeecg.modules.im.mapper.FeedbackMapper;
-import org.jeecg.modules.im.mapper.FeedbackTypeMapper;
-import org.jeecg.modules.im.service.FeedbackService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.jeecg.modules.im.service.IFeedbackService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -33,15 +29,11 @@ import java.util.List;
  * @since 2023-02-23
  */
 @Service
-public class FeedbackServiceImpl extends BaseServiceImpl<FeedbackMapper, Feedback> implements FeedbackService {
+public class FeedbackServiceImpl extends BaseServiceImpl<FeedbackMapper, Feedback> implements IFeedbackService {
 
     @Autowired
     private FeedbackMapper feedbackMapper;
 
-    @Override
-    public IPage<Feedback> pagination(MyPage<Feedback> page, QFeedback q) {
-        return feedbackMapper.pagination(page,q);
-    }
     @Override
     public IPage<Feedback> paginationApi(MyPage<Feedback> page, QFeedback q) {
         return feedbackMapper.paginationApi(page,q);

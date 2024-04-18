@@ -4,7 +4,7 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.SecretQuestion;
 import org.jeecg.modules.im.entity.query_helper.QSecretQuestion;
-import org.jeecg.modules.im.service.SecretQuestionService;
+import org.jeecg.modules.im.service.ISecretQuestionService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,13 +20,11 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/im/secretQuestion")
-public class SecretQuestionController extends BaseBackController {
-    @Resource
-    private SecretQuestionService secretQuestionService;
+public class SecretQuestionController extends BaseBackController<SecretQuestion, ISecretQuestionService> {
 
     @RequestMapping("/pagination")
     public Result<Object> list(QSecretQuestion q){
-        return success(secretQuestionService.pagination(new MyPage<>(getPage(),getPageSize()),q));
+        return success(service.pagination(new MyPage<>(getPage(),getPageSize()),q));
     }
 
     /**
@@ -37,12 +35,12 @@ public class SecretQuestionController extends BaseBackController {
         if(bindingResult.hasErrors()){
             return fail(bindingResult.getAllErrors().get(0));
         }
-        return secretQuestionService.createOrUpdate(question);
+        return service.createOrUpdate(question);
     }
 
     @RequestMapping("/detail")
     public Result<Object> detail(@RequestParam String id){
-        return success(secretQuestionService.getById(id));
+        return success(service.getById(id));
     }
 
     /**
@@ -50,6 +48,6 @@ public class SecretQuestionController extends BaseBackController {
      */
     @RequestMapping("/del")
     public Result<Object> del(@RequestParam String ids){
-        return secretQuestionService.del(ids);
+        return service.del(ids);
     }
 }

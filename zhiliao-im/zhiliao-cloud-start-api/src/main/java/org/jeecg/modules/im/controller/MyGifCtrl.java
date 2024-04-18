@@ -4,9 +4,9 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.util.Kv;
 import org.jeecg.modules.im.entity.GifAlbum;
 import org.jeecg.modules.im.entity.MyGif;
-import org.jeecg.modules.im.service.GifAlbumService;
-import org.jeecg.modules.im.service.GifService;
-import org.jeecg.modules.im.service.MyGifService;
+import org.jeecg.modules.im.service.IGifAlbumService;
+import org.jeecg.modules.im.service.IGifService;
+import org.jeecg.modules.im.service.IMyGifService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -25,11 +25,11 @@ import java.util.Map;
 @RequestMapping("/a/myGif")
 public class MyGifCtrl extends BaseApiCtrl {
     @Resource
-    private MyGifService myGifService;
+    private IMyGifService myGifService;
     @Resource
-    private GifService gifService;
+    private IGifService gifService;
     @Resource
-    private GifAlbumService gifAlbumService;
+    private IGifAlbumService gifAlbumService;
 
     @RequestMapping("/all")
     public Result<Object> all(){
@@ -39,8 +39,8 @@ public class MyGifCtrl extends BaseApiCtrl {
             map.put("album_id",album.getId());
             album.setGifs(gifService.listByMap(map));
         }
-        Kv data = Kv.by("data",myGifService.findAll(getCurrentUserId()))
-                .set("hot_emojis",gifService.findHotEmojis())
+        Kv data = Kv.by("data", myGifService.findAll(getCurrentUserId()))
+                .set("hot_emojis", gifService.findHotEmojis())
                 .set("albums",albums);
         return success(data);
     }
@@ -89,7 +89,7 @@ public class MyGifCtrl extends BaseApiCtrl {
         if(myGif==null){
             return fail();
         }
-        myGif.setTsPin(getTs());
+        myGif.setTsPin(getDate());
         return myGifService.updateById(myGif)?success(myGif.getTsPin()):fail();
     }
 }

@@ -48,7 +48,7 @@ public class SysTenantPackUser implements Serializable {
     @ApiModelProperty(value = "创建人")
     private String createBy;
     /**创建时间*/
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+    @JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "创建时间")
     private java.util.Date createTime;
@@ -56,7 +56,7 @@ public class SysTenantPackUser implements Serializable {
     @ApiModelProperty(value = "更新人")
     private String updateBy;
     /**更新时间*/
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+    @JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "更新时间")
     private java.util.Date updateTime;

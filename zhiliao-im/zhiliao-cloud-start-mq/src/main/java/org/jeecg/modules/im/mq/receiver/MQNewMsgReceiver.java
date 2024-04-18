@@ -11,6 +11,7 @@ import org.jeecg.common.constant.ConstantCache;
 import org.jeecg.common.util.RedisUtil;
 import org.jeecg.modules.im.base.constant.*;
 import org.jeecg.modules.im.base.tools.GsonUtil;
+import org.jeecg.modules.im.base.tools.ToolDateTime;
 import org.jeecg.modules.im.entity.*;
 import org.jeecg.modules.im.service.*;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
@@ -33,37 +34,37 @@ import java.util.*;
 @RabbitListener(queues = ConstantMQ.NEW_MSG)
 public class MQNewMsgReceiver extends BaseRabbiMqHandler<String> {
     @Resource
-    private FriendService friendService;
+    private IFriendService friendService;
     @Resource
-    private UserService userService;
+    private IUserService userService;
     @Resource
-    private MucService mucService;
+    private IMucService mucService;
     @Resource
-    private MucConfigService mucConfigService;
+    private IMucConfigService mucConfigService;
     @Resource
-    private MucMsgService mucMsgService;
+    private IMucMsgService mucMsgService;
     @Resource
-    private MsgService msgService;
+    private IMsgService msgService;
     @Resource
-    private CallService callService;
+    private ICallService callService;
     @Resource
-    private GifService gifService;
+    private IGifService gifService;
     @Resource
-    private MyGifService myGifService;
+    private IMyGifService myGifService;
     @Resource
-    private MyStickerService myStickerService;
+    private IMyStickerService myStickerService;
     @Resource
-    private CustomEmojiService customEmojiService;
+    private ICustomEmojiService customEmojiService;
     @Resource
-    private MucMemberService mucMemberService;
+    private IMucMemberService mucMemberService;
     @Resource
-    private MucMsgDeleteService mucMsgDeleteService;
+    private IMucMsgDeleteService mucMsgDeleteService;
     @Resource
-    private TagService tagService;
+    private ITagService tagService;
     @Resource
-    private SayHelloService sayHelloService;
+    private ISayHelloService sayHelloService;
     @Resource
-    private SayHelloReplyService sayHelloReplyService;
+    private ISayHelloReplyService sayHelloReplyService;
     @Lazy
     @Resource
     private RedisUtil redisUtil;
@@ -152,13 +153,13 @@ public class MQNewMsgReceiver extends BaseRabbiMqHandler<String> {
                 JSONArray array = JSONArray.parseArray(content);
                 for (Object o : array) {
                     JSONObject obj = (JSONObject)o;
-                    //被读消息stanzaId
-                    String stanzaId = obj.getString("stanzaId");
+                    //被读消息msgId
+                    String msgId = obj.getString("msgId");
                     //阅读人
                     Integer readerId = obj.getInteger("userId");
                     Long readTs = obj.getLong("tsRead");
                     //将该消息的已读记录存储到redis
-                    String cacheKey = String.format(ConstantCache.MUC_MSG_READ, stanzaId);
+                    String cacheKey = String.format(ConstantCache.MUC_MSG_READ, msgId);
                     Map map = redisUtil.hmget(cacheKey);
                     map.put(readerId+"",readTs);
                     redisUtil.hmset(cacheKey,map);
@@ -174,7 +175,7 @@ public class MQNewMsgReceiver extends BaseRabbiMqHandler<String> {
                 String stanzaId = contentJson.getString("stanzaId");
                 List<Msg> msgs = msgService.findByStanzaId(stanzaId);
                 for (Msg tempMsg : msgs) {
-                    tempMsg.setTsPin(flag==0?0: mucMsg.getTsSend());
+                    tempMsg.setTsPin(flag==0?null: mucMsg.getTsSend());
                 }
                 msgService.updateBatchById(msgs);
             }
@@ -182,7 +183,7 @@ public class MQNewMsgReceiver extends BaseRabbiMqHandler<String> {
             else if(msgType.getType()==MsgType.mucMute.getType()){
                 assert contentJson!=null;
                 int flag = contentJson.getInteger("flag");
-                muc.setTsMute((long) (flag==1?-1:0));
+                muc.setTsMute(flag==1? ToolDateTime.forever() :null);
                 mucService.updateById(muc);
             }
             //单独禁言
@@ -196,15 +197,13 @@ public class MQNewMsgReceiver extends BaseRabbiMqHandler<String> {
                 if(flag==1){
                     //永久
                     if(duration==-1){
-                        member.setTsMute((long) duration);
+                        member.setTsMute(ToolDateTime.forever());
                     }
-                    member.setTsMute((plus==1?member.getTsMute():getTs())+duration* 1000L);
-                    member.setTsMuteBegin(getTs());
+                    member.setTsMute(ToolDateTime.getDate((plus==1?member.getTsMute().getTime():getTs())+duration* 1000L));
                     member.setMuteType(User.MuteType.admin.getCode());
                 }else{
                     member.setMuteType(User.MuteType.normal.getCode());
-                    member.setTsMute(0L);
-                    member.setTsMuteBegin(0L);
+                    member.setTsMute(null);
                 }
                 mucMemberService.updateById(member);
             }
@@ -275,7 +274,7 @@ public class MQNewMsgReceiver extends BaseRabbiMqHandler<String> {
                 int id = contentJson.getInteger("id");
                 CustomEmoji emoji = customEmojiService.getById(id);
                 if(emoji!=null){
-                    emoji.setTsSend(getTs());
+                    emoji.setTsSend(new Date());
                     customEmojiService.updateById(emoji);
                 }
             }
@@ -391,11 +390,11 @@ public class MQNewMsgReceiver extends BaseRabbiMqHandler<String> {
             //判断是否是好友
             Friend friend = friendService.findOne(msg.getUserId(), msg.getToUserId());
             if(friend!=null){
-                friend.setTsLastTalk(getTs());
+                friend.setTsLastTalk(new Date());
                 //普通用户或者业务号
                 if (user.getType() <= User.Type.business.getCode()) {
                     Friend friend2 = friendService.findOne(msg.getToUserId(), msg.getUserId());
-                    friend2.setTsLastTalk(getTs());
+                    friend2.setTsLastTalk(new Date());
                     friendService.updateById(friend);
                     friendService.updateById(friend2);
                 }
@@ -412,10 +411,10 @@ public class MQNewMsgReceiver extends BaseRabbiMqHandler<String> {
                         JSONObject obj = (JSONObject)o;
                         boolean isSend = obj.getInteger("isSend")==1;
                         Msg msgDel = msgService.findByStanzaIdOfSend(obj.getString("stanzaId"),isSend);
-                        if(msgDel==null||msgDel.getTsDelete()>0){
+                        if(msgDel==null||msgDel.getTsDelete()!=null){
                             return;
                         }
-                        msgDel.setTsDelete(getTs());
+                        msgDel.setTsDelete(new Date());
                         msgService.updateById(msgDel);
                     }
                 }else{
@@ -557,7 +556,7 @@ public class MQNewMsgReceiver extends BaseRabbiMqHandler<String> {
                 String stanzaId = contentJson.getString("stanzaId");
                 List<Msg> msgs = msgService.findByStanzaId(stanzaId);
                 for (Msg tempMsg : msgs) {
-                    tempMsg.setTsPin(flag==0?0:msg.getTsSend());
+                    tempMsg.setTsPin(flag==0?null:msg.getTsSend());
                 }
                 msgService.updateBatchById(msgs);
             }
@@ -683,7 +682,7 @@ public class MQNewMsgReceiver extends BaseRabbiMqHandler<String> {
                 int id = contentJson.getInteger("id");
                 CustomEmoji emoji = customEmojiService.getById(id);
                 if(emoji!=null){
-                    emoji.setTsSend(getTs());
+                    emoji.setTsSend(new Date());
                     customEmojiService.updateById(emoji);
                 }
             }
@@ -733,20 +732,20 @@ public class MQNewMsgReceiver extends BaseRabbiMqHandler<String> {
                 Friend f2 = friendService.findOne(toUserId,msg.getUserId());
                 //拉黑
                 if(ts>0){
-                    if(f1.getTsBlack()>0){
+                    if(f1.getTsBlack()!=null){
                      log.error("对方已在黑名单中");
                         return;
                     }
-                    f1.setTsBlack(getTs());
-                    f2.setTsBeenBlack(getTs());
+                    f1.setTsBlack(new Date());
+                    f2.setTsBeenBlack(new Date());
                 }else{
                     //取消拉黑
-                    if(f1.getTsBlack()==0){
+                    if(f1.getTsBlack()==null){
                         log.error("对方未在黑名单中");
                         return;
                     }
-                    f1.setTsBlack(0L);
-                    f2.setTsBeenBlack(0L);
+                    f1.setTsBlack(null);
+                    f2.setTsBeenBlack(null);
                 }
                 friendService.updateById(f1);
                 friendService.updateById(f2);
@@ -765,11 +764,7 @@ public class MQNewMsgReceiver extends BaseRabbiMqHandler<String> {
                     }
                     //置顶
                     else if(MsgType.dialoguePin.getType()==msgType.getType()){
-                        long ts = getTs();
-                        if (isCancel) {
-                            ts = 0L;
-                        }
-                        mucMember.setTsPin(ts);
+                        mucMember.setTsPin(isCancel?null:new Date());
                     }
                     //已读
                     else if(MsgType.dialogueRead.getType()==msgType.getType()){
@@ -792,11 +787,7 @@ public class MQNewMsgReceiver extends BaseRabbiMqHandler<String> {
                     }
                     //置顶
                     else if(MsgType.dialoguePin.getType()==msgType.getType()){
-                        long ts = getTs();
-                        if (isCancel) {
-                            ts = 0L;
-                        }
-                        to.setTsPin(ts);
+                        to.setTsPin(isCancel?null:new Date());
                     }
                     //已读
                     else if(MsgType.dialogueRead.getType()==msgType.getType()){

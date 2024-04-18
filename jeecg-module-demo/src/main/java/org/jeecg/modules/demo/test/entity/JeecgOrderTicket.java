@@ -27,7 +27,7 @@ public class JeecgOrderTicket implements Serializable {
 	@Excel(name="航班号",width=15)
 	private String ticketCode;
 	/**航班时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+	@JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	@Excel(name="航班时间",width=15,format = "yyyy-MM-dd")
 	private java.util.Date tickectDate;
@@ -36,13 +36,13 @@ public class JeecgOrderTicket implements Serializable {
 	/**创建人*/
 	private String createBy;
 	/**创建时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private java.util.Date createTime;
 	/**修改人*/
 	private String updateBy;
 	/**修改时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private java.util.Date updateTime;
 }

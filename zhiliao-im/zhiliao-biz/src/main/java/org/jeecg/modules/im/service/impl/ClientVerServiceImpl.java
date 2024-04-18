@@ -1,12 +1,11 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.ClientVer;
 import org.jeecg.modules.im.entity.query_helper.QClientVer;
 import org.jeecg.modules.im.mapper.ClientVerMapper;
-import org.jeecg.modules.im.service.ClientVerService;
+import org.jeecg.modules.im.service.IClientVerService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,7 @@ import java.util.List;
  * @since 2021-01-30
  */
 @Service
-public class ClientVerServiceImpl extends BaseServiceImpl<ClientVerMapper, ClientVer> implements ClientVerService {
+public class ClientVerServiceImpl extends BaseServiceImpl<ClientVerMapper, ClientVer> implements IClientVerService {
 
     @Autowired
     private ClientVerMapper clientVerMapper;

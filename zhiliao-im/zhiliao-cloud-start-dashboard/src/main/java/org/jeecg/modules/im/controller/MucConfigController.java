@@ -1,42 +1,59 @@
 package org.jeecg.modules.im.controller;
 
+import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.modules.im.entity.MucConfig;
-import org.jeecg.modules.im.service.MucConfigService;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.jeecg.modules.im.service.IMucConfigService;
+import org.springframework.web.bind.annotation.*;
 
 
 /**
- * 群组默认配置
+ * 群组配置
  */
 @RestController
 @RequestMapping("/im/mucConfig")
-public class MucConfigController extends BaseBackController {
-    @Resource
-    private MucConfigService service;
+public class MucConfigController extends BaseBackController<MucConfig, IMucConfigService> {
 
     /**
-     * 详情
+     * 默认配置
      */
-    @RequestMapping("/detail")
+    @RequestMapping("/default")
     public Result<Object> detail(){
         return success(service.findDefault());
     }
 
     /**
-     * 更新
+     *  编辑
+     *
+     * @param mucConfig
+     * @return
      */
-    @RequestMapping("/update")
-    public Result<Object> update(@RequestBody @Validated MucConfig mucConfig, BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
-            return fail(bindingResult.getAllErrors().get(0));
+    @AutoLog(value = "群聊配置-编辑")
+    @ApiOperation(value="群聊配置-编辑", notes="群聊配置-编辑")
+    @RequiresPermissions("mucConfig:im_muc_config:edit")
+    @RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
+    public Result<String> edit(@RequestBody MucConfig mucConfig) {
+        service.updateById(mucConfig);
+        return Result.OK("编辑成功!");
+    }
+
+
+    /**
+     * 通过id查询
+     *
+     * @param id
+     * @return
+     */
+    //@AutoLog(value = "群聊配置-通过id查询")
+    @ApiOperation(value="群聊配置-通过id查询", notes="群聊配置-通过id查询")
+    @GetMapping(value = "/queryById")
+    public Result<MucConfig> queryById(@RequestParam(name="id",required=true) String id) {
+        MucConfig mucConfig = service.getById(id);
+        if(mucConfig==null) {
+            return Result.error("未找到对应数据");
         }
-        return service.updateById(mucConfig)?success():fail();
+        return Result.OK(mucConfig);
     }
 }

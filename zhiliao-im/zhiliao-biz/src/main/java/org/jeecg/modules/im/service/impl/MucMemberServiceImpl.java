@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.util.Kv;
+import org.jeecg.modules.im.base.tools.ToolDateTime;
 import org.jeecg.modules.im.entity.*;
 import org.jeecg.modules.im.base.xmpp.MessageBean;
 import org.jeecg.modules.im.base.constant.MsgType;
@@ -34,21 +36,21 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMember> implements MucMemberService {
+public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMember> implements IMucMemberService {
     @Autowired
     private MucMemberMapper mucMemberMapper;
     @Resource
-    private MucService mucService;
+    private IMucService IMucService;
     @Resource
-    private MucConfigService mucConfigService;
+    private IMucConfigService IMucConfigService;
     @Resource
-    private MucInviteService mucInviteService;
+    private IMucInviteService IMucInviteService;
     @Resource
-    private UserSettingService userSettingService;
+    private IUserSettingService IUserSettingService;
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
     @Resource
-    private XMPPService xmppService;
+    private IXMPPService IXMPPService;
 
     @Override
     public IPage<MucMember> pagination(MyPage<MucMember> page, QMucMember q) {
@@ -58,8 +60,8 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> consoleInvite(Integer mucId, String userIds) {
-        Muc muc = mucService.getById(mucId);
-        if (muc == null || muc.getTsLocked()>0) {
+        Muc muc = IMucService.getById(mucId);
+        if (muc == null || muc.getTsLocked()!=null) {
             return fail("群组不存在或已被锁定");
         }
         String[] userIdArr = StringUtils.split(userIds, ",");
@@ -67,7 +69,7 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
             return fail("请选择要邀请的用户");
         }
         try {
-            MucConfig mucConfig = mucConfigService.findByMuc(mucId);
+            MucConfig mucConfig = IMucConfigService.findByMuc(mucId);
             muc.setMemberCount(muc.getMemberCount() + userIds.split(",").length);
             if (muc.getMemberCount() > mucConfig.getMaxMemberCount()) {
                 return fail("已超出本群最高人数：" + muc.getMemberCount() + ",当前人数：" + mucConfig.getMaxMemberCount());
@@ -83,19 +85,19 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
                 if (member != null&&member.getStatus()== MucMember.Status.normal.getCode()) {
                     continue;
                 }
-                user = userService.findById(Integer.parseInt(userId));
+                user = IUserService.findById(Integer.parseInt(userId));
                 //用户被锁定或不允许加群
                 if (user == null || user.getTsLocked()>0) {
                     continue;
                 }
-                UserSetting setting = userSettingService.findByUserId(user.getId());
+                UserSetting setting = IUserSettingService.findByUserId(user.getId());
                 if(setting.getIsNoJoinMuc()){
                     continue;
                 }
                 //保存群成员
                 member = new MucMember();
                 member.setUserId(Integer.parseInt(userId));
-                member.setTsJoin(getTs());
+                member.setTsJoin(getDate());
                 member.setNickname(user.getNickname());
                 member.setJoinType(MucMember.JoinType.consoleAdd.getCode());
                 member.setRole(MucMember.Role.Member.getCode());
@@ -109,22 +111,22 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
                 invite.setInvitee(member.getUserId());
                 invite.setHandler(master.getId());
                 invite.setMucId(mucId);
-                invite.setTsCreate(getTs());
+                invite.setTsCreate(getDate());
                 invite.setIsNeedVerify(false);
                 invite.setStatus(MucInvite.Status.Accept.getCode());
                 invite.setIsValid(true);
-                invite.setTsDeal(getTs());
+                invite.setTsDeal(getDate());
                 //入群前的消息不可见
                 if (!mucConfig.getIsShowMsgBeforeJoin()) {
                     //设置可见消息时间为入群时间
-                    member.setTsMsgVisible(getTs());
+                    member.setTsMsgVisible(getDate());
                 }
+                //新成员不允许发言
                 if (!mucConfig.getIsAllowTalkAfterJoin()) {
-                    member.setTsMuteBegin(getTs());
-                    member.setTsMute(1L);
+                    member.setTsMute(ToolDateTime.forever());
                     member.setMuteType(User.MuteType.newMember.getCode());
                 }
-                if (!mucInviteService.save(invite)) {
+                if (!IMucInviteService.save(invite)) {
                     throw new BusinessException("保存群组成员邀请记录失败");
                 }
                 //发送邀请入群消息给用户
@@ -134,9 +136,9 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
                 messageBean.setContent(JSONObject.toJSONString(invite));
                 messageBean.setType(MsgType.newMember.getType());
                 messageBean.setMucId(mucId);
-                xmppService.sendMsgToOneAndMucBySys(messageBean);
+                IXMPPService.sendMsgToOneAndMucBySys(messageBean);
                 //后台邀请进群
-                if(!xmppService.consoleInviteUser(member.getUserId(),mucId)){
+                if(!IXMPPService.consoleInviteUser(member.getUserId(),mucId)){
                     throw new BusinessException("xmpp邀请用户进群失败");
                 }
                 count++;
@@ -168,7 +170,7 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
 
     @Override
     public MucMember getMaster(Integer mucId) {
-        LambdaQueryWrapper<MucMember> wrapper = new LambdaQueryWrapper();
+        LambdaQueryWrapper<MucMember> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MucMember::getMucId,mucId);
         wrapper.eq(MucMember::getRole,MucMember.Role.Master.getCode());
         wrapper.eq(MucMember::getStatus,MucMember.Status.normal.getCode());
@@ -177,7 +179,7 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
 
     @Override
     public List<MucMember> getManagers(Integer mucId) {
-        LambdaQueryWrapper<MucMember> wrapper = new LambdaQueryWrapper();
+        LambdaQueryWrapper<MucMember> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MucMember::getMucId,mucId);
         wrapper.eq(MucMember::getRole,MucMember.Role.Manager.getCode());
         wrapper.eq(MucMember::getStatus,MucMember.Status.normal.getCode());
@@ -186,7 +188,7 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
 
     @Override
     public List<MucMember> getMembers(Integer mucId) {
-        LambdaQueryWrapper<MucMember> wrapper = new LambdaQueryWrapper();
+        LambdaQueryWrapper<MucMember> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MucMember::getMucId,mucId);
         wrapper.eq(MucMember::getRole,MucMember.Role.Member.getCode());
         wrapper.eq(MucMember::getStatus,MucMember.Status.normal.getCode());
@@ -202,7 +204,7 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> kick(Integer userId, Integer mucId, String memberIds) {
         try{
-            Muc muc = mucService.getById(mucId);
+            Muc muc = IMucService.getById(mucId);
             if (muc == null) {
                 return fail("群组不存在");
             }
@@ -223,7 +225,7 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
                 }
             }
             muc.setMemberCount(getCount(mucId, MucMember.Status.normal.getCode()));
-            if(!mucService.updateById(muc)){
+            if(!IMucService.updateById(muc)){
                 throw new BusinessException("踢出成员失败");
             }
             if(count!=memberIdArr.length){
@@ -246,12 +248,12 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
         }
         mucMember.setStatus(MucMember.Status.kicked.getCode());
         mucMember.setKicker(kicker.getId());
-        mucMember.setTsQuit(getTs());
+        mucMember.setTsQuit(getDate());
         if(!updateById(mucMember)){
             return fail();
         }
         //移除群成员
-        xmppService.kickMembers(mucId,mucMember.getUserId().toString());
+        IXMPPService.kickMembers(mucId,mucMember.getUserId().toString());
         Kv data = Kv.by("memberId",memberId).set("memberNickname",mucMember.getNickname()).set("kickerId",kicker.getId()).set("kickerNickname",kicker.getNickname()).set("isMaster",kicker.getRole() == MucMember.Role.Master.getCode() );
         //发送一条移除成员的信息
         MessageBean messageBean = new MessageBean();
@@ -259,7 +261,7 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
         messageBean.setContent(JSONObject.toJSONString(data));
         messageBean.setType(MsgType.kickMember.getType());
         messageBean.setMucId(mucId);
-        if(xmppService.sendMucMsg(messageBean)){
+        if(IXMPPService.sendMucMsg(messageBean)){
             return success();
         }
         return fail();
@@ -273,7 +275,7 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
             for (MucMember member : mucMembers) {
                 member.setStatus(status.getCode());
                 member.setKicker(muc.getMasterId());
-                member.setTsQuit(getTs());
+                member.setTsQuit(getDate());
                 if(!updateById(member)){
                     throw new BusinessException("踢出群成员失败");
                 }
@@ -287,7 +289,7 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
                     messageBean.setType(MsgType.kickMember.getType());
                 }
                 messageBean.setMucId(muc.getId());
-                if (xmppService.sendMsgBySys(messageBean)) {
+                if (IXMPPService.sendMsgBySys(messageBean)) {
                     return success();
                 }
             }
@@ -306,7 +308,7 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> quit(Integer userId, Integer mucId) {
         try{
-            Muc muc = mucService.getById(mucId);
+            Muc muc = IMucService.getById(mucId);
             if (muc == null) {
                 return fail("群组不存在");
             }
@@ -314,12 +316,12 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
             if (member == null||!member.getStatus().equals(MucMember.Status.normal.getCode())) {
                 return fail("你不是该群的成员，无法操作");
             }
-            member.setTsQuit(getTs());
+            member.setTsQuit(getDate());
             member.setStatus(MucMember.Status.quit.getCode());
             updateById(member);
 
             muc.setMemberCount(getCount(mucId, MucMember.Status.normal.getCode()));
-            mucService.updateById(muc);
+            IMucService.updateById(muc);
 
             //发送退群消息
             Kv data = Kv.by("mucId",mucId).set("memberId",member.getId());
@@ -328,7 +330,7 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
             messageBean.setMucId(mucId);
             messageBean.setContent(JSONObject.toJSONString(data));
             messageBean.setType(MsgType.mucQuit.getType());
-            xmppService.sendMucMsg(messageBean);
+            IXMPPService.sendMucMsg(messageBean);
             return success();
         }catch (Exception e){
             log.error("退群异常：mucId={},userId={}", mucId,userId, e);
@@ -374,10 +376,10 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
             messageBean.setUserId(userId);
             messageBean.setContent(JSONObject.toJSONString(data));
             messageBean.setType(MsgType.memberChangeInfo.getType());
-            xmppService.sendMsgToSelf(messageBean);
+            IXMPPService.sendMsgToSelf(messageBean);
         }
         //是否开启修改昵称通知所有人
-        MucConfig mucConfig = mucConfigService.findByMuc(member.getMucId());
+        MucConfig mucConfig = IMucConfigService.findByMuc(member.getMucId());
         if(mucConfig.getIsUpdateNicknameNotify()&&!isEmpty(temp.getNickname())&&!equals(temp.getNickname(),member.getNickname())){
             Kv data2 = Kv.by("id",member.getId());
             data2.set("nickname",member.getNickname());
@@ -386,7 +388,7 @@ public class MucMemberServiceImpl extends BaseServiceImpl<MucMemberMapper, MucMe
             messageBean.setMucId(member.getMucId());
             messageBean.setContent(JSONObject.toJSONString(data2));
             messageBean.setType(MsgType.changeMemberNickName.getType());
-            xmppService.sendMucMsg(messageBean);
+            IXMPPService.sendMucMsg(messageBean);
         }
         return success();
     }

@@ -1,6 +1,5 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
@@ -8,13 +7,12 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.GifAlbum;
 import org.jeecg.modules.im.entity.query_helper.QGifAlbum;
 import org.jeecg.modules.im.mapper.GifAlbumMapper;
-import org.jeecg.modules.im.service.GifAlbumService;
+import org.jeecg.modules.im.service.IGifAlbumService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,7 +24,7 @@ import java.util.List;
  * @since 2021-11-27
  */
 @Service
-public class GifAlbumServiceImpl extends BaseServiceImpl<GifAlbumMapper, GifAlbum> implements GifAlbumService {
+public class GifAlbumServiceImpl extends BaseServiceImpl<GifAlbumMapper, GifAlbum> implements IGifAlbumService {
     @Autowired
     private GifAlbumMapper gifAlbumMapper;
 
@@ -35,31 +33,6 @@ public class GifAlbumServiceImpl extends BaseServiceImpl<GifAlbumMapper, GifAlbu
         return gifAlbumMapper.pagination(page, q);
     }
 
-
-    @Override
-    public Result<Object> createOrUpdate(GifAlbum gifAlbum) {
-        if(gifAlbum.getId()==null){
-            gifAlbum.setTsCreate(getTs());
-            if(!save(gifAlbum)){
-                return fail("添加失败");
-            }
-        }else{
-            if(!updateById(gifAlbum)){
-                return fail("更新失败");
-            }
-        }
-        return success();
-    }
-
-    //逻辑删除
-    @Override
-    public Result<Object> del(String ids) {
-        if(isEmpty(ids)){
-            return fail();
-        }
-        gifAlbumMapper.deleteBatchIds(Arrays.asList(StringUtils.split(ids,",")));
-        return success();
-    }
 
     @Override
     public List<GifAlbum> findAll(Integer serverId) {

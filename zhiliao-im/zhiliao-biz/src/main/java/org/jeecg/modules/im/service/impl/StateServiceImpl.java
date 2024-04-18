@@ -1,12 +1,9 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.entity.Helps;
 import org.jeecg.modules.im.entity.State;
 import org.jeecg.modules.im.mapper.StateMapper;
-import org.jeecg.modules.im.service.StateService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.jeecg.modules.im.service.IStateService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +17,7 @@ import org.springframework.stereotype.Service;
  * @since 2023-07-30
  */
 @Service
-public class StateServiceImpl extends BaseServiceImpl<StateMapper, State> implements StateService {
+public class StateServiceImpl extends BaseServiceImpl<StateMapper, State> implements IStateService {
     @Autowired
     private StateMapper stateMapper;
     @Override

@@ -2,7 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.entity.Tag;
-import org.jeecg.modules.im.service.TagService;
+import org.jeecg.modules.im.service.ITagService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * 标签
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/a/tag")
 public class TagCtrl extends BaseApiCtrl {
     @Resource
-    private TagService tagService;
+    private ITagService tagService;
     /**
      * 查询用户所有的标签
      */

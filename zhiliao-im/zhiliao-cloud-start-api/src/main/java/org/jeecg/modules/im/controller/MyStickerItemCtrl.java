@@ -2,7 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.entity.MyStickerItem;
-import org.jeecg.modules.im.service.MyStickerItemService;
+import org.jeecg.modules.im.service.IMyStickerItemService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -18,7 +18,7 @@ import javax.annotation.Resource;
 @RequestMapping("/a/myStickerItem")
 public class MyStickerItemCtrl extends BaseApiCtrl {
     @Resource
-    private MyStickerItemService myStickerItemService;
+    private IMyStickerItemService myStickerItemService;
 
     @RequestMapping("/all")
     public Result<Object> all(){

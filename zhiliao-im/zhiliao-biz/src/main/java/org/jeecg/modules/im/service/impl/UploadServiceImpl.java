@@ -37,19 +37,19 @@ import java.util.*;
  */
 @Service
 @Slf4j
-public class UploadServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements UploadService {
+public class UploadServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements IUploadService {
     @Resource
-    private SysConfigService sysConfigService;
+    private ISysConfigService ISysConfigService;
     @Resource
-    private StickerItemService stickerItemService;
+    private IStickerItemService IStickerItemService;
     @Resource
-    private GifService gifService;
+    private IGifService IGifService;
     @Resource
-    private ServerConfigService serverConfigService;
+    private IServerConfigService serverConfigService;
     @Resource
-    private UserAvatarService userAvatarService;
+    private IUserAvatarService IUserAvatarService;
     @Resource
-    private CustomEmojiService customEmojiService;
+    private ICustomEmojiService ICustomEmojiService;
     @Autowired
     private UploadMapper uploadMapper;
     @Autowired
@@ -84,7 +84,7 @@ public class UploadServiceImpl extends BaseServiceImpl<UploadMapper, Upload> imp
         String uuid = UUIDTool.getUUID();
         String fileName = uuid + suffix;
         Kv data = Kv.create();
-        SysConfig sysConfig = sysConfigService.get();
+        SysConfig sysConfig = ISysConfigService.get();
         FileInputStream f1 = null;
         File originFile = null;
         try {
@@ -171,7 +171,7 @@ public class UploadServiceImpl extends BaseServiceImpl<UploadMapper, Upload> imp
         String suffix = ToolFile.getExtension(originalFileName);
         String fileName = userId+"/" +UUIDTool.getUUID() + suffix;
         Kv data = Kv.create();
-        SysConfig sysConfig = sysConfigService.get();
+        SysConfig sysConfig = ISysConfigService.get();
         try {
             String url;
 
@@ -231,7 +231,7 @@ public class UploadServiceImpl extends BaseServiceImpl<UploadMapper, Upload> imp
     }
     @Override
     public String uploadToMinio(InputStream stream,String relativePath) throws Exception {
-        SysConfig config = sysConfigService.get();
+        SysConfig config = ISysConfigService.get();
         String resourceDomain = config.getResourceDomain();
         if(!resourceDomain.endsWith("/")){
             resourceDomain+="/";
@@ -240,7 +240,7 @@ public class UploadServiceImpl extends BaseServiceImpl<UploadMapper, Upload> imp
     }
     @Override
     public String uploadToMinio(InputStream stream, String relativePath, Boolean closeStream) throws Exception {
-        SysConfig config = sysConfigService.get();
+        SysConfig config = ISysConfigService.get();
         String resourceDomain = config.getResourceDomain();
         if(!resourceDomain.endsWith("/")){
             resourceDomain+="/";

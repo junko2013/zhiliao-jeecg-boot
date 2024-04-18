@@ -6,7 +6,7 @@ import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.constant.ConstantCache;
 import org.jeecg.modules.im.entity.MySticker;
 import org.jeecg.modules.im.mapper.MyStickerMapper;
-import org.jeecg.modules.im.service.MyStickerService;
+import org.jeecg.modules.im.service.IMyStickerService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -24,7 +24,7 @@ import java.util.List;
  * @since 2021-03-24
  */
 @Service
-public class MyStickerServiceImpl extends BaseServiceImpl<MyStickerMapper, MySticker> implements MyStickerService {
+public class MyStickerServiceImpl extends BaseServiceImpl<MyStickerMapper, MySticker> implements IMyStickerService {
 
     @Autowired
     private MyStickerMapper myStickerMapper;
@@ -43,7 +43,7 @@ public class MyStickerServiceImpl extends BaseServiceImpl<MyStickerMapper, MySti
         MySticker sticker = new MySticker();
         sticker.setStickerId(stickerId);
         sticker.setUserId(userId);
-        sticker.setTsCreate(getTs());
+        sticker.setTsCreate(getDate());
         if(!save(sticker)){
             return fail("添加失败，请重试");
         }

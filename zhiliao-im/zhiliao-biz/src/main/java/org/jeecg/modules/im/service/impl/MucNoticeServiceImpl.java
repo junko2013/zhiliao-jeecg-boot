@@ -13,10 +13,10 @@ import org.jeecg.modules.im.entity.*;
 import org.jeecg.modules.im.entity.MucNotice;
 import org.jeecg.modules.im.entity.query_helper.QMucNotice;
 import org.jeecg.modules.im.mapper.MucNoticeMapper;
-import org.jeecg.modules.im.service.MucMemberService;
-import org.jeecg.modules.im.service.MucNoticeService;
-import org.jeecg.modules.im.service.MucPermissionService;
-import org.jeecg.modules.im.service.XMPPService;
+import org.jeecg.modules.im.service.IMucMemberService;
+import org.jeecg.modules.im.service.IMucNoticeService;
+import org.jeecg.modules.im.service.IMucPermissionService;
+import org.jeecg.modules.im.service.IXMPPService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -36,25 +36,25 @@ import java.util.List;
  * @since 2024-02-05
  */
 @Service
-public class MucNoticeServiceImpl extends BaseServiceImpl<MucNoticeMapper, MucNotice> implements MucNoticeService {
+public class MucNoticeServiceImpl extends BaseServiceImpl<MucNoticeMapper, MucNotice> implements IMucNoticeService {
     @Autowired
     private MucNoticeMapper noticeMapper;
     @Resource
-    private MucMemberService memberService;
+    private IMucMemberService memberService;
     @Resource
-    private MucPermissionService permissionService;
+    private IMucPermissionService permissionService;
     @Resource
-    private XMPPService xmppService;
+    private IXMPPService xmppService;
     @Override
     public Result<Object> createOrUpdate(QMucNotice notice) {
         if(notice.getIsPin()){
-            notice.setTsPin(getTs());
+            notice.setTsPin(getDate());
         }else{
-            notice.setTsPin(0L);
+            notice.setTsPin(null);
         }
         MucMember creator = memberService.findByMucIdOfUser(notice.getMucId(),notice.getUserId());
         if(notice.getId()==0){
-            notice.setTsCreate(getTs());
+            notice.setTsCreate(getDate());
             if(creator.getRole()<MucMember.Role.Manager.getCode()){
                 return fail("没有权限");
             }
@@ -93,11 +93,7 @@ public class MucNoticeServiceImpl extends BaseServiceImpl<MucNoticeMapper, MucNo
         return success();
     }
 
-    @Override
-    public MucNotice findById(Integer id) {
-        return noticeMapper.selectById(id);
-    }
-
+    //逻辑删除
     @Override
     public Result<Object> del(String ids) {
         if(isEmpty(ids)){

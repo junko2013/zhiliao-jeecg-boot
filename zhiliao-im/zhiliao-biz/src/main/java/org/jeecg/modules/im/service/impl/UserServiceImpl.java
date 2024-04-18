@@ -49,40 +49,38 @@ import java.util.regex.Pattern;
  */
 @Service
 @Slf4j
-public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implements UserService {
+public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implements IUserService {
 
     @Autowired
     private UserMapper userMapper;
     @Resource
-    private VerifyCodeService verifyCodeService;
+    private IVerifyCodeService verifyCodeService;
     @Resource
-    private UserInfoService userInfoService;
+    private IUserInfoService userInfoService;
     @Resource
-    private ParamService paramService;
+    private ILoginLogService loginLogService;
     @Resource
-    private LoginLogService loginLogService;
+    private IXMPPService xmppService;
     @Resource
-    private XMPPService xmppService;
+    private IDeviceService deviceService;
     @Resource
-    private DeviceService deviceService;
+    private IUserSettingService userSettingService;
     @Resource
-    private UserSettingService userSettingService;
+    private IServerConfigService serverConfigService;
     @Resource
-    private ServerConfigService serverConfigService;
+    private IFriendService friendService;
     @Resource
-    private FriendService friendService;
+    private IInviteCodeService inviteCodeService;
     @Resource
-    private InviteCodeService inviteCodeService;
+    private IInvitationService invitationService;
     @Resource
-    private InvitationService invitationService;
+    private IMucService mucService;
     @Resource
-    private MucService mucService;
+    private IMucInviteService mucInviteService;
     @Resource
-    private MucInviteService mucInviteService;
+    private IMucMemberService mucMemberService;
     @Resource
-    private MucMemberService mucMemberService;
-    @Resource
-    private SecretAnswerService secretAnswerService;
+    private ISecretAnswerService secretAnswerService;
     @Lazy
     @Resource
     private RedisUtil redisUtil;
@@ -225,7 +223,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         if (verifyCode == null || !equals(verifyCode.getCode(), code)) {
             return fail("验证码错误");
         }
-        if (ToolDateTime.getDateSecondSpace(verifyCode.getTsCreate(), getTs()) > Integer.parseInt(paramService.getByName(Param.Name.verify_code_invalid_minutes, 15 * 60 + ""))) {
+        if (ToolDateTime.getDateSecondSpace(verifyCode.getTsCreate(), getTs()) > 15 * 60 ) {
             return fail("验证码已失效，请重新获取");
         }
         return registerUser(user,LoginLog.Way.Mobile,inviteCode);
@@ -241,7 +239,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         if (verifyCode == null || !equals(verifyCode.getCode(), code)) {
             return fail("验证码错误");
         }
-        if (ToolDateTime.getDateSecondSpace(verifyCode.getTsCreate(), getTs()) > Integer.parseInt(paramService.getByName(Param.Name.verify_code_invalid_minutes, 15 * 60 + ""))) {
+        if (ToolDateTime.getDateSecondSpace(verifyCode.getTsCreate(), getTs()) >  15 * 60) {
             return fail("验证码已失效，请重新获取");
         }
         return registerUser(user,LoginLog.Way.Email,inviteCode);
@@ -336,7 +334,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             registerLog.setIp(getIp());
             registerLog.setIpInfo(getIpInfo());
             registerLog.setIsRegister(true);
-            registerLog.setTsCreate(getTs());
+            registerLog.setTsCreate(getDate());
             registerLog.setWay(way.name());
             registerLog.setServerId(user.getServerId());
             if (!loginLogService.save(registerLog)) {
@@ -345,7 +343,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             //生成邀请码
             InviteCode myInviteCode = new InviteCode();
             myInviteCode.setUserId(user.getId());
-            myInviteCode.setTsCreate(getTs());
+            myInviteCode.setTsCreate(getDate());
             myInviteCode.setCode(InvitationCodeUtil.gen(user.getTsCreate(),6));
             myInviteCode.setServerId(user.getServerId());
             inviteCodeService.save(myInviteCode);
@@ -360,18 +358,18 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             //邀请码
             if(inviteCode!=null){
                 inviteCode.setTimes(inviteCode.getTimes()+1);
-                inviteCode.setTsLast(getTs());
+                inviteCode.setTsLast(getDate());
                 inviteCodeService.updateById(inviteCode);
                 if(!isEmpty(inviteCode.getUserToAdd())){
                     batchAddFriend(user,getByIds(inviteCode.getUserToAdd()));
                 }
                 if(!isEmpty(inviteCode.getMucToJoin())){
-                    batchJoinMuc(user.getId(),mucService.getByIds(inviteCode.getMucToJoin()));
+                    batchJoinMuc(user.getId(), mucService.getByIds(inviteCode.getMucToJoin()));
                 }
                 //生成邀请记录
                 Invitation invitation = new Invitation();
                 invitation.setUserId(user.getId());
-                invitation.setTsCreate(getTs());
+                invitation.setTsCreate(getDate());
                 invitation.setInviterId(inviteCode.getUserId());
                 invitation.setServerId(user.getServerId());
                 invitationService.save(invitation);
@@ -496,7 +494,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         if (verifyCode == null || !equals(verifyCode.getCode(), code)) {
             return fail("验证码错误");
         }
-        if (ToolDateTime.getDateSecondSpace(verifyCode.getTsCreate(), getTs()) > Integer.parseInt(paramService.getByName(Param.Name.verify_code_invalid_minutes, 15 * 60 + ""))) {
+        if (ToolDateTime.getDateSecondSpace(verifyCode.getTsCreate(), getTs()) > 15 * 60 ) {
             return fail("验证码已失效，请重新获取");
         }
         //更新用户密码
@@ -619,7 +617,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             return fail("该账号的密码为初始密码，请通过短信验证码登录，并尽快修改密码后再使用！");
         }
         Device device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(), getDeviceDetail(),user);
-        if(device==null||device.getTsDisabled()>0){
+        if(device==null||device.getTsDisabled()!=null){
             return fail(ConstantZhiLiao.ACCOUNT_LOCKED,"当前设备已被禁用");
         }
         try {
@@ -672,7 +670,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
                 return fail(ConstantZhiLiao.ACCOUNT_LOCKED,"账号已被锁定");
             }
             Device device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(),getDeviceDetail(), user);
-            if(device==null||device.getTsDisabled()>0){
+            if(device==null||device.getTsDisabled()!=null){
                 return fail(ConstantZhiLiao.ACCOUNT_LOCKED,"当前设备已被禁用");
             }
             if(isEmpty(user.getGoogleCode())||!GoogleAuthenticator.authcode(googleCode,user.getGoogleCode())){
@@ -705,7 +703,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         if (verifyCode == null || !equals(verifyCode.getCode(), code)) {
             return fail("验证码错误");
         }
-        if (ToolDateTime.getDateSecondSpace(verifyCode.getTsCreate(), getTs()) > Integer.parseInt(paramService.getByName(Param.Name.verify_code_invalid_minutes, 15 * 60 + ""))) {
+        if (ToolDateTime.getDateSecondSpace(verifyCode.getTsCreate(), getTs()) >  15 * 60 ) {
             return fail("验证码已失效，请重新获取");
         }
         //未注册的直接注册并告知前台需设置密码后才能用
@@ -731,7 +729,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             return fail(ConstantZhiLiao.ACCOUNT_LOCKED, "账号已被锁定");
         }
         Device device = deviceService.findByPlatform(getDeviceNo(), getDevicePlatform(),getDeviceDetail(), user);
-        if(device==null||device.getTsDisabled()>0){
+        if(device==null||device.getTsDisabled()!=null){
             return fail(ConstantZhiLiao.ACCOUNT_LOCKED,"当前设备已被禁用");
         }
         LoginLog loginLog = new LoginLog();
@@ -772,7 +770,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             if(device==null){
                 return fail("设备未登录过");
             }
-            if(device.getTsDisabled()>0){
+            if(device.getTsDisabled()!=null){
                 return fail(ConstantZhiLiao.ACCOUNT_LOCKED,"当前设备已被禁用");
             }
             //自动登录时校验设备token
@@ -820,7 +818,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         loginLog.setLatitude(getLocationLatitude());
         loginLog.setIp(getIp());
         loginLog.setIpInfo(getIpInfo());
-        loginLog.setTsCreate(getTs());
+        loginLog.setTsCreate(getDate());
         loginLog.setServerId(getServerId());
 
         if (!loginLogService.save(loginLog)) {
@@ -1000,7 +998,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             String deviceNo = resource.substring(resource.indexOf("-")+1);
             Device device = deviceService.findByPlatform(deviceNo,platform,null,user);
             device.setIsOnline(true);
-            device.setTsOnline(getTs());
+            device.setTsOnline(getDate());
 
             deviceService.updateById(device);
             device.setLoginLog(loginLogService.findLatestByDeviceId(device.getId()));
@@ -1032,7 +1030,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
             String deviceNo = resource.substring(resource.indexOf("-")+1);
             Device device = deviceService.findByPlatform(deviceNo,platform,null,user);
             device.setIsOnline(false);
-            device.setTsOffline(getTs());
+            device.setTsOffline(getDate());
             deviceService.updateById(device);
 
             device.setLoginLog(loginLogService.findLatestByDeviceId(device.getId()));

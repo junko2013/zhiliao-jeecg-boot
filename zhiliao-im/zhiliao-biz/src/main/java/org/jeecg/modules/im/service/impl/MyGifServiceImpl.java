@@ -7,8 +7,8 @@ import org.jeecg.common.constant.ConstantCache;
 import org.jeecg.modules.im.entity.Gif;
 import org.jeecg.modules.im.entity.MyGif;
 import org.jeecg.modules.im.mapper.MyGifMapper;
-import org.jeecg.modules.im.service.GifService;
-import org.jeecg.modules.im.service.MyGifService;
+import org.jeecg.modules.im.service.IGifService;
+import org.jeecg.modules.im.service.IMyGifService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -27,12 +27,12 @@ import java.util.List;
  * @since 2021-11-27
  */
 @Service
-public class MyGifServiceImpl extends BaseServiceImpl<MyGifMapper, MyGif> implements MyGifService {
+public class MyGifServiceImpl extends BaseServiceImpl<MyGifMapper, MyGif> implements IMyGifService {
 
     @Autowired
     private MyGifMapper myGifMapper;
     @Autowired
-    private GifService gifService;
+    private IGifService IGifService;
     @Lazy
     @Resource
     private RedisUtil redisUtil;
@@ -45,7 +45,7 @@ public class MyGifServiceImpl extends BaseServiceImpl<MyGifMapper, MyGif> implem
     @Override
     public Result<Object> createOrUpdate(MyGif myGif) {
         if(myGif.getId()==null){
-            myGif.setTsCreate(getTs());
+            myGif.setTsCreate(getDate());
             if(!save(myGif)){
                 return fail("添加失败");
             }
@@ -68,15 +68,15 @@ public class MyGifServiceImpl extends BaseServiceImpl<MyGifMapper, MyGif> implem
 
     @Override
     public Result<Object> addGif(Integer userId,Integer gifId) {
-        Gif gif = gifService.getById(gifId);
-        if(gif==null||gif.getIsLocked()){
+        Gif gif = IGifService.getById(gifId);
+        if(gif==null||!gif.getEnable()){
             return fail("动图不存在或被禁用");
         }
         MyGif myGif = findByGifId(userId,gifId);
         if(myGif==null){
             myGif = new MyGif();
-            myGif.setTsCreate(getTs());
-            myGif.setTsLastSend(getTs());
+            myGif.setTsCreate(getDate());
+            myGif.setTsLastSend(getDate());
             myGif.setGifId(gifId);
             myGif.setOrigin(gif.getOrigin());
             myGif.setThumb(gif.getThumb());
@@ -89,7 +89,7 @@ public class MyGifServiceImpl extends BaseServiceImpl<MyGifMapper, MyGif> implem
             redisUtil.incr(String.format(ConstantCache.GIF_ADD_TIMES,gifId),1);
             return success();
         }else{
-            myGif.setTsLastSend(getTs());
+            myGif.setTsLastSend(getDate());
             if(!updateById(myGif)){
                 return fail("添加失败");
             }

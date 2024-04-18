@@ -2,7 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.entity.UserAvatar;
-import org.jeecg.modules.im.service.UserAvatarService;
+import org.jeecg.modules.im.service.IUserAvatarService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +18,7 @@ import javax.annotation.Resource;
 @RequestMapping("/a/userAvatar")
 public class UserAvatarCtrl extends BaseApiCtrl {
     @Resource
-    private UserAvatarService userAvatarService;
+    private IUserAvatarService userAvatarService;
     /**
      * 我的
      */

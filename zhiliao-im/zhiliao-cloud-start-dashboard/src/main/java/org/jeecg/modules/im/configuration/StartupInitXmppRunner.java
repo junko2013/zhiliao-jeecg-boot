@@ -1,7 +1,7 @@
 package org.jeecg.modules.im.configuration;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.modules.im.service.XMPPService;
+import org.jeecg.modules.im.service.IXMPPService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -16,10 +16,10 @@ import javax.annotation.Resource;
 @Order(value = 1)
 public class StartupInitXmppRunner implements CommandLineRunner {
     @Resource
-    private XMPPService xmppService;
+    private IXMPPService IXMPPService;
     @Override
     public void run(String... args) {
         //初始化xmpp系统账号
-        xmppService.initSystemNo();
+        IXMPPService.initSystemNo();
     }
 }

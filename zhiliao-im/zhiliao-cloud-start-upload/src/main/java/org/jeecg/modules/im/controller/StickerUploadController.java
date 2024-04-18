@@ -2,9 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.anotation.NoNeedUserToken;
-import org.jeecg.modules.im.service.UploadService;
-import org.jeecg.modules.im.service.UploadStickerService;
+import org.jeecg.modules.im.service.IUploadStickerService;
 import org.jeecg.modules.im.service.base.BaseUploadCtrl;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +20,7 @@ import javax.annotation.Resource;
 public class StickerUploadController extends BaseUploadCtrl {
 
     @Resource
-    private UploadStickerService uploadStickerService;
+    private IUploadStickerService IUploadStickerService;
 
 
     @PostMapping({"","/"})
@@ -37,7 +35,7 @@ public class StickerUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的文件");
         }
         try {
-            return uploadStickerService.saveSticker(getCurrentUserId(),getAdmin(),multipartFile, stickerId,w);
+            return IUploadStickerService.saveSticker(getCurrentUserId(),getAdmin(),multipartFile, stickerId,w);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("贴纸上传失败", e);
@@ -51,7 +49,7 @@ public class StickerUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的文件");
         }
         try {
-            return uploadStickerService.saveStickerBatch(getCurrentUserId(),getAdmin(),multipartFile, stickerId);
+            return IUploadStickerService.saveStickerBatch(getCurrentUserId(),getAdmin(),multipartFile, stickerId);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("贴纸批量导入上传失败", e);

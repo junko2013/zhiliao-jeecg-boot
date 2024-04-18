@@ -12,14 +12,15 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.exception.BusinessException;
 import org.jeecg.common.util.Kv;
 import org.jeecg.modules.im.base.tools.ToolDateTime;
+import org.jeecg.modules.im.base.util.ToolString;
 import org.jeecg.modules.im.base.vo.MyPage;
-import org.jeecg.modules.im.entity.Param;
+import org.jeecg.modules.im.entity.SysConfig;
 import org.jeecg.modules.im.entity.VerifyCode;
 import org.jeecg.modules.im.entity.query_helper.QVerifyCode;
 import org.jeecg.modules.im.mapper.VerifyCodeMapper;
-import org.jeecg.modules.im.service.ParamService;
-import org.jeecg.modules.im.service.VerifyCodeService;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.ISysConfigService;
+import org.jeecg.modules.im.service.IVerifyCodeService;
+import org.jeecg.modules.im.service.IUserService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -38,13 +39,13 @@ import javax.annotation.Resource;
  */
 @Service
 @Slf4j
-public class VerifyCodeServiceImpl extends BaseServiceImpl<VerifyCodeMapper, VerifyCode> implements VerifyCodeService {
+public class VerifyCodeServiceImpl extends BaseServiceImpl<VerifyCodeMapper, VerifyCode> implements IVerifyCodeService {
     @Autowired
     private VerifyCodeMapper verifyCodeMapper;
     @Resource
-    private ParamService paramService;
+    private IUserService userService;
     @Resource
-    private UserService userService;
+    private ISysConfigService sysConfigService;
 
     @Override
     public IPage<VerifyCode> pagination(MyPage<VerifyCode> page, QVerifyCode q) {
@@ -65,17 +66,16 @@ public class VerifyCodeServiceImpl extends BaseServiceImpl<VerifyCodeMapper, Ver
         }
         String code = generateCode();
         try {
-            if (paramService.getByName(Param.Name.sms_way) == null) {
+            SysConfig sysConfig = sysConfigService.get();
+            if (StringUtils.isBlank(sysConfig.getSmsWay())) {
                 return fail("短信通道未启用");
             }
             //判断短信通道配置第一项
-            switch (StringUtils.split(paramService.getByName(Param.Name.sms_way), ",")[0]) {
-                case Param.sms_way_aliyun: {
-                    return aliyunSend(mobile, type, code);
-                }
-                default:
-                    throw new BusinessException("短信通道未启用");
+            String way = StringUtils.split(sysConfig.getSmsWay(), ",")[0];
+            if(way.equals(SysConfig.SmsWay.aliyun.name())){
+                return aliyunSend(mobile, type, code,sysConfig);
             }
+            throw new BusinessException("短信通道未启用");
         } catch (Exception e) {
             log.error("发送短信验证码异常：mobile={},type={}", mobile, type, e);
             if (e instanceof BusinessException) {
@@ -109,25 +109,25 @@ public class VerifyCodeServiceImpl extends BaseServiceImpl<VerifyCodeMapper, Ver
     }
 
     @Override
-    public Result<Object> aliyunSend(String mobile, String type, String code) throws Exception {
-        DefaultProfile profile = DefaultProfile.getProfile("cn-hangzhou", paramService.getByName(Param.Name.ali_sms_access_key_id), paramService.getByName(Param.Name.ali_sms_access_key_secret));
+    public Result<Object> aliyunSend(String mobile, String type, String code,SysConfig sysConfig) throws Exception {
+        DefaultProfile profile = DefaultProfile.getProfile("cn-hangzhou", sysConfig.getAliSmsKeyId(), sysConfig.getAliSmsKeySecret());
         IAcsClient client = new DefaultAcsClient(profile);
         CommonRequest request = new CommonRequest();
         request.setSysMethod(MethodType.POST);
         request.setSysDomain("dysmsapi.aliyuncs.com");
         request.setSysVersion("2017-05-25");
         request.setSysAction("SendSms");
-        request.putQueryParameter("RegionId", paramService.getByName(Param.Name.ali_sms_region_id));
+        request.putQueryParameter("RegionId", sysConfig.getAliSmsRegionId());
         request.putQueryParameter("PhoneNumbers", mobile);
-        request.putQueryParameter("SignName", paramService.getByName(Param.Name.ali_sms_tpl_sign));
-        request.putQueryParameter("TemplateCode", paramService.getByName(Param.Name.ali_sms_tpl_code));
+        request.putQueryParameter("SignName", sysConfig.getAliSmsTplSign());
+        request.putQueryParameter("TemplateCode", sysConfig.getAliSmsTplCode());
         request.putQueryParameter("TemplateParam", JSONObject.toJSONString(Kv.by("code", code)));
         try {
             VerifyCode s = new VerifyCode();
             s.setCode(code);
             s.setMobile(mobile);
             s.setType(type);
-            s.setWay(Param.sms_way_aliyun);
+            s.setWay(SysConfig.SmsWay.aliyun.name());
             s.setTsCreate(getTs());
             if (!isTest()) {
                 CommonResponse response = client.getCommonResponse(request);
@@ -165,7 +165,7 @@ public class VerifyCodeServiceImpl extends BaseServiceImpl<VerifyCodeMapper, Ver
     @Override
     public String generateCode() {
         StringBuilder code = new StringBuilder();
-        for (int i = 0; i < Integer.parseInt(paramService.getByName(Param.Name.verify_code_length,"6")); i++) {
+        for (int i = 0; i < 6; i++) {
             code.append((int) (Math.random() * 9));
         }
         return code.toString();
@@ -178,7 +178,7 @@ public class VerifyCodeServiceImpl extends BaseServiceImpl<VerifyCodeMapper, Ver
         if (code == null || !equals(code.getCode(), verifyCode)) {
             return fail("验证码错误");
         }
-        if (ToolDateTime.getDateSecondSpace(code.getTsCreate(), getTs()) > Integer.parseInt(paramService.getByName(Param.Name.verify_code_invalid_minutes, 15 * 60 + ""))) {
+        if (ToolDateTime.getDateSecondSpace(code.getTsCreate(), getTs()) > 15 * 60 ) {
             return fail("验证码已失效，请重新获取");
         }
         return success();
@@ -190,7 +190,7 @@ public class VerifyCodeServiceImpl extends BaseServiceImpl<VerifyCodeMapper, Ver
         if (code == null || !equals(code.getCode(), verifyCode)) {
             return fail("验证码错误");
         }
-        if (ToolDateTime.getDateSecondSpace(code.getTsCreate(), getTs()) > Integer.parseInt(paramService.getByName(Param.Name.verify_code_invalid_minutes, 15 * 60 + ""))) {
+        if (ToolDateTime.getDateSecondSpace(code.getTsCreate(), getTs()) > 15 * 60 ) {
             return fail("验证码已失效，请重新获取");
         }
         return success();

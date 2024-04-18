@@ -1,12 +1,11 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.LoginLog;
 import org.jeecg.modules.im.entity.query_helper.QLoginLog;
 import org.jeecg.modules.im.mapper.LoginLogMapper;
-import org.jeecg.modules.im.service.LoginLogService;
+import org.jeecg.modules.im.service.ILoginLogService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,7 @@ import java.util.Date;
  * @since 2021-01-19
  */
 @Service
-public class LoginLogServiceImpl extends BaseServiceImpl<LoginLogMapper, LoginLog> implements LoginLogService {
+public class LoginLogServiceImpl extends BaseServiceImpl<LoginLogMapper, LoginLog> implements ILoginLogService {
 
     @Autowired
     private LoginLogMapper loginLogMapper;

@@ -1,23 +1,14 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
-import org.jeecg.modules.im.base.vo.MyPage;
-import org.jeecg.modules.im.entity.*;
-import org.jeecg.modules.im.entity.Notice;
 import org.jeecg.modules.im.entity.Notice;
 import org.jeecg.modules.im.entity.query_helper.QNotice;
-import org.jeecg.modules.im.entity.query_helper.QNotice;
 import org.jeecg.modules.im.mapper.NoticeMapper;
-import org.jeecg.modules.im.mapper.NoticeMapper;
-import org.jeecg.modules.im.mapper.NoticeMapper;
-import org.jeecg.modules.im.service.NoticeService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.jeecg.modules.im.service.INoticeService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -25,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,14 +27,14 @@ import java.util.List;
  * @since 2021-10-29
  */
 @Service
-public class NoticeServiceImpl extends BaseServiceImpl<NoticeMapper, Notice> implements NoticeService {
+public class NoticeServiceImpl extends BaseServiceImpl<NoticeMapper, Notice> implements INoticeService {
     @Autowired
     private NoticeMapper noticeMapper;
 
     @Override
     public Result<Object> createOrUpdate(Notice notice) {
         if(notice.getId()==null){
-            notice.setTsCreate(getTs());
+            notice.setTsCreate(getDate());
             if(!save(notice)){
                 return fail("添加失败");
             }

@@ -5,7 +5,7 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.SensitiveWord;
 import org.jeecg.modules.im.entity.query_helper.QSensitiveWord;
-import org.jeecg.modules.im.service.SensitiveWordService;
+import org.jeecg.modules.im.service.ISensitiveWordService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,13 +18,11 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("/im/sensitiveWord")
-public class SensitiveWordController extends BaseBackController {
-    @Resource
-    SensitiveWordService sensitiveWordService;
+public class SensitiveWordController extends BaseBackController<SensitiveWord, ISensitiveWordService> {
 
     @RequestMapping("/pagination")
     public Result<Object> list(QSensitiveWord q){
-        return success(sensitiveWordService.pagination(new MyPage<>(getPage(),getPageSize()),q));
+        return success(service.pagination(new MyPage<>(getPage(),getPageSize()),q));
     }
     /**
      * 更新
@@ -34,16 +32,16 @@ public class SensitiveWordController extends BaseBackController {
         if(bindingResult.hasErrors()){
             return fail(bindingResult.getAllErrors().get(0));
         }
-        return sensitiveWordService.createOrUpdate(sensitiveWord);
+        return service.createOrUpdate(sensitiveWord);
     }
 
     @RequestMapping("/detail")
     public Result<Object> detail(@RequestParam String id){
-        return success(sensitiveWordService.getById(id));
+        return success(service.getById(id));
     }
 
     @RequestMapping("/del")
     public Result<Object> del(@RequestParam String ids){
-        return sensitiveWordService.del(ids);
+        return service.del(ids);
     }
 }

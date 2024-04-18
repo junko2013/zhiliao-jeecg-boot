@@ -187,7 +187,7 @@ public class User extends BaseModel<User> {
         newMember(1),//新群成员
         manager(2),//群管理员或群主
         rule(3),//规则
-        admin(4);//后台
+        admin(4);//系统
         private final int code;
         MuteType(int code){
             this.code = code;

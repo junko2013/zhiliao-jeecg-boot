@@ -6,7 +6,7 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Sticker;
 import org.jeecg.modules.im.entity.query_helper.QSticker;
-import org.jeecg.modules.im.service.StickerService;
+import org.jeecg.modules.im.service.IStickerService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,14 +22,12 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/im/sticker")
-public class StickerController extends BaseBackController {
-    @Resource
-    private StickerService stickerService;
+public class StickerController extends BaseBackController<Sticker, IStickerService> {
 
     @RequestMapping("/pagination")
     public Result<Object> list(QSticker q){
         q.setServerId(getServerId());
-        return success(stickerService.pagination(new MyPage<>(getPage(),getPageSize()),q));
+        return success(service.pagination(new MyPage<>(getPage(),getPageSize()),q));
     }
 
     /**
@@ -41,17 +39,17 @@ public class StickerController extends BaseBackController {
             return fail(bindingResult.getAllErrors().get(0));
         }
         sticker.setServerId(getServerId());
-        return stickerService.createOrUpdate(null,sticker);
+        return service.createOrUpdate(null,sticker);
     }
 
     @RequestMapping("/detail")
     public Result<Object> detail(Integer id){
-        return success(stickerService.findById(id));
+        return success(service.findById(id));
     }
 
     @RequestMapping("/del")
     public Result<Object> del(@RequestParam String ids){
-        return stickerService.del(ids);
+        return service.del(ids);
     }
 
 
@@ -62,7 +60,7 @@ public class StickerController extends BaseBackController {
      */
     @GetMapping("/recycleBin")
     public Result getRecycleBin() {
-        List<Sticker> logicDeletedUserList = stickerService.queryLogicDeleted();
+        List<Sticker> logicDeletedUserList = service.queryLogicDeleted();
         return Result.ok(logicDeletedUserList);
     }
 
@@ -76,7 +74,7 @@ public class StickerController extends BaseBackController {
     public Result putRecycleBin(@RequestBody JSONObject jsonObject, HttpServletRequest request) {
         String ids = jsonObject.getString("ids");
         if (StringUtils.isNotBlank(ids)) {
-            stickerService.revertLogicDeleted(Arrays.asList(ids.split(",")));
+            service.revertLogicDeleted(Arrays.asList(ids.split(",")));
         }
         return Result.ok("还原成功");
     }
@@ -90,7 +88,7 @@ public class StickerController extends BaseBackController {
     @RequestMapping(value = "/deleteRecycleBin", method = RequestMethod.DELETE)
     public Result deleteRecycleBin(@RequestParam("ids") String ids) {
         if (StringUtils.isNotBlank(ids)) {
-            stickerService.removeLogicDeleted(Arrays.asList(ids.split(",")));
+            service.removeLogicDeleted(Arrays.asList(ids.split(",")));
         }
         return Result.ok("删除成功");
     }

@@ -6,8 +6,8 @@ import org.jeecg.modules.im.base.constant.MsgType;
 import org.jeecg.modules.im.base.util.UUIDTool;
 import org.jeecg.modules.im.entity.Muc;
 import org.jeecg.modules.im.entity.query_helper.QMuc;
-import org.jeecg.modules.im.service.MucService;
-import org.jeecg.modules.im.service.XMPPService;
+import org.jeecg.modules.im.service.IMucService;
+import org.jeecg.modules.im.service.IXMPPService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.jeecg.modules.im.base.xmpp.MessageBean;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,9 +24,9 @@ import javax.annotation.Resource;
 @RequestMapping("/a/muc")
 public class MucCtrl extends BaseApiCtrl {
     @Resource
-    private MucService mucService;
+    private IMucService IMucService;
     @Resource
-    private XMPPService xmppService;
+    private IXMPPService IXMPPService;
 
     /**
      * 新建
@@ -47,10 +47,10 @@ public class MucCtrl extends BaseApiCtrl {
         temp.setName(name);
         temp.setInfo(info);
         temp.setSubject(subject);
-        temp.setTsCreate(getTs());
+        temp.setTsCreate(getDate());
         temp.setServerId(getServerId());
 
-        Result result = mucService.create(temp,inviteAccounts);
+        Result result = IMucService.create(temp,inviteAccounts);
         if(result.isSuccess()){
             Muc muc = (Muc) result.getResult();
             //群主发送群聊已创建的消息
@@ -58,7 +58,7 @@ public class MucCtrl extends BaseApiCtrl {
             messageBean.setMucId(muc.getId());
             messageBean.setType(MsgType.mucCreate.getType());
             messageBean.setContent(JSONObject.toJSONString(muc));
-            xmppService.sendMucMsg(messageBean);
+            IXMPPService.sendMucMsg(messageBean);
         }
         return result;
     }
@@ -67,14 +67,14 @@ public class MucCtrl extends BaseApiCtrl {
      */
     @PostMapping("/myAll")
     public Result<Object> myAll(){
-        return mucService.findMyAll(getCurrentUserId());
+        return IMucService.findMyAll(getCurrentUserId());
     }
     /**
      * 获取用户的某个群
      */
     @PostMapping("/getOneOfMy")
     public Result<Object> getOneOfMy(Integer id){
-        return success(mucService.findByIdOfUser(id,getCurrentUserId()));
+        return success(IMucService.findByIdOfUser(id,getCurrentUserId()));
     }
     /**
      * 删除
@@ -110,33 +110,33 @@ public class MucCtrl extends BaseApiCtrl {
      */
     @PostMapping("/setManagers")
     public Result<Object> setManagers(Integer id,String memberIds,Integer flag){
-        return mucService.setManagers(getCurrentUserId(),id,memberIds,flag);
+        return IMucService.setManagers(getCurrentUserId(),id,memberIds,flag);
     }
     /**
      * 更新二维码
      */
     @PostMapping("/updateQrcode")
     public Result<Object> updateQrcode(Muc muc){
-        return mucService.updateQrcode(getCurrentUserId(),muc);
+        return IMucService.updateQrcode(getCurrentUserId(),muc);
     }
     //更新群组名称
     @PostMapping("/updateName")
     public Result<Object> updateName(Muc muc){
-        return mucService.updateName(getCurrentUserId(),muc);
+        return IMucService.updateName(getCurrentUserId(),muc);
     }
     //更新群组简介
     @PostMapping("/updateInfo")
     public Result<Object> updateInfo(Muc muc){
-        return mucService.updateInfo(getCurrentUserId(),muc);
+        return IMucService.updateInfo(getCurrentUserId(),muc);
     }
     //更新群组欢迎语
     @PostMapping("/updateWelcomes")
     public Result<Object> updateWelcomes(QMuc temp){
-        return mucService.updateWelcomes(getCurrentUserId(),temp);
+        return IMucService.updateWelcomes(getCurrentUserId(),temp);
     }
     //更新群组头像
     @PostMapping("/updateAvatar")
     public Result<Object> updateAvatar(Muc muc){
-        return mucService.updateAvatar(getCurrentUserId(),muc);
+        return IMucService.updateAvatar(getCurrentUserId(),muc);
     }
 }

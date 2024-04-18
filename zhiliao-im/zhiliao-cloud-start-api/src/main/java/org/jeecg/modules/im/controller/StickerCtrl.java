@@ -4,14 +4,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Sticker;
-import org.jeecg.modules.im.entity.StickerItem;
 import org.jeecg.modules.im.entity.query_helper.QSticker;
-import org.jeecg.modules.im.service.StickerService;
+import org.jeecg.modules.im.service.IStickerService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * 贴纸
@@ -20,7 +18,7 @@ import java.util.List;
 @RequestMapping("/a/sticker")
 public class StickerCtrl extends BaseApiCtrl {
     @Resource
-    private StickerService stickerService;
+    private IStickerService stickerService;
 
     @PostMapping("/getOne")
     public Result<Object> getOne(Integer id){

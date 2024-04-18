@@ -8,8 +8,8 @@ import org.jeecg.modules.im.entity.ServerConfig;
 import org.jeecg.modules.im.entity.InviteCode;
 import org.jeecg.modules.im.entity.query_helper.QInviteCode;
 import org.jeecg.modules.im.mapper.InviteCodeMapper;
-import org.jeecg.modules.im.service.ServerConfigService;
-import org.jeecg.modules.im.service.InviteCodeService;
+import org.jeecg.modules.im.service.IServerConfigService;
+import org.jeecg.modules.im.service.IInviteCodeService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,12 +26,12 @@ import java.util.Arrays;
  * @since 2023-01-12
  */
 @Service
-public class InviteCodeServiceImpl extends BaseServiceImpl<InviteCodeMapper, InviteCode> implements InviteCodeService {
+public class InviteCodeServiceImpl extends BaseServiceImpl<InviteCodeMapper, InviteCode> implements IInviteCodeService {
 
     @Autowired
     private InviteCodeMapper inviteCodeMapper;
     @Resource
-    private ServerConfigService serverConfigService;
+    private IServerConfigService serverConfigService;
     @Override
     public InviteCode findByCode(String code) {
         return inviteCodeMapper.findByCode(code);
@@ -48,7 +48,7 @@ public class InviteCodeServiceImpl extends BaseServiceImpl<InviteCodeMapper, Inv
             if(inviteCode==null){
                 return fail("邀请码不存在");
             }
-            if(!inviteCode.getIsEnable()){
+            if(!inviteCode.getEnable()){
                 return fail("邀请码已被禁用");
             }
             if(inviteCode.getMaxTimes()> -1){
@@ -78,7 +78,7 @@ public class InviteCodeServiceImpl extends BaseServiceImpl<InviteCodeMapper, Inv
     @Override
     public Result<Object> createOrUpdate(InviteCode code) {
         if(code.getId()==null){
-            code.setTsCreate(getTs());
+            code.setTsCreate(getDate());
             if(!save(code)){
                 return fail("添加失败");
             }

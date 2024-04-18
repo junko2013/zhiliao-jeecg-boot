@@ -1,22 +1,12 @@
 package org.jeecg.modules.im.interceptor;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.authc.AuthenticationException;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.constant.CommonConstant;
-import org.jeecg.common.system.util.JwtUtilApp;
-import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.im.anotation.NoNeedServerSet;
-import org.jeecg.modules.im.anotation.NoNeedUserToken;
 import org.jeecg.modules.im.base.constant.ConstantWeb;
-import org.jeecg.modules.im.base.exception.IpDenyException;
 import org.jeecg.modules.im.base.exception.ServerException;
-import org.jeecg.modules.im.base.util.IPUtil;
+import org.jeecg.modules.im.base.tools.ToolDateTime;
 import org.jeecg.modules.im.base.util.ToolWeb;
-import org.jeecg.modules.im.entity.Device;
 import org.jeecg.modules.im.entity.Server;
-import org.jeecg.modules.im.entity.User;
 import org.jeecg.modules.im.service.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.method.HandlerMethod;
@@ -35,15 +25,13 @@ import java.util.Date;
 @Slf4j
 public class DashboardApiInterceptor implements HandlerInterceptor {
     @Resource
-    private ParamService paramService;
+    private IUserService userService;
     @Resource
-    private UserService userService;
+    private IDeviceService deviceService;
     @Resource
-    private DeviceService deviceService;
+    private IBlockIpService blockIpService;
     @Resource
-    private BlockIpService blockIpService;
-    @Resource
-    private ServerService serverService;
+    private IServerService serverService;
     @Value("${spring.profiles.active}")
     private String evn;
 
@@ -68,10 +56,10 @@ public class DashboardApiInterceptor implements HandlerInterceptor {
                 if(server==null||server.getDelFlag()==1){
                     throw new ServerException("Server not found!");
                 }
-                if(server.getStatus()==0){
+                if(!server.getEnable()){
                     throw new ServerException("Server is locked!");
                 }
-                if(server.getTsStop()<new Date().getTime()){
+                if(ToolDateTime.compare(server.getTsStop(),new Date())<0){
                     throw new ServerException("Server has expired!");
                 }
                 if(!server.getAccessToken().equals(serverAccessToken)){

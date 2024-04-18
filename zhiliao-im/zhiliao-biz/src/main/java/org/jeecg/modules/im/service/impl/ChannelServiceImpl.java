@@ -4,14 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.modules.im.base.exception.BusinessException;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Channel;
 import org.jeecg.modules.im.entity.ServerConfig;
 import org.jeecg.modules.im.entity.query_helper.QChannel;
 import org.jeecg.modules.im.mapper.ChannelMapper;
-import org.jeecg.modules.im.service.ChannelService;
-import org.jeecg.modules.im.service.ServerConfigService;
+import org.jeecg.modules.im.service.IChannelService;
+import org.jeecg.modules.im.service.IServerConfigService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,11 +30,11 @@ import javax.annotation.Resource;
  */
 @Service
 @Slf4j
-public class ChannelServiceImpl extends BaseServiceImpl<ChannelMapper, Channel> implements ChannelService {
+public class ChannelServiceImpl extends BaseServiceImpl<ChannelMapper, Channel> implements IChannelService {
     @Autowired
     private ChannelMapper channelMapper;
     @Resource
-    private ServerConfigService serverConfigService;
+    private IServerConfigService serverConfigService;
     @Override
     public IPage<Channel> pagination(MyPage<Channel> page, QChannel q) {
         return channelMapper.pagination(page, q);

@@ -2,7 +2,7 @@ package org.jeecg.modules.im.service.impl;
 
 import org.jeecg.modules.im.entity.StateCtg;
 import org.jeecg.modules.im.mapper.StateCtgMapper;
-import org.jeecg.modules.im.service.StateCtgService;
+import org.jeecg.modules.im.service.IStateCtgService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +15,6 @@ import org.springframework.stereotype.Service;
  * @since 2023-07-30
  */
 @Service
-public class StateCtgServiceImpl extends ServiceImpl<StateCtgMapper, StateCtg> implements StateCtgService {
+public class StateCtgServiceImpl extends ServiceImpl<StateCtgMapper, StateCtg> implements IStateCtgService {
 
 }

@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.constant.ConstantCache;
 import org.jeecg.modules.im.entity.StickerItem;
-import org.jeecg.modules.im.service.StickerItemService;
+import org.jeecg.modules.im.service.IStickerItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ import java.util.Set;
 public class StickerJobHandler {
 
     @Resource
-    private StickerItemService stickerItemService;
+    private IStickerItemService IStickerItemService;
     @Lazy
     @Autowired
     private RedisUtil redisUtil;
@@ -37,11 +37,11 @@ public class StickerJobHandler {
         StickerItem sticker;
         for (String key : keys) {
             int stickerId = Integer.parseInt(key.replace(prefix,""));
-            sticker = stickerItemService.getById(stickerId);
+            sticker = IStickerItemService.getById(stickerId);
             sticker.setSendTimes(sticker.getSendTimes()+(int)redisUtil.get(key));
             stickerItems.add(sticker);
         }
-        stickerItemService.updateBatchById(stickerItems);
+        IStickerItemService.updateBatchById(stickerItems);
         redisUtil.removeAll(prefix);
         return ReturnT.SUCCESS;
     }

@@ -2,7 +2,7 @@ package org.jeecg.modules.im.service.impl;
 
 import org.jeecg.modules.im.entity.PostCommentOperate;
 import org.jeecg.modules.im.mapper.PostCommentOperateMapper;
-import org.jeecg.modules.im.service.PostCommentOperateService;
+import org.jeecg.modules.im.service.IPostCommentOperateService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +15,6 @@ import org.springframework.stereotype.Service;
  * @since 2024-02-08
  */
 @Service
-public class PostCommentOperateServiceImpl extends ServiceImpl<PostCommentOperateMapper, PostCommentOperate> implements PostCommentOperateService {
+public class PostCommentOperateServiceImpl extends ServiceImpl<PostCommentOperateMapper, PostCommentOperate> implements IPostCommentOperateService {
 
 }

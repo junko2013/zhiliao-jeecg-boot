@@ -9,7 +9,7 @@ import org.jeecg.common.annotation.RabbitComponent;
 import org.jeecg.common.base.BaseMap;
 import org.jeecg.modules.im.base.constant.ConstantMQ;
 import org.jeecg.modules.im.entity.UserLog;
-import org.jeecg.modules.im.service.UserLogService;
+import org.jeecg.modules.im.service.IUserLogService;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
@@ -26,7 +26,7 @@ import javax.annotation.Resource;
 @RabbitComponent(value = "mqUserLogReceiver")
 public class MQUserLogReceiver extends BaseRabbiMqHandler<BaseMap> {
     @Resource
-    private UserLogService userLogService;
+    private IUserLogService userLogService;
 
     private static final Gson gson = new Gson();
 

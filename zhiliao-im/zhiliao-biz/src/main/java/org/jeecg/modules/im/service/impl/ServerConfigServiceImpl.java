@@ -1,17 +1,18 @@
 package org.jeecg.modules.im.service.impl;
 
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.constant.ConstantCache;
+import org.jeecg.common.util.RedisUtil;
 import org.jeecg.modules.im.entity.ServerConfig;
 import org.jeecg.modules.im.mapper.ServerConfigMapper;
-import org.jeecg.modules.im.service.ServerConfigService;
+import org.jeecg.modules.im.service.IServerConfigService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * <p>
@@ -22,7 +23,7 @@ import javax.annotation.Resource;
  * @since 2021-02-03
  */
 @Service
-public class ServerConfigServiceImpl extends BaseServiceImpl<ServerConfigMapper, ServerConfig> implements ServerConfigService {
+public class ServerConfigServiceImpl extends BaseServiceImpl<ServerConfigMapper, ServerConfig> implements IServerConfigService {
 
     @Autowired
     private ServerConfigMapper serverConfigMapper;
@@ -64,5 +65,11 @@ public class ServerConfigServiceImpl extends BaseServiceImpl<ServerConfigMapper,
         }
         return fail();
     }
+
+    @Override
+    public List<ServerConfig> selectByMainId(String mainId) {
+        return serverConfigMapper.selectByMainId(mainId);
+    }
+
 
 }

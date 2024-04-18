@@ -1,9 +1,8 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import org.jeecg.modules.im.entity.MucConfig;
 import org.jeecg.modules.im.mapper.MucConfigMapper;
-import org.jeecg.modules.im.service.MucConfigService;
+import org.jeecg.modules.im.service.IMucConfigService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Service;
  * @since 2021-01-27
  */
 @Service
-public class MucConfigServiceImpl extends BaseServiceImpl<MucConfigMapper, MucConfig> implements MucConfigService {
+public class MucConfigServiceImpl extends BaseServiceImpl<MucConfigMapper, MucConfig> implements IMucConfigService {
 
     @Autowired
     private MucConfigMapper mucConfigMapper;

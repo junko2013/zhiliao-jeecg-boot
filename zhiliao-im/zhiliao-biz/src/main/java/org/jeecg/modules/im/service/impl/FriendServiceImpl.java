@@ -34,22 +34,22 @@ import java.util.*;
  */
 @Service
 @Slf4j
-public class FriendServiceImpl extends BaseServiceImpl<FriendMapper, Friend> implements FriendService {
+public class FriendServiceImpl extends BaseServiceImpl<FriendMapper, Friend> implements IFriendService {
 
     @Autowired
     private FriendMapper friendMapper;
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
     @Resource
-    private ServerConfigService serverConfigService;
+    private IServerConfigService serverConfigService;
     @Resource
-    private SayHelloService sayHelloService;
+    private ISayHelloService ISayHelloService;
     @Resource
-    private MsgService msgService;
+    private IMsgService IMsgService;
     @Resource
-    private FriendDeleteService friendDeleteService;
+    private IFriendDeleteService IFriendDeleteService;
     @Resource
-    private XMPPService xmppService;
+    private IXMPPService IXMPPService;
     @Override
     public IPage<Friend> pagination(MyPage<Friend> page, QFriend q) {
         return friendMapper.pagination(page,q);
@@ -71,16 +71,16 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendMapper, Friend> imp
         if(Objects.equals(userId, toUserId)){
             return null;
         }
-        User user = userService.findById(userId);
+        User user = IUserService.findById(userId);
         Friend friend = friendMapper.findOne(userId,toUserId,user.getServerId());
         if(friend==null){
             friend = new Friend();
             friend.setUserId(userId);
             friend.setToUserId(toUserId);
-            friend.setTsCreate(getTs());
+            friend.setTsCreate(getDate());
             friend.setStatus(Friend.Status.Stranger.getCode());
             friend.setAddType(Friend.AddType.Not.getCode());
-            friend.setRemark(userService.findById(toUserId).getNickname());
+            friend.setRemark(IUserService.findById(toUserId).getNickname());
             friend.setServerId(user.getServerId());
             save(friend);
         }
@@ -101,15 +101,15 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendMapper, Friend> imp
             return  fail("好友已存在");
         }
         friend.setIsStar(false);
-        friend.setTsLastTalk(0L);
+        friend.setTsLastTalk(null);
         friend.setIsUnread(false);
         friend.setAddType(Friend.AddType.System.getCode());
         friend.setIsMsgArchive(false);
         friend.setIsNoDisturb(false);
         friend.setIsHide(false);
-        friend.setTsPin(0L);
+        friend.setTsPin(null);
         friend.setStatus(Friend.Status.Friend.getCode());
-        friend.setTsFriend(getTs());
+        friend.setTsFriend(getDate());
         updateById(friend);
 
         if(saveSayHello){
@@ -124,15 +124,15 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendMapper, Friend> imp
             hello.setResource(Friend.AddType.System.getCode());
             hello.setTsCreate(getTs());
             hello.setServerId(getServerId());
-            sayHelloService.save(hello);
+            ISayHelloService.save(hello);
             //xmpp添加好友
-            xmppService.addFriend(user.getId(),toUser.getId());
+            IXMPPService.addFriend(user.getId(),toUser.getId());
             //被添加方发送添加好友通知
             MessageBean messageBean = new MessageBean();
             messageBean.setUserId(user.getId());
             messageBean.setToUserId(toUser.getId());
             messageBean.setType(MsgType.makeFriendDirectly.getType());
-            xmppService.sendMsgToOne(messageBean);
+            IXMPPService.sendMsgToOne(messageBean);
         }
         return success();
     }
@@ -144,15 +144,15 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendMapper, Friend> imp
             return fail("已关注，请勿重复关注");
         }
         friend.setIsStar(false);
-        friend.setTsLastTalk(0L);
+        friend.setTsLastTalk(null);
         friend.setIsUnread(false);
         friend.setAddType(Friend.AddType.System.getCode());
         friend.setIsMsgArchive(false);
         friend.setIsNoDisturb(false);
         friend.setIsHide(false);
-        friend.setTsPin(0L);
+        friend.setTsPin(null);
         friend.setStatus(Friend.Status.Follow.getCode());
-        friend.setTsFriend(getTs());
+        friend.setTsFriend(getDate());
         updateById(friend);
 
         if(saveSayHello){
@@ -167,9 +167,9 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendMapper, Friend> imp
             hello.setResource(Friend.AddType.System.getCode());
             hello.setType(SayHello.Type.FollowUser.getCode());
             hello.setTsCreate(getTs());
-            sayHelloService.save(hello);
+            ISayHelloService.save(hello);
             //xmpp关注用户
-            xmppService.followUser(user.getId(),toUser.getId());
+            IXMPPService.followUser(user.getId(),toUser.getId());
         }
         return success();
     }
@@ -181,15 +181,15 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendMapper, Friend> imp
             return  fail("好友已存在");
         }
         friend.setIsStar(false);
-        friend.setTsLastTalk(0L);
+        friend.setTsLastTalk(null);
         friend.setIsUnread(false);
         friend.setAddType(Friend.AddType.System.getCode());
         friend.setIsMsgArchive(false);
         friend.setIsNoDisturb(false);
         friend.setIsHide(false);
-        friend.setTsPin(0L);
+        friend.setTsPin(null);
         friend.setStatus(Friend.Status.Friend.getCode());
-        friend.setTsFriend(getTs());
+        friend.setTsFriend(getDate());
         updateById(friend);
 
         if(saveSayHello) {
@@ -203,15 +203,15 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendMapper, Friend> imp
             hello.setIsValid(true);
             hello.setServerId(user.getServerId());
             hello.setResource(Friend.AddType.System.getCode());
-            sayHelloService.save(hello);
+            ISayHelloService.save(hello);
             //xmpp添加好友
-            xmppService.addFriend(user.getId(), toUser.getId());
+            IXMPPService.addFriend(user.getId(), toUser.getId());
         }
         //系统通知双方
         MessageBean messageBean = new MessageBean();
         messageBean.setToUserId(toUser.getId());
         messageBean.setType(MsgType.makeFriendDirectly.getType());
-        xmppService.sendMsgBySys(messageBean);
+        IXMPPService.sendMsgBySys(messageBean);
         return success();
     }
 
@@ -227,30 +227,30 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendMapper, Friend> imp
             //将好友关系更改为已删除
             friend.setStatus(Friend.Status.Delete.getCode());
             friend.setIsStar(false);
-            friend.setTsFriend(0L);
-            friend.setTsLastTalk(0L);
+            friend.setTsFriend(null);
+            friend.setTsLastTalk(null);
             friend.setIsUnread(false);
             friend.setAddType(Friend.AddType.Not.getCode());
             friend.setIsMsgArchive(false);
             friend.setIsNoDisturb(false);
             friend.setIsHide(false);
-            friend.setTsPin(0L);
+            friend.setTsPin(null);
             updateById(friend);
             Friend toFriend = this.findOne(toUserId, userId);
             toFriend.setStatus(Friend.Status.Delete.getCode());
             toFriend.setIsStar(false);
-            toFriend.setTsFriend(0L);
-            toFriend.setTsLastTalk(0L);
+            toFriend.setTsFriend(null);
+            toFriend.setTsLastTalk(null);
             toFriend.setIsUnread(false);
             toFriend.setAddType(Friend.AddType.Not.getCode());
             toFriend.setIsMsgArchive(false);
             toFriend.setIsNoDisturb(false);
             toFriend.setIsHide(false);
-            toFriend.setTsPin(0L);
+            toFriend.setTsPin(null);
             updateById(toFriend);
             //删除单聊消息记录
-            msgService.deleteLogic(userId,toUserId);
-            msgService.deleteLogic(toUserId,userId);
+            IMsgService.deleteLogic(userId,toUserId);
+            IMsgService.deleteLogic(toUserId,userId);
 //            //系统通知对方已被好友删除
 //            User toUser = userService.findById(toUserId);
 //            MessageBean messageBean = new MessageBean();
@@ -262,9 +262,9 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendMapper, Friend> imp
             FriendDelete delete = new FriendDelete();
             delete.setFromId(userId);
             delete.setToId(toUserId);
-            delete.setTsCreate(getTs());
+            delete.setTsCreate(getDate());
             delete.setServerId(friend.getServerId());
-            friendDeleteService.save(delete);
+            IFriendDeleteService.save(delete);
             return success(delete);
         }catch (Exception e){
             log.error("删除好友失败：userId={},toUserId={}", userId,toUserId, e);

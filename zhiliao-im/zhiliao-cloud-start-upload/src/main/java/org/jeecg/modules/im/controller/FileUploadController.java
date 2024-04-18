@@ -2,8 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.service.UploadFileService;
-import org.jeecg.modules.im.service.UploadService;
+import org.jeecg.modules.im.service.IUploadFileService;
 import org.jeecg.modules.im.service.base.BaseUploadCtrl;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +18,7 @@ import javax.annotation.Resource;
 public class FileUploadController extends BaseUploadCtrl {
 
     @Resource
-    private UploadFileService uploadFileService;
+    private IUploadFileService IUploadFileService;
 
 
     @PostMapping("/upload/{module}")
@@ -29,7 +28,7 @@ public class FileUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的文件");
         }
         try {
-            return uploadFileService.saveFile(getCurrentUserId(),getAdmin(),module,multipartFile);
+            return IUploadFileService.saveFile(getCurrentUserId(),getAdmin(),module,multipartFile);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("文件上传失败", e);

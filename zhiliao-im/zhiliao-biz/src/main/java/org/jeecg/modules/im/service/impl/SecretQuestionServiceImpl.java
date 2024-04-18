@@ -1,22 +1,17 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.SecretQuestion;
-import org.jeecg.modules.im.entity.SecretQuestion;
 import org.jeecg.modules.im.entity.query_helper.QSecretQuestion;
 import org.jeecg.modules.im.mapper.SecretQuestionMapper;
-import org.jeecg.modules.im.service.SecretQuestionService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.jeecg.modules.im.service.ISecretQuestionService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,7 +23,7 @@ import java.util.List;
  * @since 2021-11-02
  */
 @Service
-public class SecretQuestionServiceImpl extends BaseServiceImpl<SecretQuestionMapper, SecretQuestion> implements SecretQuestionService {
+public class SecretQuestionServiceImpl extends BaseServiceImpl<SecretQuestionMapper, SecretQuestion> implements ISecretQuestionService {
 
     @Autowired
     private SecretQuestionMapper mapper;

@@ -18,19 +18,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/im/user")
-public class UserController extends BaseBackController {
+public class UserController extends BaseBackController<User, IUserService> {
     @Resource
-    private UserService userService;
+    private IFriendService friendService;
     @Resource
-    private FriendService friendService;
+    private IDeviceService deviceService;
     @Resource
-    private DeviceService deviceService;
+    private IContactService contactService;
     @Resource
-    private ContactService contactService;
+    private IUserInfoService userInfoService;
     @Resource
-    private UserInfoService userInfoService;
-    @Resource
-    private UserSettingService userSettingService;
+    private IUserSettingService userSettingService;
 
     @RequestMapping("/pagination")
     public Result<Object> list(QUser q,String regStart,String regEnd) {
@@ -60,7 +58,7 @@ public class UserController extends BaseBackController {
             q.setIds(s.substring(0,s.toString().length()-1));
         }
         q.setServerId(getServer().getId());
-        return success(userService.pagination(new MyPage<>(getPage(), getPageSize()), q));
+        return success(service.pagination(new MyPage<>(getPage(), getPageSize()), q));
     }
 
     /**
@@ -68,7 +66,7 @@ public class UserController extends BaseBackController {
      */
     @RequestMapping("/detail")
     public Result<Object> detail(@RequestParam Integer id) {
-        User user = userService.findByIdWithInfo(id);
+        User user = service.findByIdWithInfo(id);
         user.setUserSetting(userSettingService.findByUserId(id));
         return success(user);
     }
@@ -94,14 +92,14 @@ public class UserController extends BaseBackController {
         if (bindingResult.hasErrors()) {
             return fail(bindingResult.getAllErrors().get(0));
         }
-        return userService.consoleCreateOrUpdate(user);
+        return service.consoleCreateOrUpdate(user);
     }
     /**
      * 踢下线
      */
     @RequestMapping("/kickOut")
     public Result<Object> kickOut(@RequestParam Integer userId) {
-        return userService.consoleKickOut(userId);
+        return service.consoleKickOut(userId);
     }
 
     /**
@@ -111,28 +109,28 @@ public class UserController extends BaseBackController {
      */
     @RequestMapping("/defaultFriend")
     public Result<Object> defaultFriend(@RequestParam Integer userId) {
-        return userService.setDefaultFriend(userId);
+        return service.setDefaultFriend(userId);
     }
     /**
      * 禁言
      */
     @RequestMapping("/mute")
     public Result<Object> mute(@RequestParam Integer id,@RequestParam Long tsMute) {
-        return userService.consoleMute(id,tsMute);
+        return service.consoleMute(id,tsMute);
     }
     /**
      * 锁定
      */
     @RequestMapping("/lock")
     public Result<Object> lock(@RequestParam Integer id,@RequestParam Long tsLocked) {
-        return userService.consoleLock(id,tsLocked);
+        return service.consoleLock(id,tsLocked);
     }
     /**
      * 禁止连接
      */
     @RequestMapping("/noConnect")
     public Result<Object> noConnect(@RequestParam Integer id,@RequestParam Long tsNoConnect) {
-        return userService.consoleNoConnect(id,tsNoConnect);
+        return service.consoleNoConnect(id,tsNoConnect);
     }
 
 

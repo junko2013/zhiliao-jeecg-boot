@@ -33,19 +33,19 @@ import java.util.Date;
  */
 @Service
 @Slf4j
-public class RedPackServiceImpl extends BaseServiceImpl<RedPackMapper, RedPack> implements RedPackService {
+public class RedPackServiceImpl extends BaseServiceImpl<RedPackMapper, RedPack> implements IRedPackService {
     @Autowired
     private RedPackMapper redPackMapper;
     @Resource
-    private ServerConfigService serverConfigService;
+    private IServerConfigService serverConfigService;
     @Resource
-    private UserService userService;
+    private IUserService userService;
     @Resource
-    private UserInfoService userInfoService;
+    private IUserInfoService userInfoService;
     @Resource
-    private UserSettingService userSettingService;
+    private IUserSettingService userSettingService;
     @Resource
-    private XMPPService xmppService;
+    private IXMPPService xmppService;
 
     @Override
     public IPage<RedPack> pagination(MyPage<RedPack> page, QRedPack q) {
@@ -66,7 +66,7 @@ public class RedPackServiceImpl extends BaseServiceImpl<RedPackMapper, RedPack> 
                 return fail("支付密码错误");
             }
             ServerConfig config = getServerConfig();
-            if (!config.getAllowRedPack()) {
+            if (config.getAllowRedPack()) {
                 return fail("红包功能未启用");
             }
             if (redPack.getAmount().doubleValue() <= 0) {
@@ -76,7 +76,7 @@ public class RedPackServiceImpl extends BaseServiceImpl<RedPackMapper, RedPack> 
                 return fail("红包金额上限" + config.getRedPackMax());
             }
             UserSetting userSetting = userSettingService.findByUserId(user.getId());
-            if(!userSetting.getAllowSendRedPack()){
+            if(userSetting.getAllowSendRedPack()){
                 return fail("你的红包功能已被停用");
             }
             UserInfo userInfo = userInfoService.findBasicByUserId(user.getId());

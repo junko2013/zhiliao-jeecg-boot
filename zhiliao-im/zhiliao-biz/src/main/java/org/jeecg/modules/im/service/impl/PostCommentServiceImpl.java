@@ -6,7 +6,7 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.PostComment;
 import org.jeecg.modules.im.entity.query_helper.QPostComment;
 import org.jeecg.modules.im.mapper.PostCommentMapper;
-import org.jeecg.modules.im.service.PostCommentService;
+import org.jeecg.modules.im.service.IPostCommentService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
  * @since 2021-11-18
  */
 @Service
-public class PostCommentServiceImpl extends BaseServiceImpl<PostCommentMapper, PostComment> implements PostCommentService {
+public class PostCommentServiceImpl extends BaseServiceImpl<PostCommentMapper, PostComment> implements IPostCommentService {
     @Autowired
     private PostCommentMapper mapper;
 

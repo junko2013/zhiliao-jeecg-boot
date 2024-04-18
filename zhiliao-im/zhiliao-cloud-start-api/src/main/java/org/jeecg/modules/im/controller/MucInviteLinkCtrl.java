@@ -2,7 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.entity.MucInviteLink;
-import org.jeecg.modules.im.service.MucInviteLinkService;
+import org.jeecg.modules.im.service.IMucInviteLinkService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +18,7 @@ import javax.annotation.Resource;
 @RequestMapping("/a/mucInviteLink")
 public class MucInviteLinkCtrl extends BaseApiCtrl {
     @Resource
-    private MucInviteLinkService mucInviteLinkService;
+    private IMucInviteLinkService mucInviteLinkService;
 
     @RequestMapping("/findByMuc")
     public Result<Object> findByMuc(@RequestParam Integer mucId){

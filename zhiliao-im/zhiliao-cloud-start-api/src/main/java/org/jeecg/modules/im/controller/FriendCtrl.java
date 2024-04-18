@@ -3,9 +3,9 @@ package org.jeecg.modules.im.controller;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.configuration.ClientOperLog;
 import org.jeecg.modules.im.entity.query_helper.QFriend;
-import org.jeecg.modules.im.service.FriendService;
-import org.jeecg.modules.im.service.UserService;
-import org.jeecg.modules.im.service.XMPPService;
+import org.jeecg.modules.im.service.IFriendService;
+import org.jeecg.modules.im.service.IUserService;
+import org.jeecg.modules.im.service.IXMPPService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,11 +21,11 @@ import javax.annotation.Resource;
 @RequestMapping("/a/friend")
 public class FriendCtrl extends BaseApiCtrl {
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
     @Resource
-    private FriendService friendService;
+    private IFriendService IFriendService;
     @Resource
-    private XMPPService xmppService;
+    private IXMPPService IXMPPService;
     /**
      * 添加
      */
@@ -38,7 +38,7 @@ public class FriendCtrl extends BaseApiCtrl {
      */
     @PostMapping("/deleteOne")
     public Result<Object> deleteOne(@RequestParam int toUserId){
-        return friendService.deleteOne(getCurrentUserId(),toUserId);
+        return IFriendService.deleteOne(getCurrentUserId(),toUserId);
     }
 
     /**
@@ -49,7 +49,7 @@ public class FriendCtrl extends BaseApiCtrl {
     public Result<Object> allOfMy(){
         QFriend q = new QFriend();
         q.setUserId(getCurrentUserId());
-        return success(friendService.findAll(q));
+        return success(IFriendService.findAll(q));
     }
 
     /**
@@ -58,6 +58,6 @@ public class FriendCtrl extends BaseApiCtrl {
     @ClientOperLog(module = "好友", type = "查询某个好友", desc = "")
     @PostMapping("/one")
     public Result<Object> oneOfMy(@RequestParam Integer toUserId){
-        return success(friendService.findOne(getCurrentUserId(),toUserId));
+        return success(IFriendService.findOne(getCurrentUserId(),toUserId));
     }
 }

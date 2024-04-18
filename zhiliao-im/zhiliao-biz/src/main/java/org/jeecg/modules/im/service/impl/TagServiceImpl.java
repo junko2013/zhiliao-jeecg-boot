@@ -1,14 +1,13 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.exception.BusinessException;
 import org.jeecg.modules.im.entity.Friend;
 import org.jeecg.modules.im.entity.Tag;
 import org.jeecg.modules.im.entity.query_helper.QTag;
 import org.jeecg.modules.im.mapper.TagMapper;
-import org.jeecg.modules.im.service.FriendService;
-import org.jeecg.modules.im.service.TagService;
+import org.jeecg.modules.im.service.IFriendService;
+import org.jeecg.modules.im.service.ITagService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,12 +29,12 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements TagService {
+public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements ITagService {
 
     @Autowired
     private TagMapper tagMapper;
     @Resource
-    private FriendService friendService;
+    private IFriendService IFriendService;
     @Override
     public List<Tag> findAllOfUser(Integer userId) {
         return tagMapper.findAllOfUser(userId);
@@ -63,7 +61,7 @@ public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements T
             Friend friend;
             int count = 0;
             for (String friendId : StringUtils.split(friendIds, ",")) {
-                friend=friendService.findByIdOfUser(Integer.parseInt(friendId),userId);
+                friend= IFriendService.findByIdOfUser(Integer.parseInt(friendId),userId);
                 if(friend==null||!friend.getStatus().equals(Friend.Status.Friend.getCode())){
                     throw new BusinessException("请选择好友");
                 }
@@ -110,7 +108,7 @@ public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements T
                     continue;
                 }
                 friendIds.append(friendId).append(",");
-                friend=friendService.findByIdOfUser(Integer.parseInt(friendId),tag.getUserId());
+                friend= IFriendService.findByIdOfUser(Integer.parseInt(friendId),tag.getUserId());
                 if(friend==null||!friend.getStatus().equals(Friend.Status.Friend.getCode())){
                     throw new BusinessException("请选择好友");
                 }
@@ -157,12 +155,12 @@ public class TagServiceImpl extends BaseServiceImpl<TagMapper, Tag> implements T
                     if(isEmpty(friendId)){
                         continue;
                     }
-                    friend = friendService.getById(friendId);
+                    friend = IFriendService.getById(friendId);
                     //好友标签更新
                     q.setUserId(tag.getUserId());
                     q.setFriendId(String.format(",%s,",friendId));
                     friend.setTagIds(tagListToIds(findByFriendIdOfUser(q)));
-                    friendService.updateById(friend);
+                    IFriendService.updateById(friend);
                 }
             }
             return success();

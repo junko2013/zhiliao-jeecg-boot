@@ -1,7 +1,8 @@
 package org.jeecg.modules.im.controller;
 
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.service.CustomEmojiService;
+import org.jeecg.modules.im.entity.CustomEmoji;
+import org.jeecg.modules.im.service.ICustomEmojiService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,11 +17,11 @@ import javax.annotation.Resource;
 @RequestMapping("/a/customEmoji")
 public class CustomEmojiCtrl extends BaseApiCtrl {
     @Resource
-    private CustomEmojiService customEmojiService;
+    private ICustomEmojiService ICustomEmojiService;
 
     @RequestMapping("/all")
     public Result<Object> all(){
-        return success(customEmojiService.findAll(getCurrentUserId()));
+        return success(ICustomEmojiService.findAll(getCurrentUserId()));
     }
 
 }

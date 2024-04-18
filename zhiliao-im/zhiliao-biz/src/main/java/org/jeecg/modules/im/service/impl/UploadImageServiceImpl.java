@@ -40,13 +40,13 @@ import java.util.Set;
  */
 @Service
 @Slf4j
-public class UploadImageServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements UploadImageService {
+public class UploadImageServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements IUploadImageService {
     @Resource
-    private SysConfigService sysConfigService;
+    private ISysConfigService sysConfigService;
     @Resource
-    private CustomEmojiService customEmojiService;
+    private ICustomEmojiService customEmojiService;
     @Autowired
-    private UploadService uploadService;
+    private IUploadService uploadService;
     @Autowired
     private BaseConfig baseConfig;
 
@@ -625,7 +625,7 @@ public class UploadImageServiceImpl extends BaseServiceImpl<UploadMapper, Upload
             emoji.setOrigin(originUrl);
             emoji.setThumb(thumbnailUrl);
             emoji.setUserId(userId);
-            emoji.setTsCreate(getTs());
+            emoji.setTsCreate(getDate());
             emoji.setWidth(w);
             emoji.setHeight(h);
             emoji.setServerId(getServerId());

@@ -6,11 +6,11 @@ import org.jeecg.modules.im.anotation.NoNeedUserToken;
 import org.jeecg.modules.im.base.util.ToolString;
 import org.jeecg.modules.im.configuration.ClientOperLog;
 import org.jeecg.modules.im.base.util.TCaptchaVerify;
-import org.jeecg.modules.im.entity.Param;
+import org.jeecg.modules.im.entity.SysConfig;
 import org.jeecg.modules.im.entity.VerifyCode;
-import org.jeecg.modules.im.service.ParamService;
-import org.jeecg.modules.im.service.VerifyCodeService;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.ISysConfigService;
+import org.jeecg.modules.im.service.IVerifyCodeService;
+import org.jeecg.modules.im.service.IUserService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,11 +29,11 @@ import java.io.UnsupportedEncodingException;
 public class FindPwdCtrl extends BaseApiCtrl {
 
     @Resource
-    private UserService userService;
+    private IUserService userService;
     @Resource
-    private ParamService paramService;
+    private IVerifyCodeService verifyCodeService;
     @Resource
-    private VerifyCodeService verifyCodeService;
+    private ISysConfigService sysConfigService;
 
 
     /**
@@ -46,9 +46,10 @@ public class FindPwdCtrl extends BaseApiCtrl {
         if (!ToolString.regExpValiMobile(mobile)) {
             return fail("手机号格式不正确");
         }
-        if ("1".equals(paramService.getByName(Param.Name.tencent_captcha_on))) {
+        SysConfig sysConfig = sysConfigService.get();
+        if (sysConfig.getTencentCaptchaOn()) {
             //腾讯防水墙校验
-            int checkCode = TCaptchaVerify.verifyTicket(paramService.getByName(Param.Name.tencent_captcha_app_id), paramService.getByName(Param.Name.tencent_captcha_app_secret), ticket, randstr, getIp());
+            int checkCode = TCaptchaVerify.verifyTicket(sysConfig.getTencentCaptchaAppId(), sysConfig.getTencentCaptchaAppSecret(), ticket, randstr, getIp());
             if (checkCode == -1) {
                 return fail("行为验证失败");
             }

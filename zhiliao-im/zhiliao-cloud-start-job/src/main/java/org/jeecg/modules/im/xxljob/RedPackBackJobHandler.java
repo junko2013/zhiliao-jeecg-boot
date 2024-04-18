@@ -4,10 +4,10 @@ import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.modules.im.base.tools.ToolDateTime;
-import org.jeecg.modules.im.service.DeviceService;
-import org.jeecg.modules.im.service.OnlineDataService;
-import org.jeecg.modules.im.service.StatisticService;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.IDeviceService;
+import org.jeecg.modules.im.service.IOnlineDataService;
+import org.jeecg.modules.im.service.IStatisticService;
+import org.jeecg.modules.im.service.IUserService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -20,13 +20,13 @@ import javax.annotation.Resource;
 public class RedPackBackJobHandler {
 
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
     @Resource
-    private DeviceService deviceService;
+    private IDeviceService IDeviceService;
     @Resource
-    private StatisticService statisticService;
+    private IStatisticService IStatisticService;
     @Resource
-    private OnlineDataService onlineDataService;
+    private IOnlineDataService IOnlineDataService;
 
     //超时退回
     @XxlJob(value = "redPackBack")

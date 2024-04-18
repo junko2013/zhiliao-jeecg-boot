@@ -8,7 +8,7 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Call;
 import org.jeecg.modules.im.entity.query_helper.QCall;
 import org.jeecg.modules.im.mapper.CallMapper;
-import org.jeecg.modules.im.service.CallService;
+import org.jeecg.modules.im.service.ICallService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.util.List;
  * @since 2021-12-31
  */
 @Service
-public class CallServiceImpl extends BaseServiceImpl<CallMapper, Call> implements CallService {
+public class CallServiceImpl extends BaseServiceImpl<CallMapper, Call> implements ICallService {
     @Autowired
     private CallMapper callMapper;
     @Override
@@ -51,7 +51,7 @@ public class CallServiceImpl extends BaseServiceImpl<CallMapper, Call> implement
     @Override
     public Result<Object> launch(Call call) {
         //判断对方目前状态
-        call.setTsCreate(getTs());
+        call.setTsCreate(getDate());
         save(call);
         return success(call);
     }

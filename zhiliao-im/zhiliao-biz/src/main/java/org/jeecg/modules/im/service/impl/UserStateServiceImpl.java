@@ -2,7 +2,7 @@ package org.jeecg.modules.im.service.impl;
 
 import org.jeecg.modules.im.entity.UserState;
 import org.jeecg.modules.im.mapper.UserStateMapper;
-import org.jeecg.modules.im.service.UserStateService;
+import org.jeecg.modules.im.service.IUserStateService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +15,6 @@ import org.springframework.stereotype.Service;
  * @since 2023-07-30
  */
 @Service
-public class UserStateServiceImpl extends ServiceImpl<UserStateMapper, UserState> implements UserStateService {
+public class UserStateServiceImpl extends ServiceImpl<UserStateMapper, UserState> implements IUserStateService {
 
 }

@@ -3,9 +3,10 @@ package org.jeecg.modules.im.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.common.util.Kv;
 import org.jeecg.modules.im.anotation.NoNeedServerSet;
 import org.jeecg.modules.im.anotation.NoNeedUserToken;
-import org.jeecg.common.util.Kv;
+import org.jeecg.modules.im.base.tools.ToolDateTime;
 import org.jeecg.modules.im.entity.System;
 import org.jeecg.modules.im.entity.*;
 import org.jeecg.modules.im.service.*;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -26,29 +28,27 @@ import java.util.Objects;
 public class ServerCtrl extends BaseApiCtrl {
 
     @Resource
-    private ClientVerService clientVerService;
+    private IClientVerService clientVerService;
     @Resource
-    private SysConfigService sysConfigService;
+    private ISysConfigService sysConfigService;
     @Resource
-    private ServerConfigService serverConfigService;
+    private IServerConfigService serverConfigService;
     @Resource
-    private ParamService paramService;
+    private IServerService serverService;
     @Resource
-    private ServerService serverService;
+    private IUserService userService;
     @Resource
-    private UserService userService;
+    private ILinkService linkService;
     @Resource
-    private LinkService linkService;
+    private ILocaleService localeService;
     @Resource
-    private LocaleService localeService;
+    private ITenantService tenantService;
     @Resource
-    private TenantService tenantService;
+    private ISystemService systemService;
     @Resource
-    private SystemService systemService;
+    private IAdverService adverService;
     @Resource
-    private AdverService adverService;
-    @Resource
-    private NoticeService noticeService;
+    private INoticeService noticeService;
 
     @NoNeedServerSet
     @NoNeedUserToken
@@ -81,11 +81,11 @@ public class ServerCtrl extends BaseApiCtrl {
             log.error("服务器不存在");
             return fail();
         }
-        if(Objects.equals(server.getStatus(), CommonConstant.STATUS_0)) {
+        if(server.getEnable()) {
             log.error("服务器未启用");
             return fail();
         }
-        if(server.getTsStop()<getTs()){
+        if(ToolDateTime.compare(server.getTsStop(),new Date())<0){
             log.error("服务器已到期");
             return fail();
         }
@@ -127,9 +127,9 @@ public class ServerCtrl extends BaseApiCtrl {
         config.set("versions", clientVerService.findLatestOfAll())
                 //腾讯防水墙
                 .set("tencentCaptcha",
-                        Kv.by("on",paramService.getByName(Param.Name.tencent_captcha_on))
-                                .set("appId",paramService.getByName(Param.Name.tencent_captcha_app_id))
-                                .set("appSecret",paramService.getByName(Param.Name.tencent_captcha_app_secret)))
+                        Kv.by("on", sysConfig.getTencentCaptchaOn()?1:0)
+                                .set("appId", sysConfig.getTencentCaptchaAppId())
+                                .set("appSecret", sysConfig.getTencentCaptchaAppSecret())
                 //文件上传地址
                 .set("uploadUrl",sysConfig.getUploadUrl())
                 .set("maintenance",sysConfig.getMaintenance())
@@ -146,11 +146,11 @@ public class ServerCtrl extends BaseApiCtrl {
                 .set("config", serverConfig)
                 .set("wsUrl", server.getWsUrl())
                 //发现页链接
-                .set("links",linkService.findByServerId(server.getId()))
+                .set("links", linkService.findByServerId(server.getId()))
                 //语言包
-                .set("locales",localeService.findAll())
+                .set("locales", localeService.findAll())
                 //广告
-                .set("adver",adverService.findLatest(server.getId()));
+                .set("adver", adverService.findLatest(server.getId())));
         return config;
     }
 }

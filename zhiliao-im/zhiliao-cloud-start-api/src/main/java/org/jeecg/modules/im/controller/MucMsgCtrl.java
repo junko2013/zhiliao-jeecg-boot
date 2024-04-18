@@ -3,10 +3,9 @@ package org.jeecg.modules.im.controller;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.entity.MucMsg;
-import org.jeecg.modules.im.entity.query_helper.QMsg;
 import org.jeecg.modules.im.entity.query_helper.QMucMsg;
-import org.jeecg.modules.im.service.MucMsgReadService;
-import org.jeecg.modules.im.service.MucMsgService;
+import org.jeecg.modules.im.service.IMucMsgReadService;
+import org.jeecg.modules.im.service.IMucMsgService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,9 +20,9 @@ import java.util.List;
 @RequestMapping("/a/mucMsg")
 public class MucMsgCtrl extends BaseApiCtrl {
     @Resource
-    private MucMsgService mucMsgService;
+    private IMucMsgService IMucMsgService;
     @Resource
-    private MucMsgReadService readService;
+    private IMucMsgReadService readService;
 
     /**
      * 分页查询
@@ -39,13 +38,13 @@ public class MucMsgCtrl extends BaseApiCtrl {
             datas = new ArrayList();
             for (String id : StringUtils.split(q.getMucIds(), ";")) {
                 q.setMucId(Integer.parseInt(id));
-                datas.addAll(mucMsgService.pageApi(q));
+                datas.addAll(IMucMsgService.pageApi(q));
             }
         }else{
-            datas = mucMsgService.pageApi(q);
+            datas = IMucMsgService.pageApi(q);
         }
         for (MucMsg data : datas) {
-            data.setReads(readService.listByMsgId(data.getStanzaId()));
+            data.setReads(readService.listByMsgId(data.getId()));
         }
         return success(datas);
     }

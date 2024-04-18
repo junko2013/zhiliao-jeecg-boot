@@ -39,7 +39,7 @@ public class JeecgDemo extends JeecgEntity implements Serializable {
 	private String keyWord;
 	/** 打卡时间 */
 	@ApiModelProperty(value = "打卡时间")
-	@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(timezone = "UTC", pattern = "yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Excel(name="打卡时间",width=20,format="yyyy-MM-dd HH:mm:ss")
 	private java.util.Date punchTime;
@@ -61,7 +61,7 @@ public class JeecgDemo extends JeecgEntity implements Serializable {
 	private Integer age;
 	/** 生日 */
 	@ApiModelProperty(value = "生日")
-	@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+	@JsonFormat(timezone = "UTC", pattern = "yyyy-MM-dd")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@Excel(name="生日",format="yyyy-MM-dd")
 	private java.util.Date birthday;

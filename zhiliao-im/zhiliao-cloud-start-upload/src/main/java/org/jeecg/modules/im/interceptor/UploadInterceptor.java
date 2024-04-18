@@ -16,9 +16,9 @@ import org.jeecg.modules.im.base.exception.BusinessException;
 import org.jeecg.modules.im.base.util.IPUtil;
 import org.jeecg.modules.im.entity.Device;
 import org.jeecg.modules.im.entity.User;
-import org.jeecg.modules.im.service.BlockIpService;
-import org.jeecg.modules.im.service.DeviceService;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.IBlockIpService;
+import org.jeecg.modules.im.service.IDeviceService;
+import org.jeecg.modules.im.service.IUserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.method.HandlerMethod;
@@ -29,7 +29,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
-import java.util.Enumeration;
 
 /**
  * 文件上传访问拦截器
@@ -37,9 +36,9 @@ import java.util.Enumeration;
 @Slf4j
 public class UploadInterceptor implements HandlerInterceptor {
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
     @Resource
-    private BlockIpService blockIpService;
+    private IBlockIpService IBlockIpService;
     @Value("${spring.profiles.active}")
     private String evn;
     @Lazy
@@ -48,12 +47,12 @@ public class UploadInterceptor implements HandlerInterceptor {
     @Resource
     private ISysBaseAPI sysBaseApi;
     @Resource
-    private DeviceService deviceService;
+    private IDeviceService IDeviceService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String requestIp = IPUtil.getIpAddr(request);
-        Result<Object> result = blockIpService.checkIp(requestIp);
+        Result<Object> result = IBlockIpService.checkIp(requestIp);
         if (!result.isSuccess()) {
             throw new BusinessException(requestIp+"已被禁止访问");
         }
@@ -105,7 +104,7 @@ public class UploadInterceptor implements HandlerInterceptor {
 
         // 查询用户信息
         log.debug("———校验token是否有效————checkUserTokenIsEffect——————— "+ token);
-        User user = userService.findById(userId);
+        User user = IUserService.findById(userId);
         if (user == null) {
             throw new AuthenticationException("用户不存在");
         }
@@ -113,11 +112,11 @@ public class UploadInterceptor implements HandlerInterceptor {
         if (user.getTsLocked()>0) {
             throw new AuthenticationException("账号已被锁定");
         }
-        Device device = deviceService.findByPlatform(deviceNo, devicePlatform,deviceDetail, user);
+        Device device = IDeviceService.findByPlatform(deviceNo, devicePlatform,deviceDetail, user);
         if(device==null){
             throw new AuthenticationException("设备未登录过");
         }
-        if(device.getTsDisabled()>0){
+        if(device.getTsDisabled()!=null){
             throw new AuthenticationException("当前设备已被禁用");
         }
     }

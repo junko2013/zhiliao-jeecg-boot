@@ -8,7 +8,7 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.UserAvatar;
 import org.jeecg.modules.im.entity.query_helper.QUserAvatar;
 import org.jeecg.modules.im.mapper.UserAvatarMapper;
-import org.jeecg.modules.im.service.UserAvatarService;
+import org.jeecg.modules.im.service.IUserAvatarService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.util.List;
  * @since 2022-01-12
  */
 @Service
-public class UserAvatarServiceImpl extends BaseServiceImpl<UserAvatarMapper, UserAvatar> implements UserAvatarService {
+public class UserAvatarServiceImpl extends BaseServiceImpl<UserAvatarMapper, UserAvatar> implements IUserAvatarService {
     @Resource
     private RedisUtil redisUtil;
     @Autowired

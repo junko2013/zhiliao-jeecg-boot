@@ -6,11 +6,9 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.modules.im.entity.Adver;
-import org.jeecg.modules.im.entity.Locale;
-import org.jeecg.modules.im.entity.Notice;
 import org.jeecg.modules.im.entity.query_helper.QAdver;
 import org.jeecg.modules.im.mapper.AdverMapper;
-import org.jeecg.modules.im.service.AdverService;
+import org.jeecg.modules.im.service.IAdverService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -29,7 +27,7 @@ import java.util.List;
  * @since 2021-01-19
  */
 @Service
-public class AdverServiceImpl extends BaseServiceImpl<AdverMapper, Adver> implements AdverService {
+public class AdverServiceImpl extends BaseServiceImpl<AdverMapper, Adver> implements IAdverService {
 
     @Autowired
     private AdverMapper adverMapper;
@@ -37,30 +35,6 @@ public class AdverServiceImpl extends BaseServiceImpl<AdverMapper, Adver> implem
     @Override
     public List<Adver> findAll(QAdver q) {
         return adverMapper.findAll(q);
-    }
-
-    @Override
-    public Result<Object> createOrUpdate(Adver adver) {
-        if(adver.getId()==null){
-            adver.setTsCreate(getTs());
-            if(!save(adver)){
-                return fail("添加失败");
-            }
-        }else{
-            if(!updateById(adver)){
-                return fail("更新失败");
-            }
-        }
-        return success();
-    }
-
-    @Override
-    public Result<Object> del(String ids) {
-        if(isEmpty(ids)){
-            return fail();
-        }
-        adverMapper.deleteBatchIds(Arrays.asList(StringUtils.split(ids,",")));
-        return success();
     }
 
     @Override
@@ -93,7 +67,7 @@ public class AdverServiceImpl extends BaseServiceImpl<AdverMapper, Adver> implem
     public Adver findLatest(Integer serverId) {
         LambdaQueryWrapper<Adver> q = new LambdaQueryWrapper<>();
         q.eq(Adver::getServerId, serverId);
-        q.eq(Adver::getStatus,CommonConstant.STATUS_1);
+        q.eq(Adver::getEnable,1);
         q.eq(Adver::getDelFlag,CommonConstant.DEL_FLAG_0);
         q.orderByDesc(Adver::getTsCreate);
         return getOne(q);

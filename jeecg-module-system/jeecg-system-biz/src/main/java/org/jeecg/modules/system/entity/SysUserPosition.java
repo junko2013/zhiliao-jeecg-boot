@@ -39,7 +39,7 @@ public class SysUserPosition implements Serializable {
     @ApiModelProperty(value = "创建人")
     private String createBy;
 	/**创建时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+	@JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
@@ -47,7 +47,7 @@ public class SysUserPosition implements Serializable {
     @ApiModelProperty(value = "修改人")
     private String updateBy;
 	/**修改时间*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+	@JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "修改时间")
     private Date updateTime;

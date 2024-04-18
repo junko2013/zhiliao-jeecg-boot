@@ -2,8 +2,8 @@ package org.jeecg.modules.im.controller;
 
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.entity.User;
-import org.jeecg.modules.im.service.FriendService;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.IFriendService;
+import org.jeecg.modules.im.service.IUserService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,10 +22,10 @@ import java.util.List;
 public class SearchCtrl extends BaseApiCtrl {
 
     @Resource
-    private UserService userService;
+    private IUserService userService;
 
     @Resource
-    private FriendService friendService;
+    private IFriendService friendService;
 
     /**
      * 查找用户

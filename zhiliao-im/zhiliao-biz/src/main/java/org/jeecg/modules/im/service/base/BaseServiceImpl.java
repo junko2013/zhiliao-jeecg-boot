@@ -4,17 +4,13 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.system.util.JwtUtil;
-import org.jeecg.common.system.util.JwtUtilApp;
 import org.jeecg.modules.im.base.constant.ConstantWeb;
 import org.jeecg.modules.im.base.util.IPUtil;
 import org.jeecg.modules.im.entity.Server;
 import org.jeecg.modules.im.entity.ServerConfig;
-import org.jeecg.modules.im.entity.User;
-import org.jeecg.modules.im.service.ParamService;
-import org.jeecg.modules.im.service.ServerConfigService;
-import org.jeecg.modules.im.service.ServerService;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.IServerConfigService;
+import org.jeecg.modules.im.service.IServerService;
+import org.jeecg.modules.im.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -38,13 +34,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M,T
     @Autowired
     protected HttpServletRequest request;
     @Resource
-    private ParamService paramService;
+    private IServerService IServerService;
     @Resource
-    private ServerService serverService;
+    private IServerConfigService serverConfigService;
     @Resource
-    private ServerConfigService serverConfigService;
-    @Resource
-    private UserService userService;
+    private IUserService IUserService;
     @Autowired
     private MessageSource messageSource;
 
@@ -153,7 +147,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M,T
         return Integer.valueOf(request.getHeader(ConstantWeb.SERVER_ID));
     }
     protected Server getServer(){
-        return serverService.findById(getServerId());
+        return IServerService.findById(getServerId());
     }
     protected ServerConfig getServerConfig(){
         return  serverConfigService.get(getServer().getId());
@@ -202,6 +196,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M,T
     //获取当前时间戳
     protected Long getTs(){
         return new Date().getTime();
+    }
+    //获取当前时间戳
+    protected Date getDate(){
+        return new Date();
     }
 
 //    /**

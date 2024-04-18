@@ -10,7 +10,7 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.ChatBg;
 import org.jeecg.modules.im.entity.query_helper.QChatBg;
 import org.jeecg.modules.im.mapper.ChatBgMapper;
-import org.jeecg.modules.im.service.ChatBgService;
+import org.jeecg.modules.im.service.IChatBgService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -29,7 +29,7 @@ import java.util.List;
  * @since 2024-01-07
  */
 @Service
-public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgMapper, ChatBg> implements ChatBgService {
+public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgMapper, ChatBg> implements IChatBgService {
     @Autowired
     private ChatBgMapper chatBgMapper;
 
@@ -43,29 +43,6 @@ public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgMapper, ChatBg> imp
         return chatBgMapper.findAll();
     }
 
-    @Override
-    public Result<Object> createOrUpdate(ChatBg chatBg) {
-        if(chatBg.getId()==null){
-            chatBg.setTsCreate(getTs());
-            if(!save(chatBg)){
-                return fail("添加失败");
-            }
-        }else{
-            if(!updateById(chatBg)){
-                return fail("更新失败");
-            }
-        }
-        return success();
-    }
-
-    @Override
-    public Result<Object> del(String ids) {
-        if(isEmpty(ids)){
-            return fail();
-        }
-        chatBgMapper.deleteBatchIds(Arrays.asList(StringUtils.split(ids,",")));
-        return success();
-    }
 
     @Override
     public List<ChatBg> queryLogicDeleted() {

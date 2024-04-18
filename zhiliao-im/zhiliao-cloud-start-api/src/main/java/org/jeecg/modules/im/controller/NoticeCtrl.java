@@ -2,7 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.entity.query_helper.QNotice;
-import org.jeecg.modules.im.service.NoticeService;
+import org.jeecg.modules.im.service.INoticeService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +17,7 @@ import javax.annotation.Resource;
 public class NoticeCtrl extends BaseApiCtrl {
 
     @Resource
-    private NoticeService noticeService;
+    private INoticeService noticeService;
 
     //查询用户所有的公告
     @RequestMapping("/all")

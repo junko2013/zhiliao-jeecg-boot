@@ -18,12 +18,12 @@ import javax.annotation.Resource;
 public class LinkCtrl extends BaseApiCtrl {
 
     @Resource
-    private LinkService linkService;
+    private ILinkService ILinkService;
 
     @RequestMapping("/all")
     public Result<Object> all() {
         ServerConfig config = getServerConfig();
-        Kv kv = Kv.by("links",linkService.list()).set("enablePost",config.getEnablePost());
+        Kv kv = Kv.by("links", ILinkService.list()).set("enablePost",config.getEnablePost());
         return success(kv);
     }
 

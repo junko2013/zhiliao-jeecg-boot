@@ -1,6 +1,5 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import org.jeecg.modules.im.entity.MucMember;
 import org.jeecg.modules.im.entity.UserInfo;
 import org.jeecg.modules.im.mapper.UserInfoMapper;
@@ -20,18 +19,18 @@ import javax.annotation.Resource;
  * @since 2021-09-21
  */
 @Service
-public class UserInfoServiceImpl extends BaseServiceImpl<UserInfoMapper, UserInfo> implements UserInfoService {
+public class UserInfoServiceImpl extends BaseServiceImpl<UserInfoMapper, UserInfo> implements IUserInfoService {
 
     @Autowired
     private UserInfoMapper userInfoMapper;
     @Resource
-    private MucService mucService;
+    private IMucService IMucService;
     @Resource
-    private FriendService friendService;
+    private IFriendService IFriendService;
     @Resource
-    private ContactService contactService;
+    private IContactService IContactService;
     @Resource
-    private DeviceService deviceService;
+    private IDeviceService IDeviceService;
     @Override
     public UserInfo findBasicByUserId(Integer userId) {
         return userInfoMapper.findByUserId(userId);
@@ -39,12 +38,12 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfoMapper, UserInf
     @Override
     public UserInfo findByUserId(Integer userId) {
         UserInfo info = userInfoMapper.findByUserId(userId);
-        info.setMucCreate(mucService.getCountOfRole(userId, MucMember.Role.Master));
-        info.setMucManage(mucService.getCountOfRole(userId, MucMember.Role.Manager));
-        info.setMucJoin(mucService.getCountOfRole(userId, MucMember.Role.Member));
-        info.setFriendCount(friendService.getCountOfUser(userId));
-        info.setDeviceCount(deviceService.getCount(userId,null));
-        info.setContactCount(contactService.getCountOfUser(userId));
+        info.setMucCreate(IMucService.getCountOfRole(userId, MucMember.Role.Master));
+        info.setMucManage(IMucService.getCountOfRole(userId, MucMember.Role.Manager));
+        info.setMucJoin(IMucService.getCountOfRole(userId, MucMember.Role.Member));
+        info.setFriendCount(IFriendService.getCountOfUser(userId));
+        info.setDeviceCount(IDeviceService.getCount(userId,null));
+        info.setContactCount(IContactService.getCountOfUser(userId));
         return info;
     }
 }

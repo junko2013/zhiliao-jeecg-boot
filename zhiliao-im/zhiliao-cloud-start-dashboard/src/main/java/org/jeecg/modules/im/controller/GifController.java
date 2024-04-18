@@ -1,56 +1,165 @@
 package org.jeecg.modules.im.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.binarywang.java.emoji.EmojiConverter;
+import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Gif;
 import org.jeecg.modules.im.entity.query_helper.QGif;
-import org.jeecg.modules.im.service.GifService;
+import org.jeecg.modules.im.service.IGifService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/im/gif")
-public class GifController extends BaseBackController {
-    @Resource
-    GifService gifService;
+public class GifController extends BaseBackController<Gif, IGifService> {
     private final EmojiConverter emojiConverter = EmojiConverter.getInstance();
 
-    @RequestMapping("/pagination")
-    public Result<Object> list(QGif q){
-        if(isNotEmpty(q.getEmoji())){
-            q.setEmojiCode(emojiConverter.toAlias(q.getEmoji()));
-        }
-        return success(gifService.pagination(new MyPage<>(getPage(),getPageSize()),q));
-    }
     /**
-     * 更新
+     * 分页列表查询
+     *
+     * @param gif
+     * @param pageNo
+     * @param pageSize
+     * @param req
+     * @return
      */
-    @RequestMapping("/createOrUpdate")
-    public Result<Object> createOrUpdate(@RequestBody @Validated Gif gif, BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
-            return fail(bindingResult.getAllErrors().get(0));
+    //@AutoLog(value = "im_gif-分页列表查询")
+    @ApiOperation(value="im_gif-分页列表查询", notes="im_gif-分页列表查询")
+    @GetMapping(value = "/list")
+    public Result<IPage<Gif>> queryPageList(Gif gif,
+                                                                              @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+                                                                              @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+                                                                              HttpServletRequest req) {
+        if(isNotEmpty(gif.getEmoji())){
+            gif.setEmojiCode(emojiConverter.toAlias(gif.getEmoji()));
         }
-        return gifService.createOrUpdate(gif);
+        QueryWrapper<Gif> queryWrapper = QueryGenerator.initQueryWrapper(gif, req.getParameterMap());
+        Page<Gif> page = new Page<Gif>(pageNo, pageSize);
+        IPage<Gif> pageList = service.page(page, queryWrapper);
+        return Result.OK(pageList);
     }
 
     /**
-     * 批量删除
+     *   添加
+     *
+     * @param gif
+     * @return
      */
-    @RequestMapping("/del")
-    public Result<Object> del(@RequestParam String ids){
-        return gifService.del(ids);
+    @AutoLog(value = "im_gif-添加")
+    @ApiOperation(value="im_gif-添加", notes="im_gif-添加")
+    @RequiresPermissions("gif:im_gif:add")
+    @PostMapping(value = "/add")
+    public Result<String> add(@RequestBody Gif gif) {
+        gif.setTsCreate(getDate());
+        if(!isEmpty(gif.getEmoji())){
+            gif.setEmojiCode(emojiConverter.toAlias(gif.getEmoji()));
+        }
+        service.save(gif);
+        return Result.OK("添加成功！");
     }
 
-    @RequestMapping("/detail")
-    public Result<Object> detail(@RequestParam String id){
-        return success(gifService.getById(id));
+    /**
+     *  编辑
+     *
+     * @param gif
+     * @return
+     */
+    @AutoLog(value = "im_gif-编辑")
+    @ApiOperation(value="im_gif-编辑", notes="im_gif-编辑")
+    @RequiresPermissions("gif:im_gif:edit")
+    @RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
+    public Result<String> edit(@RequestBody Gif gif) {
+        if(!isEmpty(gif.getEmoji())) {
+            gif.setEmojiCode(emojiConverter.toAlias(gif.getEmoji()));
+        }
+        service.updateById(gif);
+        return Result.OK("编辑成功!");
+    }
+
+    /**
+     *   通过id删除
+     *
+     * @param id
+     * @return
+     */
+    @AutoLog(value = "im_gif-通过id删除")
+    @ApiOperation(value="im_gif-通过id删除", notes="im_gif-通过id删除")
+    @RequiresPermissions("gif:im_gif:delete")
+    @DeleteMapping(value = "/delete")
+    public Result<String> delete(@RequestParam(name="id",required=true) String id) {
+        service.removeById(id);
+        return Result.OK("删除成功!");
+    }
+
+    /**
+     *  批量删除
+     *
+     * @param ids
+     * @return
+     */
+    @AutoLog(value = "im_gif-批量删除")
+    @ApiOperation(value="im_gif-批量删除", notes="im_gif-批量删除")
+    @RequiresPermissions("gif:im_gif:deleteBatch")
+    @DeleteMapping(value = "/deleteBatch")
+    public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
+        this.service.removeByIds(Arrays.asList(ids.split(",")));
+        return Result.OK("批量删除成功!");
+    }
+
+    /**
+     * 通过id查询
+     *
+     * @param id
+     * @return
+     */
+    //@AutoLog(value = "im_gif-通过id查询")
+    @ApiOperation(value="im_gif-通过id查询", notes="im_gif-通过id查询")
+    @GetMapping(value = "/queryById")
+    public Result<Gif> queryById(@RequestParam(name="id",required=true) String id) {
+        Gif gif = service.getById(id);
+        if(gif==null) {
+            return Result.error("未找到对应数据");
+        }
+        return Result.OK(gif);
+    }
+
+    /**
+     * 导出excel
+     *
+     * @param request
+     * @param gif
+     */
+    @RequiresPermissions("gif:im_gif:exportXls")
+    @RequestMapping(value = "/exportXls")
+    public ModelAndView exportXls(HttpServletRequest request, Gif gif) {
+        return super.exportXls(request, gif, Gif.class, "im_gif");
+    }
+
+    /**
+     * 通过excel导入数据
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequiresPermissions("gif:im_gif:importExcel")
+    @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+    public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+        return super.importExcel(request, response, Gif.class);
     }
 }

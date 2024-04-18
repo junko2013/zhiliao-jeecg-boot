@@ -1,7 +1,6 @@
 package org.jeecg.modules.im.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.dynamic.datasource.annotation.DS;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.constant.MsgType;
@@ -10,9 +9,9 @@ import org.jeecg.modules.im.entity.MucMember;
 import org.jeecg.modules.im.entity.MucPermission;
 import org.jeecg.modules.im.entity.query_helper.QMucPermission;
 import org.jeecg.modules.im.mapper.MucPermissionMapper;
-import org.jeecg.modules.im.service.MucMemberService;
-import org.jeecg.modules.im.service.MucPermissionService;
-import org.jeecg.modules.im.service.XMPPService;
+import org.jeecg.modules.im.service.IMucMemberService;
+import org.jeecg.modules.im.service.IMucPermissionService;
+import org.jeecg.modules.im.service.IXMPPService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +29,14 @@ import javax.annotation.Resource;
  */
 @Service
 @Slf4j
-public class MucPermissionServiceImpl extends BaseServiceImpl<MucPermissionMapper, MucPermission> implements MucPermissionService {
+public class MucPermissionServiceImpl extends BaseServiceImpl<MucPermissionMapper, MucPermission> implements IMucPermissionService {
 
     @Autowired
     private MucPermissionMapper mucPermissionMapper;
     @Autowired
-    private MucMemberService mucMemberService;
+    private IMucMemberService IMucMemberService;
     @Resource
-    private XMPPService xmppService;
+    private IXMPPService IXMPPService;
     @Override
     public MucPermission findByManager(Integer mucId,Integer managerId) {
         return mucPermissionMapper.findByManager(mucId,managerId);
@@ -73,7 +72,7 @@ public class MucPermissionServiceImpl extends BaseServiceImpl<MucPermissionMappe
     @Override
     public Result<Object> findByUserOfMuc(Integer userId, Integer mucId) {
         try {
-            MucMember member = mucMemberService.findByMucIdOfUser(mucId, userId);
+            MucMember member = IMucMemberService.findByMucIdOfUser(mucId, userId);
             if (member == null || member.getRole() != MucMember.Role.Manager.getCode()) {
                 return fail("非该群成员或非管理员");
             }
@@ -86,13 +85,13 @@ public class MucPermissionServiceImpl extends BaseServiceImpl<MucPermissionMappe
     @Override
     public Result<Object> updateByCondition(QMucPermission q) {
         MucMember member;
-        MucMember master = mucMemberService.getMaster(q.getMucId());
+        MucMember master = IMucMemberService.getMaster(q.getMucId());
         if(q.getManagerId()==0){
             //群主
             member = master;
         }else{
             //管理员
-            member = mucMemberService.getById(q.getManagerId());
+            member = IMucMemberService.getById(q.getManagerId());
         }
         if(member==null||member.getRole()<MucMember.Role.Manager.getCode()){
             log.error("非管理员或群主");
@@ -101,7 +100,7 @@ public class MucPermissionServiceImpl extends BaseServiceImpl<MucPermissionMappe
         if(q.getTitle()!=null){
             if(!equals(member.getTitle(),q.getTitle())){
                 member.setTitle(q.getTitle());
-                mucMemberService.updateById(member);
+                IMucMemberService.updateById(member);
                 //发送修改头衔的群消息
                 MessageBean msg = new MessageBean();
                 msg.setUserId(master.getUserId());
@@ -109,7 +108,7 @@ public class MucPermissionServiceImpl extends BaseServiceImpl<MucPermissionMappe
                 msg.setType(MsgType.modifyTitle.getType());
                 msg.setMucId(q.getMucId());
                 msg.setContent(q.getTitle());
-                xmppService.sendMucMsg(msg);
+                IXMPPService.sendMucMsg(msg);
             }
         }
         if(q.getUpdate()!=null&&q.getUpdate()==1){
@@ -131,7 +130,7 @@ public class MucPermissionServiceImpl extends BaseServiceImpl<MucPermissionMappe
 //                xmppService.sendMsgToSelf(msg);
 //            }else{
                 msg.setToUserId(member.getUserId());
-                xmppService.sendMucMsg(msg);
+                IXMPPService.sendMucMsg(msg);
 //            }
         }
         return success();

@@ -4,7 +4,7 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.PostComment;
 import org.jeecg.modules.im.entity.query_helper.QPostComment;
-import org.jeecg.modules.im.service.PostCommentService;
+import org.jeecg.modules.im.service.IPostCommentService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,13 +20,11 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/im/post/comment")
-public class PostCommentController extends BaseBackController {
-    @Resource
-    private PostCommentService postService;
+public class PostCommentController extends BaseBackController<PostComment, IPostCommentService> {
 
     @RequestMapping("/pagination")
     public Result<Object> list(QPostComment q){
-        return success(postService.pagination(new MyPage<>(getPage(),getPageSize()),q));
+        return success(service.pagination(new MyPage<>(getPage(),getPageSize()),q));
     }
 
     /**
@@ -37,7 +35,7 @@ public class PostCommentController extends BaseBackController {
         if(bindingResult.hasErrors()){
             return fail(bindingResult.getAllErrors().get(0));
         }
-        return postService.createOrUpdate(item);
+        return service.createOrUpdate(item);
     }
 
     /**
@@ -45,6 +43,6 @@ public class PostCommentController extends BaseBackController {
      */
     @RequestMapping("/del")
     public Result<Object> del(@RequestParam String ids){
-        return postService.del(ids);
+        return service.del(ids);
     }
 }

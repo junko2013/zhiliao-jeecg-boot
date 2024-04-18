@@ -2,8 +2,7 @@ package org.jeecg.modules.im.service.impl;
 
 import org.jeecg.modules.im.entity.MucNoticeRead;
 import org.jeecg.modules.im.mapper.MucNoticeReadMapper;
-import org.jeecg.modules.im.service.MucNoticeReadService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.jeecg.modules.im.service.IMucNoticeReadService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +15,6 @@ import org.springframework.stereotype.Service;
  * @since 2024-02-05
  */
 @Service
-public class MucNoticeReadServiceImpl extends BaseServiceImpl<MucNoticeReadMapper, MucNoticeRead> implements MucNoticeReadService {
+public class MucNoticeReadServiceImpl extends BaseServiceImpl<MucNoticeReadMapper, MucNoticeRead> implements IMucNoticeReadService {
 
 }

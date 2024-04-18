@@ -1,19 +1,17 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.entity.MyStickerItem;
 import org.jeecg.modules.im.entity.StickerItem;
 import org.jeecg.modules.im.mapper.MyStickerItemMapper;
 import org.jeecg.modules.im.mapper.StickerItemMapper;
-import org.jeecg.modules.im.service.MyStickerItemService;
+import org.jeecg.modules.im.service.IMyStickerItemService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,7 +23,7 @@ import java.util.List;
  * @since 2021-12-12
  */
 @Service
-public class MyStickerItemServiceImpl extends BaseServiceImpl<MyStickerItemMapper, MyStickerItem> implements MyStickerItemService {
+public class MyStickerItemServiceImpl extends BaseServiceImpl<MyStickerItemMapper, MyStickerItem> implements IMyStickerItemService {
 
 
     @Autowired
@@ -41,7 +39,7 @@ public class MyStickerItemServiceImpl extends BaseServiceImpl<MyStickerItemMappe
     @Override
     public Result<Object> createOrUpdate(MyStickerItem myStickerItem) {
         if(myStickerItem.getId()==null){
-            myStickerItem.setTsCreate(getTs());
+            myStickerItem.setTsCreate(getDate());
             if(!save(myStickerItem)){
                 return fail("添加失败");
             }
@@ -69,7 +67,7 @@ public class MyStickerItemServiceImpl extends BaseServiceImpl<MyStickerItemMappe
             return fail("贴纸不存在或被禁用");
         }
         MyStickerItem star = new MyStickerItem();
-        star.setTsCreate(getTs());
+        star.setTsCreate(getDate());
         star.setStickerItemId(stickerItemId);
         star.setStickerId(stickerItem.getStickerId());
         star.setOrigin(stickerItem.getOrigin());

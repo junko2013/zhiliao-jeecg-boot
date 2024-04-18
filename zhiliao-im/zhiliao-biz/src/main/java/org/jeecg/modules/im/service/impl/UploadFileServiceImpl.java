@@ -11,9 +11,9 @@ import org.jeecg.modules.im.base.util.oss.AliyunOss;
 import org.jeecg.modules.im.entity.SysConfig;
 import org.jeecg.modules.im.entity.Upload;
 import org.jeecg.modules.im.mapper.UploadMapper;
-import org.jeecg.modules.im.service.SysConfigService;
-import org.jeecg.modules.im.service.UploadFileService;
-import org.jeecg.modules.im.service.UploadService;
+import org.jeecg.modules.im.service.ISysConfigService;
+import org.jeecg.modules.im.service.IUploadFileService;
+import org.jeecg.modules.im.service.IUploadService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,11 +30,11 @@ import javax.annotation.Resource;
  */
 @Service
 @Slf4j
-public class UploadFileServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements UploadFileService {
+public class UploadFileServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements IUploadFileService {
     @Resource
-    private SysConfigService sysConfigService;
+    private ISysConfigService ISysConfigService;
     @Resource
-    private UploadService uploadService;
+    private IUploadService IUploadService;
 
     @Override
     public Result<Object> saveFile(Integer userId,String admin,String module,MultipartFile multipartFile) {
@@ -48,7 +48,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadMapper, Upload>
         String uuid = UUIDTool.getUUID();
         String path = userId == null ? "" : userId + "/";
         String fileName = "/" + module + "/" + suffix + "/" + path + uuid + "." + suffix;
-        SysConfig sysConfig = sysConfigService.get();
+        SysConfig sysConfig = ISysConfigService.get();
         try {
             String fileUrl;
             if (equals(sysConfig.getStorageType(),SysConfig.StorageType.aliyun_oss.name())) {
@@ -59,9 +59,9 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadMapper, Upload>
                 }
                 fileUrl = aliyunOss.uploadLocalFile(basePath + Upload.FileType.文件.getType() +fileName, multipartFile.getInputStream());
             }else{
-                fileUrl = uploadService.uploadToMinio(multipartFile.getInputStream(),Upload.FileType.文件.getType() +fileName);
+                fileUrl = IUploadService.uploadToMinio(multipartFile.getInputStream(),Upload.FileType.文件.getType() +fileName);
             }
-            uploadService.addUpload(admin,
+            IUploadService.addUpload(admin,
                     userId,
                     contentType,
                     fileUrl,

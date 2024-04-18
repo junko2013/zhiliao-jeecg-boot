@@ -1,10 +1,9 @@
 package org.jeecg.modules.im.service.impl;
 
-import org.apache.ibatis.annotations.Mapper;
 import org.jeecg.modules.im.entity.CoinBill;
 import org.jeecg.modules.im.entity.query_helper.QCoinBill;
 import org.jeecg.modules.im.mapper.CoinBillMapper;
-import org.jeecg.modules.im.service.CoinBillService;
+import org.jeecg.modules.im.service.ICoinBillService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Service;
  * @since 2024-02-15
  */
 @Service
-public class CoinBillServiceImpl extends ServiceImpl<CoinBillMapper, CoinBill> implements CoinBillService {
+public class CoinBillServiceImpl extends ServiceImpl<CoinBillMapper, CoinBill> implements ICoinBillService {
 
     @Autowired
     private CoinBillMapper coinBillMapper;

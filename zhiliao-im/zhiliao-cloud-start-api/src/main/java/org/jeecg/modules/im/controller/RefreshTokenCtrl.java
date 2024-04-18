@@ -8,8 +8,8 @@ import org.jeecg.modules.im.base.constant.ConstantZhiLiao;
 import org.jeecg.common.util.Kv;
 import org.jeecg.modules.im.entity.Device;
 import org.jeecg.modules.im.entity.User;
-import org.jeecg.modules.im.service.DeviceService;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.IDeviceService;
+import org.jeecg.modules.im.service.IUserService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,9 +26,9 @@ import javax.annotation.Resource;
 @RequestMapping("/a/auth")
 public class RefreshTokenCtrl extends BaseApiCtrl {
     @Resource
-    private UserService userService;
+    private IUserService userService;
     @Resource
-    private DeviceService deviceService;
+    private IDeviceService deviceService;
     @NoNeedUserToken
     @RequestMapping("/refresh_token")
     public Result<Object> refreshToken(@RequestParam String refreshToken){
@@ -52,7 +52,7 @@ public class RefreshTokenCtrl extends BaseApiCtrl {
         if(device==null){
             return fail("设备未登录过");
         }
-        if(device.getTsDisabled()>0){
+        if(device.getTsDisabled()!=null){
             return fail(ConstantZhiLiao.ACCOUNT_LOCKED,"当前设备已被禁用");
         }
         String accessToken = JwtUtilApp.getAccessToken(user.getId(), user.getPassword(),user.getAccount());

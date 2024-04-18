@@ -93,7 +93,7 @@ public class SysGatewayRoute implements Serializable {
     @ApiModelProperty(value = "创建人")
     private String createBy;
     /**创建日期*/
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建日期")
     private Date createTime;
@@ -101,7 +101,7 @@ public class SysGatewayRoute implements Serializable {
     @ApiModelProperty(value = "更新人")
     private String updateBy;
     *//**更新日期*//*
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "UTC",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新日期")
     private Date updateTime;

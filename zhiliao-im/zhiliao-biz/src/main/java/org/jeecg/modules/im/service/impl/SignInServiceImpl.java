@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.modules.im.base.exception.BusinessException;
 import org.jeecg.modules.im.base.tools.ToolDateTime;
 import org.jeecg.common.util.Kv;
@@ -36,17 +37,17 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class SignInServiceImpl extends BaseServiceImpl<SignInMapper, SignIn> implements SignInService {
+public class SignInServiceImpl extends BaseServiceImpl<SignInMapper, SignIn> implements ISignInService {
     @Autowired
     private SignInMapper signInMapper;
     @Resource
-    private ServerConfigService serverConfigService;
+    private IServerConfigService serverConfigService;
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
     @Resource
-    private UserInfoService userInfoService;
+    private IUserInfoService IUserInfoService;
     @Resource
-    private CoinBillService coinBillService;
+    private ICoinBillService ICoinBillService;
 
     @Override
     public IPage<SignIn> pagination(MyPage<SignIn> page, QSignIn q) {
@@ -62,8 +63,8 @@ public class SignInServiceImpl extends BaseServiceImpl<SignInMapper, SignIn> imp
     //当前的签到状态、累计签到天数、今天是否已签到，以及签到可以获得的金币数量
     @Override
     public Result<Object> info(Integer userId) {
-        User user = userService.findById(userId);
-        UserInfo userInfo = userInfoService.findBasicByUserId(user.getId());
+        User user = IUserService.findById(userId);
+        UserInfo userInfo = IUserInfoService.findBasicByUserId(user.getId());
         ServerConfig serverConfig = getServerConfig();
         Kv kv = Kv.create();
         String today = ToolDateTime.getDate(new Date(),ToolDateTime.pattern_ymd);
@@ -88,11 +89,11 @@ public class SignInServiceImpl extends BaseServiceImpl<SignInMapper, SignIn> imp
         types.add(CoinBill.Type.signInContinue.name());
         q.setUserId(userId);
         q.setTypes(types);
-        kv.set("coin",coinBillService.getAmount(q));
+        kv.set("coin", ICoinBillService.getAmount(q));
         types.clear();
         types.add(CoinBill.Type.makeup.name());
         q.setTypes(types);
-        kv.set("cost",coinBillService.getAmount(q));
+        kv.set("cost", ICoinBillService.getAmount(q));
         //查询用户近n天的签到日期
         kv.set("signInInfo", getSignDatesInfo(userId));
         kv.set("myCoins",userInfo.getCoin());
@@ -256,13 +257,13 @@ public class SignInServiceImpl extends BaseServiceImpl<SignInMapper, SignIn> imp
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> sign(Integer userId) {
-        User user = userService.findById(userId);
+        User user = IUserService.findById(userId);
         ServerConfig serverConfig = getServerConfig();
-        if (!serverConfig.getSignIn()) {
+        if (serverConfig.getEnableSignIn()) {
             return fail("签到功能未开启");
         }
         try {
-            UserInfo userInfo = userInfoService.findBasicByUserId(user.getId());
+            UserInfo userInfo = IUserInfoService.findBasicByUserId(user.getId());
             if (userInfo.getSignInDay() >= serverConfig.getSignInMaxDay() && serverConfig.getSignInMaxDay() > 0) {
                 return fail("已达到累计签到天数，请申请提现后再签到！");
             }
@@ -315,11 +316,12 @@ public class SignInServiceImpl extends BaseServiceImpl<SignInMapper, SignIn> imp
                 bill.setAmount(signIn.getReward());
                 bill.setIsIncrease(true);
                 bill.setReason("每日签到奖励");
-                bill.setBalance(userInfo.getCoin()+bill.getAmount());
-                bill.setTsCreate(getTs());
-                bill.setType(CoinBill.Type.signIn.name());
+                bill.setBalanceBefore(userInfo.getCoin());
+                bill.setBalanceAfter(userInfo.getCoin()+bill.getAmount());
+                bill.setTsCreate(getDate());
+                bill.setType(CoinBill.Type.signIn.getCode());
                 bill.setUserId(userId);
-                if(!coinBillService.save(bill)){
+                if(!ICoinBillService.save(bill)){
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return fail();
                 }
@@ -330,17 +332,18 @@ public class SignInServiceImpl extends BaseServiceImpl<SignInMapper, SignIn> imp
                 bill.setAmount(signIn.getRewardContinue());
                 bill.setIsIncrease(true);
                 bill.setReason("连续签到奖励");
-                bill.setBalance(userInfo.getCoin()+bill.getAmount());
-                bill.setTsCreate(getTs());
-                bill.setType(CoinBill.Type.signInContinue.name());
+                bill.setBalanceBefore(userInfo.getCoin());
+                bill.setBalanceAfter(userInfo.getCoin()+bill.getAmount());
+                bill.setTsCreate(getDate());
+                bill.setType(CoinBill.Type.signInContinue.getCode());
                 bill.setUserId(userId);
-                if(!coinBillService.save(bill)){
+                if(!ICoinBillService.save(bill)){
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return fail();
                 }
                 userInfo.setCoin(userInfo.getCoin()+signIn.getRewardContinue());
             }
-            if(!userInfoService.updateById(userInfo)){
+            if(!IUserInfoService.updateById(userInfo)){
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return fail();
             }
@@ -364,9 +367,9 @@ public class SignInServiceImpl extends BaseServiceImpl<SignInMapper, SignIn> imp
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> makeup(String date, Integer userId) {
-        User user = userService.findById(userId);
+        User user = IUserService.findById(userId);
         ServerConfig serverConfig = getServerConfig();
-        if (!serverConfig.getSignIn()) {
+        if (serverConfig.getEnableSignIn()) {
             return fail("签到功能未开启");
         }
         //判断日期是否可补签
@@ -379,7 +382,7 @@ public class SignInServiceImpl extends BaseServiceImpl<SignInMapper, SignIn> imp
             return fail("不可重复签到");
         }
         try{
-            UserInfo userInfo = userInfoService.findBasicByUserId(user.getId());
+            UserInfo userInfo = IUserInfoService.findBasicByUserId(user.getId());
             if (userInfo.getSignInDay() >= serverConfig.getSignInMaxDay() && serverConfig.getSignInMaxDay() > 0) {
                 return fail("已达到累计签到天数，请申请提现后再签到！");
             }
@@ -417,11 +420,12 @@ public class SignInServiceImpl extends BaseServiceImpl<SignInMapper, SignIn> imp
                 bill.setAmount(signIn.getMakeupCost());
                 bill.setIsIncrease(false);
                 bill.setReason("补签扣费");
-                bill.setBalance(userInfo.getCoin()-bill.getAmount());
-                bill.setTsCreate(getTs());
-                bill.setType(CoinBill.Type.makeup.name());
+                bill.setBalanceBefore(userInfo.getCoin());
+                bill.setBalanceAfter(userInfo.getCoin()-bill.getAmount());
+                bill.setTsCreate(getDate());
+                bill.setType(CoinBill.Type.makeup.getCode());
                 bill.setUserId(userId);
-                if(!coinBillService.save(bill)){
+                if(!ICoinBillService.save(bill)){
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return fail();
                 }
@@ -432,17 +436,18 @@ public class SignInServiceImpl extends BaseServiceImpl<SignInMapper, SignIn> imp
                 bill.setAmount(signIn.getReward());
                 bill.setIsIncrease(true);
                 bill.setReason("每日签到奖励");
-                bill.setBalance(userInfo.getCoin()+bill.getAmount());
-                bill.setTsCreate(getTs());
-                bill.setType(CoinBill.Type.signIn.name());
+                bill.setBalanceBefore(userInfo.getCoin());
+                bill.setBalanceAfter(userInfo.getCoin()+bill.getAmount());
+                bill.setTsCreate(getDate());
+                bill.setType(CoinBill.Type.signIn.getCode());
                 bill.setUserId(userId);
-                if(!coinBillService.save(bill)){
+                if(!ICoinBillService.save(bill)){
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return fail();
                 }
                 userInfo.setCoin(userInfo.getCoin()+signIn.getReward());
             }
-            if(!userInfoService.updateById(userInfo)){
+            if(!IUserInfoService.updateById(userInfo)){
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return fail();
             }

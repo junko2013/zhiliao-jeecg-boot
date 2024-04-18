@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.modules.im.base.constant.ConstantXmpp;
 import org.jeecg.modules.im.base.constant.MsgType;
 import org.jeecg.modules.im.base.exception.BusinessException;
@@ -39,31 +40,29 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements MucService {
+public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements IMucService {
     @Autowired
     private MucMapper mucMapper;
     @Resource
-    private MucConfigService mucConfigService;
+    private IMucConfigService mucConfigService;
     @Resource
-    private XMPPService xmppService;
+    private IXMPPService xmppService;
     @Resource
-    private UserService userService;
+    private IUserService userService;
     @Resource
-    private UserInfoService userInfoService;
+    private IUserInfoService userInfoService;
     @Resource
-    private UserSettingService userSettingService;
+    private IUserSettingService userSettingService;
     @Resource
-    private ServerConfigService serverConfigService;
+    private IServerConfigService serverConfigService;
     @Resource
-    private MucMemberService mucMemberService;
+    private IMucMemberService mucMemberService;
     @Resource
-    private MucInviteService mucInviteService;
+    private IMucInviteService mucInviteService;
     @Resource
-    private ParamService paramService;
+    private IMucService mucService;
     @Resource
-    private MucService mucService;
-    @Resource
-    private MucPermissionService mucPermissionService;
+    private IMucPermissionService mucPermissionService;
 
     @Override
     public IPage<Muc> pagination(MyPage<Muc> page, QMuc q) {
@@ -79,11 +78,11 @@ public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements M
             if(muc ==null){
                 return fail("该群组不存在");
             }
-            if(muc.getTsDelete()>0){
+            if(muc.getTsDelete()!=null){
                 return fail("该群组已被解散");
             }
             //将群变为已删除状态
-            muc.setTsDelete(getTs());
+            muc.setTsDelete(getDate());
             muc.setMemberCount(0);
             //将群成员踢出
             mucMemberService.kickAll(muc, MucMember.Status.dismiss);
@@ -171,7 +170,7 @@ public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements M
         try {
             muc.setUserId(ConstantXmpp.SystemNo.system.getAccount());
             muc.setQrCode(UUIDTool.getUUID());
-            muc.setTsCreate(getTs());
+            muc.setTsCreate(getDate());
             String account = AccountUtil.getMucAccount();
             while (findByAccount(account) != null) {
                 account = AccountUtil.getMucAccount();
@@ -192,7 +191,7 @@ public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements M
             master.setMucId(muc.getId());
             master.setUserId(ConstantXmpp.SystemNo.system.getAccount());
             master.setNickname(ConstantXmpp.SystemNo.system.getName());
-            master.setTsJoin(getTs());
+            master.setTsJoin(getDate());
             master.setRole(MucMember.Role.Master.getCode());
             master.setJoinType(MucMember.JoinType.create.getCode());
             members.add(master);
@@ -231,7 +230,7 @@ public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements M
         }
         User user = userService.findById(muc.getUserId());
         if(user.getType()==User.Type.common.getCode()){
-            if(!config.getAllowCommonUserCreateMuc()){
+            if(config.getAllowCommonUserCreateMuc()){
                 return fail("已禁止普通用户创建群聊");
             }
             if(config.getMaxMucCreate()>0&&config.getMaxMucCreate()<= mucService.getCountOfRole(muc.getUserId(), MucMember.Role.Master)){
@@ -262,7 +261,7 @@ public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements M
             master.setMucId(muc.getId());
             master.setUserId(muc.getUserId());
             master.setNickname(user.getNickname());
-            master.setTsJoin(getTs());
+            master.setTsJoin(getDate());
             master.setRole(MucMember.Role.Master.getCode());
             master.setJoinType(MucMember.JoinType.create.getCode());
             if(!mucMemberService.save(master)){
@@ -284,7 +283,7 @@ public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements M
                     member = new MucMember();
                     member.setMucId(muc.getId());
                     member.setUserId(tempUser.getId());
-                    member.setTsJoin(getTs());
+                    member.setTsJoin(getDate());
                     member.setNickname(tempUser.getNickname());
                     member.setRole(MucMember.Role.Member.getCode());
                     member.setJoinType(MucMember.JoinType.invite.getCode());
@@ -293,13 +292,13 @@ public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements M
                     //邀请记录
                     mucInvite = new MucInvite();
                     mucInvite.setMucId(muc.getId());
-                    mucInvite.setTsCreate(getTs());
+                    mucInvite.setTsCreate(getDate());
                     mucInvite.setStatus(MucInvite.Status.Accept.getCode());
                     mucInvite.setHandler(master.getId());
                     mucInvite.setInviter(master.getId());
                     mucInvite.setInvitee(tempUser.getId());
                     mucInvite.setIsNeedVerify(false);
-                    mucInvite.setTsDeal(getTs());
+                    mucInvite.setTsDeal(getDate());
                     mucInvite.setServerId(muc.getServerId());
                     invites.add(mucInvite);
                 }
@@ -364,7 +363,7 @@ public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements M
     public Result<Object> updateQrcode(Integer userId,Muc temp) {
         try {
             Muc muc = getById(temp.getId());
-            if (muc == null || muc.getTsDelete() > 0) {
+            if (muc == null || muc.getTsDelete() !=null) {
                 return fail("群组不存在");
             }
             if (!isEmpty(temp.getQrCode())) {
@@ -388,7 +387,7 @@ public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements M
     public Result<Object> updateName(Integer userId,Muc temp) {
         try {
             Muc muc = getById(temp.getId());
-            if (muc == null || muc.getTsDelete() > 0) {
+            if (muc == null || muc.getTsDelete() !=null) {
                 return fail("群组不存在");
             }
             if (!isEmpty(temp.getName())&&!equals(muc.getName(),temp.getName())) {
@@ -415,7 +414,7 @@ public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements M
     public Result<Object> updateInfo(Integer userId,Muc temp) {
         try {
             Muc muc = getById(temp.getId());
-            if (muc == null || muc.getTsDelete() > 0) {
+            if (muc == null || muc.getTsDelete() !=null) {
                 return fail("群组不存在");
             }
             Kv data = Kv.create();
@@ -454,7 +453,7 @@ public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements M
     public Result<Object> updateWelcomes(Integer userId,QMuc temp) {
         try {
             Muc muc = getById(temp.getId());
-            if (muc == null || muc.getTsDelete() > 0) {
+            if (muc == null || muc.getTsDelete()!=null) {
                 return fail("群组不存在");
             }
             MucConfig config = mucConfigService.findByMuc(muc.getId());
@@ -479,7 +478,7 @@ public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements M
     public Result<Object> updateAvatar(Integer userId,Muc temp) {
         try {
             Muc muc = getById(temp.getId());
-            if (muc == null || muc.getTsDelete() > 0) {
+            if (muc == null || muc.getTsDelete() !=null) {
                 return fail("群组不存在");
             }
             if (!isEmpty(temp.getAvatar())) {
@@ -507,7 +506,7 @@ public class MucServiceImpl extends BaseServiceImpl<MucMapper, Muc> implements M
     public Result<Object> setManagers(Integer userId,Integer mucId, String memberIds,Integer flag) {
         try {
             Muc muc = getById(mucId);
-            if (muc == null || muc.getTsDelete() > 0) {
+            if (muc == null || muc.getTsDelete() !=null) {
                 return fail("群组不存在");
             }
             //群主或管理员

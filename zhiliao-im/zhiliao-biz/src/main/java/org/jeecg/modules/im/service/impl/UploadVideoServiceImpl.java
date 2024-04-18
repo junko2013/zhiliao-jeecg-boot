@@ -12,9 +12,9 @@ import org.jeecg.modules.im.base.util.oss.AliyunOss;
 import org.jeecg.modules.im.entity.SysConfig;
 import org.jeecg.modules.im.entity.Upload;
 import org.jeecg.modules.im.mapper.UploadMapper;
-import org.jeecg.modules.im.service.SysConfigService;
-import org.jeecg.modules.im.service.UploadService;
-import org.jeecg.modules.im.service.UploadVideoService;
+import org.jeecg.modules.im.service.ISysConfigService;
+import org.jeecg.modules.im.service.IUploadService;
+import org.jeecg.modules.im.service.IUploadVideoService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,11 +32,11 @@ import javax.annotation.Resource;
  */
 @Service
 @Slf4j
-public class UploadVideoServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements UploadVideoService {
+public class UploadVideoServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements IUploadVideoService {
     @Resource
-    private SysConfigService sysConfigService;
+    private ISysConfigService ISysConfigService;
     @Resource
-    private UploadService uploadService;
+    private IUploadService IUploadService;
     @Autowired
     private UploadMapper uploadMapper;
     @Autowired
@@ -64,7 +64,7 @@ public class UploadVideoServiceImpl extends BaseServiceImpl<UploadMapper, Upload
         String suffix = ToolFile.getExtension(originalFileName);
         String fileName = userId+"/" +UUIDTool.getUUID() + suffix;
         Kv data = Kv.create();
-        SysConfig sysConfig = sysConfigService.get();
+        SysConfig sysConfig = ISysConfigService.get();
         try {
             String url;
 
@@ -77,7 +77,7 @@ public class UploadVideoServiceImpl extends BaseServiceImpl<UploadMapper, Upload
                 }
                 url = aliyunOss.uploadLocalFile(basePath + Upload.FileType.视频.getType() + "/"+ fileName, multipartFile.getInputStream());
             }else {
-                url =  uploadService.uploadToMinio(multipartFile.getInputStream(),Upload.FileType.视频.getType() + "/" + fileName,false);
+                url =  IUploadService.uploadToMinio(multipartFile.getInputStream(),Upload.FileType.视频.getType() + "/" + fileName,false);
             }
             data.put("url", url);
             return success(data);

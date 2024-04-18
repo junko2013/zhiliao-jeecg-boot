@@ -26,7 +26,7 @@ import org.jeecg.modules.im.base.tools.GsonUtil;
 import org.jeecg.modules.im.entity.Device;
 import org.jeecg.modules.im.entity.Msg;
 import org.jeecg.modules.im.entity.MucMsg;
-import org.jeecg.modules.im.service.DeviceService;
+import org.jeecg.modules.im.service.IDeviceService;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
@@ -46,7 +46,7 @@ public class MQOfflineMessageReceiver extends BaseRabbiMqHandler<String> {
     @Autowired
     private BaseConfig baseConfig;
     @Resource
-    private DeviceService deviceService;
+    private IDeviceService IDeviceService;
 
     private static JPushClient jpushClient;
 
@@ -100,9 +100,9 @@ public class MQOfflineMessageReceiver extends BaseRabbiMqHandler<String> {
     boolean oneToOneToPlatformAll(Msg msg,Device.Platform platform){
         PushPayload payload;
         if(platform.name().equals(Device.Platform.android.name())){
-            payload = buildOneToOneToAndroid(msg, deviceService.getJPushIds(msg.getToUserId(),platform.name()));
+            payload = buildOneToOneToAndroid(msg, IDeviceService.getJPushIds(msg.getToUserId(),platform.name()));
         } else if(platform.name().equals(Device.Platform.ios.name())){
-            payload = buildOneToOneToIos(msg, deviceService.getJPushIds(msg.getToUserId(),platform.name()));
+            payload = buildOneToOneToIos(msg, IDeviceService.getJPushIds(msg.getToUserId(),platform.name()));
         }else{
             log.error("未支持推送的平台：{}",platform.name());
             return false;

@@ -6,8 +6,9 @@ import com.xxl.job.core.log.XxlJobLogger;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.constant.ConstantCache;
+import org.jeecg.modules.im.base.tools.ToolDateTime;
 import org.jeecg.modules.im.entity.MucMsgRead;
-import org.jeecg.modules.im.service.MucMsgReadService;
+import org.jeecg.modules.im.service.IMucMsgReadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,7 @@ public class SyncMucMsgReadJobHandler {
     @Autowired
     private RedisUtil redisUtil;
     @Resource
-    private MucMsgReadService mucMsgReadService;
+    private IMucMsgReadService mucMsgReadService;
 
     @XxlJob(value = "syncMucMsgRead")
     public ReturnT<String> syncMucMsgRead(String params) {
@@ -42,15 +43,15 @@ public class SyncMucMsgReadJobHandler {
                 for (String key : keys) {
                     Map map = redisUtil.hmget(key);
                     for (Object k : map.keySet()) {
-                        String stanzaId = key.replace(prefix, "");
+                        Long msgId = Long.valueOf(key.replace(prefix, ""));
                         int userId = Integer.parseInt((String) k);
                         Long tsRead = (Long) map.get(k);
-                        MucMsgRead read = mucMsgReadService.getOne(stanzaId, userId);
+                        MucMsgRead read = mucMsgReadService.getOne(msgId, userId);
                         if (read == null) {
                             read = new MucMsgRead();
-                            read.setStanzaId(stanzaId);
+                            read.setMsgId(msgId);
                             read.setUserId(userId);
-                            read.setTsRead(tsRead);
+                            read.setTsRead(ToolDateTime.getDate(tsRead));
                             records.add(read);
                         }else {
                             redisUtil.del(key);

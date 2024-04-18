@@ -1,12 +1,11 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.SayHelloReply;
 import org.jeecg.modules.im.entity.query_helper.QSayHelloReply;
 import org.jeecg.modules.im.mapper.SayHelloReplyMapper;
-import org.jeecg.modules.im.service.SayHelloReplyService;
+import org.jeecg.modules.im.service.ISayHelloReplyService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,7 @@ import java.util.List;
  * @since 2021-03-03
  */
 @Service
-public class SayHelloReplyServiceImpl extends BaseServiceImpl<SayHelloReplyMapper, SayHelloReply> implements SayHelloReplyService {
+public class SayHelloReplyServiceImpl extends BaseServiceImpl<SayHelloReplyMapper, SayHelloReply> implements ISayHelloReplyService {
 
     @Autowired
     private SayHelloReplyMapper sayHelloReplyMapper;

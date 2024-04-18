@@ -1,9 +1,8 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import org.jeecg.modules.im.entity.ChannelPermission;
 import org.jeecg.modules.im.mapper.ChannelPermissionMapper;
-import org.jeecg.modules.im.service.ChannelPermissionService;
+import org.jeecg.modules.im.service.IChannelPermissionService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Service;
  * @since 2022-04-28
  */
 @Service
-public class ChannelPermissionServiceImpl extends BaseServiceImpl<ChannelPermissionMapper, ChannelPermission> implements ChannelPermissionService {
+public class ChannelPermissionServiceImpl extends BaseServiceImpl<ChannelPermissionMapper, ChannelPermission> implements IChannelPermissionService {
 
     @Autowired
     private ChannelPermissionMapper channelPermissionMapper;

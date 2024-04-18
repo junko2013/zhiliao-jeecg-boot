@@ -2,9 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.anotation.NoNeedUserToken;
-import org.jeecg.modules.im.service.UploadService;
-import org.jeecg.modules.im.service.UploadStickerService;
+import org.jeecg.modules.im.service.IUploadStickerService;
 import org.jeecg.modules.im.service.base.BaseUploadCtrl;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,7 +19,7 @@ import javax.annotation.Resource;
 public class StickerAnimatedUploadController extends BaseUploadCtrl {
 
     @Resource
-    private UploadStickerService uploadStickerService;
+    private IUploadStickerService IUploadStickerService;
 
 
     @PostMapping({"","/"})
@@ -36,7 +34,7 @@ public class StickerAnimatedUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的文件");
         }
         try {
-            return uploadStickerService.saveStickerAnimatedPack(getCurrentUserId(),getAdmin(),multipartFile);
+            return IUploadStickerService.saveStickerAnimatedPack(getCurrentUserId(),getAdmin(),multipartFile);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("贴纸包上传失败", e);
@@ -50,7 +48,7 @@ public class StickerAnimatedUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的文件");
         }
         try {
-            return uploadStickerService.saveStickerAnimated(getCurrentUserId(),getAdmin(),multipartFile, stickerId);
+            return IUploadStickerService.saveStickerAnimated(getCurrentUserId(),getAdmin(),multipartFile, stickerId);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("贴纸上传失败", e);
@@ -66,7 +64,7 @@ public class StickerAnimatedUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的文件");
         }
         try {
-            return uploadStickerService.saveStickerAnimatedBatch(getCurrentUserId(),getAdmin(),multipartFile, stickerId);
+            return IUploadStickerService.saveStickerAnimatedBatch(getCurrentUserId(),getAdmin(),multipartFile, stickerId);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("批量导入失败", e);

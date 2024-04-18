@@ -9,7 +9,7 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.SensitiveWord;
 import org.jeecg.modules.im.entity.query_helper.QSensitiveWord;
 import org.jeecg.modules.im.mapper.SensitiveWordMapper;
-import org.jeecg.modules.im.service.SensitiveWordService;
+import org.jeecg.modules.im.service.ISensitiveWordService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -28,7 +28,7 @@ import java.util.List;
  * @since 2021-02-20
  */
 @Service
-public class SensitiveWordServiceImpl extends BaseServiceImpl<SensitiveWordMapper, SensitiveWord> implements SensitiveWordService {
+public class SensitiveWordServiceImpl extends BaseServiceImpl<SensitiveWordMapper, SensitiveWord> implements ISensitiveWordService {
 
     @Autowired
     private SensitiveWordMapper sensitiveWordMapper;

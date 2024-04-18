@@ -1,27 +1,27 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.constant.CacheConstant;
-import org.jeecg.common.constant.CommonConstant;
-import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.constant.ConstantCache;
+import org.jeecg.common.util.RedisUtil;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Server;
+import org.jeecg.modules.im.entity.ServerConfig;
 import org.jeecg.modules.im.entity.query_helper.QServer;
+import org.jeecg.modules.im.mapper.ServerConfigMapper;
 import org.jeecg.modules.im.mapper.ServerMapper;
-import org.jeecg.modules.im.service.ServerService;
+import org.jeecg.modules.im.service.IServerService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -33,9 +33,11 @@ import java.util.List;
  * @since 2024-01-07
  */
 @Service
-public class ServerServiceImpl extends BaseServiceImpl<ServerMapper, Server> implements ServerService {
+public class ServerServiceImpl extends BaseServiceImpl<ServerMapper, Server> implements IServerService {
     @Autowired
     private ServerMapper serverMapper;
+    @Autowired
+    private ServerConfigMapper serverConfigMapper;
     @Lazy
     @Resource
     private RedisUtil redisUtil;
@@ -75,7 +77,7 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerMapper, Server> imp
     @Override
     public Result<Object> createOrUpdate(Server server) {
         if(server.getId()==null){
-            server.setTsCreate(getTs());
+            server.setTsCreate(getDate());
             if(!save(server)){
                 return fail("添加失败");
             }
@@ -106,37 +108,50 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerMapper, Server> imp
 
 
     @Override
-    public List<Server> queryLogicDeleted() {
-        return this.queryLogicDeleted(null);
-    }
-
-    @Override
-    public List<Server> queryLogicDeleted(LambdaQueryWrapper<Server> wrapper) {
-        if (wrapper == null) {
-            wrapper = new LambdaQueryWrapper<>();
+    @Transactional(rollbackFor = Exception.class)
+    public void saveMain(Server server, List<ServerConfig> serverConfigList) {
+        serverMapper.insert(server);
+        if(serverConfigList!=null && !serverConfigList.isEmpty()) {
+            for(ServerConfig entity:serverConfigList) {
+                //外键设置
+                entity.setServerId(server.getId());
+                serverConfigMapper.insert(entity);
+            }
         }
-        wrapper.eq(Server::getDelFlag, CommonConstant.DEL_FLAG_1);
-        return serverMapper.selectLogicDeleted(wrapper);
-    }
-
-    @Override
-    @CacheEvict(value={CacheConstant.SYS_USERS_CACHE}, allEntries=true)
-    public boolean revertLogicDeleted(List<String> ids) {
-        boolean result = serverMapper.revertLogicDeleted(ids) > 0;
-        if(result){
-            redisUtil.removeAll(String.format(ConstantCache.SERVER, ""));
-        }
-        return result;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean removeLogicDeleted(List<String> ids) {
-        boolean result = serverMapper.deleteLogicDeleted(ids)!=0;
-        if(result){
-            redisUtil.removeAll(String.format(ConstantCache.SERVER, ""));
+    public void updateMain(Server server, List<ServerConfig> serverConfigList) {
+        serverMapper.updateById(server);
+
+        //1.先删除子表数据
+        serverConfigMapper.deleteByMainId(server.getId()+"");
+
+        //2.子表数据重新插入
+        if(serverConfigList!=null && !serverConfigList.isEmpty()) {
+            for(ServerConfig entity:serverConfigList) {
+                //外键设置
+                entity.setServerId(server.getId());
+                serverConfigMapper.insert(entity);
+            }
         }
-        return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void delMain(String id) {
+        serverConfigMapper.deleteByMainId(id);
+        serverMapper.deleteById(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void delBatchMain(Collection<? extends Serializable> idList) {
+        for(Serializable id:idList) {
+            serverConfigMapper.deleteByMainId(id.toString());
+            serverMapper.deleteById(id);
+        }
     }
 
 }

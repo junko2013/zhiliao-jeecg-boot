@@ -3,10 +3,9 @@ package org.jeecg.modules.im.controller;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Feedback;
-import org.jeecg.modules.im.entity.query_helper.QChatBg;
 import org.jeecg.modules.im.entity.query_helper.QFeedback;
-import org.jeecg.modules.im.service.FeedbackService;
-import org.jeecg.modules.im.service.FeedbackTypeService;
+import org.jeecg.modules.im.service.IFeedbackService;
+import org.jeecg.modules.im.service.IFeedbackTypeService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,27 +20,27 @@ import javax.annotation.Resource;
 @RequestMapping("/a/feedback")
 public class FeedbackCtrl extends BaseApiCtrl {
     @Resource
-    private FeedbackTypeService feedbackTypeService;
+    private IFeedbackTypeService IFeedbackTypeService;
     @Resource
-    private FeedbackService feedbackService;
+    private IFeedbackService IFeedbackService;
 
     @RequestMapping("/allType")
     public Result<Object> allType(){
-        return feedbackTypeService.findAll();
+        return IFeedbackTypeService.findAll();
     }
 
 
     @RequestMapping("/pagination")
     public Result<Object> pagination(QFeedback q){
         q.setUserId(getCurrentUserId());
-        return success(feedbackService.paginationApi(new MyPage<>(getPage(),getPageSize()),q));
+        return success(IFeedbackService.paginationApi(new MyPage<>(getPage(),getPageSize()),q));
     }
 
     @RequestMapping("/submit")
     public Result<Object> submit(Feedback feedback){
         feedback.setUserId(getCurrentUserId());
-        feedback.setTsCreate(getTs());
+        feedback.setTsCreate(getDate());
         feedback.setServerId(getServerId());
-        return success(feedbackService.save(feedback));
+        return success(IFeedbackService.save(feedback));
     }
 }

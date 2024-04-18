@@ -1,6 +1,5 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.commons.lang3.StringUtils;
@@ -11,10 +10,9 @@ import org.jeecg.common.constant.ConstantCache;
 import org.jeecg.common.util.RedisUtil;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Sticker;
-import org.jeecg.modules.im.entity.Sticker;
 import org.jeecg.modules.im.entity.query_helper.QSticker;
 import org.jeecg.modules.im.mapper.StickerMapper;
-import org.jeecg.modules.im.service.StickerService;
+import org.jeecg.modules.im.service.IStickerService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -24,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,7 +33,7 @@ import java.util.List;
  * @since 2021-01-27
  */
 @Service
-public class StickerServiceImpl extends BaseServiceImpl<StickerMapper, Sticker> implements StickerService {
+public class StickerServiceImpl extends BaseServiceImpl<StickerMapper, Sticker> implements IStickerService {
 
     @Autowired
     private StickerMapper stickerMapper;

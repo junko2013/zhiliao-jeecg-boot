@@ -2,7 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.entity.ChannelPermission;
-import org.jeecg.modules.im.service.ChannelPermissionService;
+import org.jeecg.modules.im.service.IChannelPermissionService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,9 +17,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/im/channelPermission")
-public class ChannelPermissionController extends BaseBackController {
-    @Resource
-    private ChannelPermissionService service;
+public class ChannelPermissionController extends BaseBackController<ChannelPermission,IChannelPermissionService> {
 
     /**
      * 详情

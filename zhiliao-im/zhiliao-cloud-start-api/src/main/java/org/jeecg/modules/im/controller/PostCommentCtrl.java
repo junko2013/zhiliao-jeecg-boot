@@ -1,10 +1,8 @@
 package org.jeecg.modules.im.controller;
 
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.entity.query_helper.QMucNotice;
 import org.jeecg.modules.im.entity.query_helper.QPostComment;
-import org.jeecg.modules.im.service.PostCommentService;
-import org.jeecg.modules.im.service.PostService;
+import org.jeecg.modules.im.service.IPostCommentService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +19,7 @@ import javax.annotation.Resource;
 public class PostCommentCtrl extends BaseApiCtrl {
 
     @Resource
-    private PostCommentService postCommentService;
+    private IPostCommentService postCommentService;
 
     @RequestMapping("/detail")
     public Result<Object> detail(@RequestParam Integer commentId) {

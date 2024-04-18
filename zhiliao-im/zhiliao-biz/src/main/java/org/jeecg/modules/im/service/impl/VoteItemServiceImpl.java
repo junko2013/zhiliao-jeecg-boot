@@ -1,10 +1,8 @@
 package org.jeecg.modules.im.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import org.jeecg.modules.im.entity.VoteItem;
 import org.jeecg.modules.im.mapper.VoteItemMapper;
-import org.jeecg.modules.im.service.VoteItemService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.jeecg.modules.im.service.IVoteItemService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +15,6 @@ import org.springframework.stereotype.Service;
  * @since 2022-05-04
  */
 @Service
-public class VoteItemServiceImpl extends BaseServiceImpl<VoteItemMapper, VoteItem> implements VoteItemService {
+public class VoteItemServiceImpl extends BaseServiceImpl<VoteItemMapper, VoteItem> implements IVoteItemService {
 
 }

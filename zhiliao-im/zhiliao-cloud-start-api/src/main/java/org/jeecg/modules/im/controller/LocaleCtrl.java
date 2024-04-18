@@ -18,17 +18,17 @@ import javax.annotation.Resource;
 public class LocaleCtrl extends BaseApiCtrl {
 
     @Resource
-    private LocaleService localeService;
+    private ILocaleService ILocaleService;
 
     @NoNeedUserToken
     @RequestMapping("/all")
     public Result<Object> all() {
-        return success(localeService.findAll());
+        return success(ILocaleService.findAll());
     }
 
     @NoNeedUserToken
     @RequestMapping("/getContent")
     public Result<Object> getContent(@RequestParam int id) {
-        return success(localeService.getContent(id));
+        return success(ILocaleService.getContent(id));
     }
 }

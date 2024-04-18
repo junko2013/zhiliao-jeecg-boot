@@ -38,49 +38,49 @@ public class ZlSocket {
     @Getter
     private Session session;
     @Resource
-    private UserService userService;
+    private IUserService userService;
     @Resource
-    private FriendService friendService;
+    private IFriendService friendService;
     @Resource
-    private MucService mucService;
+    private IMucService mucService;
     @Resource
-    private MucInviteService mucInviteService;
+    private IMucInviteService mucInviteService;
     @Resource
-    private MucMsgService mucMsgService;
+    private IMucMsgService mucMsgService;
     @Resource
-    private MucMsgReadService readService;
+    private IMucMsgReadService readService;
     @Resource
-    private MsgService msgService;
+    private IMsgService msgService;
     @Resource
-    private MucMemberService mucMemberService;
+    private IMucMemberService mucMemberService;
     @Resource
-    private DeviceService deviceService;
+    private IDeviceService deviceService;
     @Resource
-    private FeedbackTypeService feedbackTypeService;
+    private IFeedbackTypeService feedbackTypeService;
     @Resource
-    private ChatBgService chatBgService;
+    private IChatBgService chatBgService;
     @Resource
-    private LinkService linkService;
+    private ILinkService linkService;
     @Resource
-    private LocaleService localeService;
+    private ILocaleService localeService;
     @Resource
-    private SignInService signInService;
+    private ISignInService signInService;
     @Resource
-    private MucInviteLinkService mucInviteLinkService;
+    private IMucInviteLinkService mucInviteLinkService;
     @Resource
-    private HelpsService helpsService;
+    private IHelpService helpService;
     @Resource
-    private CustomEmojiService customEmojiService;
+    private ICustomEmojiService customEmojiService;
     @Resource
-    private CallService callService;
+    private ICallService callService;
     @Resource
-    private GifService gifService;
+    private IGifService gifService;
     @Resource
-    private PostService postService;
+    private IPostService postService;
     @Resource
-    private RedPackService redPackService;
+    private IRedPackService redPackService;
     @Resource
-    private StickerService stickerService;
+    private IStickerService stickerService;
     private final EmojiConverter emojiConverter = EmojiConverter.getInstance();
 
     @Autowired
@@ -482,7 +482,7 @@ public class ZlSocket {
         if ("pagination".equals(type)) {
             QMucMsg q = new QMucMsg();
             q.setUserId(userId);
-            q.setTsSend(json.getLong("tsSend"));
+            q.setTsSend(ToolDateTime.getDate(json.getLong("tsSend")));
             q.setPageSize(json.getInteger("pageSize"));
             q.setAfter(json.getBoolean("after"));
             if(q.getAfter()){
@@ -499,7 +499,7 @@ public class ZlSocket {
                 datas = zlSocket.mucMsgService.pageApi(q);
             }
             for (MucMsg data : datas) {
-                data.setReads(zlSocket.readService.listByMsgId(data.getStanzaId()));
+                data.setReads(zlSocket.readService.listByMsgId(data.getId()));
             }
             kv.set("data",datas);
             result = Result.ok(kv);
@@ -517,7 +517,7 @@ public class ZlSocket {
             QMsg q = new QMsg();
             q.setUserId(userId);
             q.setToUserId(json.getInteger("toUserId"));
-            q.setTsSend(json.getLong("tsSend"));
+            q.setTsSend(ToolDateTime.getDate(json.getLong("tsSend")));
             q.setPageSize(json.getInteger("pageSize"));
             q.setAfter(json.getBoolean("after"));
             if(q.getAfter()){
@@ -688,7 +688,7 @@ public class ZlSocket {
         Result result;
         Kv kv = Kv.by("m","helps").set("t",type);
         if ("all".equals(type)) {
-            kv.set("data",zlSocket.helpsService.findAll());
+            kv.set("data",zlSocket.helpService.findAll());
             result = Result.ok(kv);
         }
         else {

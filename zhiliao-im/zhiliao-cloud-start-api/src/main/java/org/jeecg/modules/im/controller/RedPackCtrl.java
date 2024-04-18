@@ -2,7 +2,7 @@ package org.jeecg.modules.im.controller;
 
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.entity.RedPack;
-import org.jeecg.modules.im.service.RedPackService;
+import org.jeecg.modules.im.service.IRedPackService;
 import org.jeecg.modules.im.service.base.BaseApiCtrl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -21,7 +21,7 @@ import javax.annotation.Resource;
 @RequestMapping("/a/redPack")
 public class RedPackCtrl extends BaseApiCtrl {
     @Resource
-    private RedPackService redPackService;
+    private IRedPackService redPackService;
     //单聊发送
     @PostMapping("/send")
     public Result<Object> send(@Validated RedPack redPack){

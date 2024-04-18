@@ -5,7 +5,7 @@ import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.RedPackOpen;
 import org.jeecg.modules.im.entity.query_helper.QRedPackOpen;
 import org.jeecg.modules.im.mapper.RedPackOpenMapper;
-import org.jeecg.modules.im.service.RedPackOpenService;
+import org.jeecg.modules.im.service.IRedPackOpenService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
  * @since 2021-01-20
  */
 @Service
-public class RedPackOpenServiceImpl extends BaseServiceImpl<RedPackOpenMapper, RedPackOpen> implements RedPackOpenService {
+public class RedPackOpenServiceImpl extends BaseServiceImpl<RedPackOpenMapper, RedPackOpen> implements IRedPackOpenService {
     @Autowired
     private RedPackOpenMapper redPackOpenMapper;
     @Override

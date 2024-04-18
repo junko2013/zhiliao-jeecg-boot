@@ -46,15 +46,15 @@ import java.util.Set;
  */
 @Service
 @Slf4j
-public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements UploadStickerService {
+public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Upload> implements IUploadStickerService {
     @Resource
-    private SysConfigService sysConfigService;
+    private ISysConfigService ISysConfigService;
     @Resource
-    private StickerItemService stickerItemService;
+    private IStickerItemService IStickerItemService;
     @Resource
-    private ServerConfigService serverConfigService;
+    private IServerConfigService serverConfigService;
     @Resource
-    private UploadService uploadService;
+    private IUploadService IUploadService;
     @Autowired
     private UploadMapper uploadMapper;
     @Autowired
@@ -87,7 +87,7 @@ public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Uplo
         Kv data = Kv.create();
         FileInputStream f1 = null,f2=null;
         File originFile = null,thumbnailFile = null;
-        SysConfig sysConfig = sysConfigService.get();
+        SysConfig sysConfig = ISysConfigService.get();
         String originWebp = null,destWebp = null;
         int h,w;
         try {
@@ -144,11 +144,11 @@ public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Uplo
                 originUrl = aliyunOss.uploadLocalFile(basePath + Upload.FileType.贴纸.getType() +"/o/"+fileName2, f1);
                 thumbnailUrl = aliyunOss.uploadLocalFile(basePath + Upload.FileType.贴纸.getType() + "/t/" + fileName2, f2);
             }else {
-                originUrl =  uploadService.uploadToMinio(f1,Upload.FileType.贴纸.getType() +"/o/"+fileName2,false);
-                thumbnailUrl =  uploadService.uploadToMinio(f2,Upload.FileType.贴纸.getType() +"/t/"+fileName2,false);
+                originUrl =  IUploadService.uploadToMinio(f1,Upload.FileType.贴纸.getType() +"/o/"+fileName2,false);
+                thumbnailUrl =  IUploadService.uploadToMinio(f2,Upload.FileType.贴纸.getType() +"/t/"+fileName2,false);
             }
             if(!isEmpty(originUrl)){
-                uploadService.addUpload(admin,
+                IUploadService.addUpload(admin,
                         userId,
                         contentType,
                         originUrl,
@@ -164,7 +164,7 @@ public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Uplo
                 );
             }
             if(!isEmpty(thumbnailUrl)){
-                uploadService.addUpload(admin,
+                IUploadService.addUpload(admin,
                         userId,
                         contentType,
                         thumbnailUrl,
@@ -216,7 +216,7 @@ public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Uplo
         String uuid = UUIDTool.getUUID();
         String zipFileName = stickerId +"/"+uuid + suffix;
         try {
-            SysConfig sysConfig = sysConfigService.get();
+            SysConfig sysConfig = ISysConfigService.get();
             //物理路径
             String targetPhysicalPath = baseConfig.getBaseUploadPath() + "/" + Upload.FileType.贴纸.getType();
             //保存原图到本地
@@ -294,8 +294,8 @@ public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Uplo
                         originUrl = aliyunOss.uploadLocalFile(basePath + originFilePath.replace(baseConfig.getBaseUploadPath(), "").substring(1), f1);
                         thumbnailUrl = aliyunOss.uploadLocalFile(basePath + thumbnailFilePath.replace(baseConfig.getBaseUploadPath(), "").substring(1), f2);
                     } else {
-                        originUrl =  uploadService.uploadToMinio(f1,originFilePath.replace(baseConfig.getBaseUploadPath(), "").substring(1),false);
-                        thumbnailUrl =  uploadService.uploadToMinio(f2, thumbnailFilePath.replace(baseConfig.getBaseUploadPath(), "").substring(1),false);
+                        originUrl =  IUploadService.uploadToMinio(f1,originFilePath.replace(baseConfig.getBaseUploadPath(), "").substring(1),false);
+                        thumbnailUrl =  IUploadService.uploadToMinio(f2, thumbnailFilePath.replace(baseConfig.getBaseUploadPath(), "").substring(1),false);
                     }
                     okCount++;
                     stickerItem = new StickerItem();
@@ -325,7 +325,7 @@ public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Uplo
                     FileUtils.deleteQuietly(thumbnailFile);
                 }
             }
-            stickerItemService.saveBatch(stickerItems);
+            IStickerItemService.saveBatch(stickerItems);
             //删除解压的同名文件夹
             FileUtils.deleteQuietly(new File(targetZipFilePath.substring(0,targetZipFilePath.lastIndexOf("."))));
             //删除压缩文件
@@ -355,7 +355,7 @@ public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Uplo
         String fileName = "temp/"+uuid + suffix;
         Kv data = Kv.create();
         FileInputStream f1 = null;
-        SysConfig sysConfig = sysConfigService.get();
+        SysConfig sysConfig = ISysConfigService.get();
         File originFile = null;
         try {
             String lottie;
@@ -382,10 +382,10 @@ public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Uplo
                 }
                 lottie = aliyunOss.uploadLocalFile(basePath + Upload.FileType.动画贴纸包.getType() +"/"+fileName, originFile);
             }else{
-                lottie =  uploadService.uploadToMinio(f1,Upload.FileType.动画贴纸包.getType() +"/"+fileName,false);
+                lottie =  IUploadService.uploadToMinio(f1,Upload.FileType.动画贴纸包.getType() +"/"+fileName,false);
             }
             if(!isEmpty(lottie)){
-                uploadService.addUpload(admin,
+                IUploadService.addUpload(admin,
                         userId,
                         contentType,
                         lottie,
@@ -435,7 +435,7 @@ public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Uplo
         String fileName = stickerId +"/"+uuid + suffix;
         Kv data = Kv.create();
         FileInputStream f1 = null;
-        SysConfig sysConfig = sysConfigService.get();
+        SysConfig sysConfig = ISysConfigService.get();
         File originFile = null;
         try {
             String lottie;
@@ -466,10 +466,10 @@ public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Uplo
                 }
                 lottie = aliyunOss.uploadLocalFile(basePath + Upload.FileType.动画贴纸.getType() +"/"+fileName, originFile);
             }else{
-                lottie =  uploadService.uploadToMinio(f1,Upload.FileType.动画贴纸.getType() +"/"+fileName,false);
+                lottie =  IUploadService.uploadToMinio(f1,Upload.FileType.动画贴纸.getType() +"/"+fileName,false);
             }
             if(!isEmpty(lottie)){
-                uploadService.addUpload(admin,
+                IUploadService.addUpload(admin,
                         userId,
                         contentType,
                         lottie,
@@ -516,7 +516,7 @@ public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Uplo
         String uuid = UUIDTool.getUUID();
         String fileName = stickerId +"/"+uuid + suffix;
         try {
-            SysConfig sysConfig = sysConfigService.get();
+            SysConfig sysConfig = ISysConfigService.get();
             //物理路径
             String targetPhysicalPath = baseConfig.getBaseUploadPath() + File.separator + Upload.FileType.动画贴纸.getType();
             //保存zip文件到本地
@@ -556,7 +556,7 @@ public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Uplo
                         }
                         lottie = aliyunOss.uploadLocalFile(basePath + animatedJson.getAbsolutePath().replace(baseConfig.getBaseUploadPath(), "").substring(1), animatedJson);
                     } else{
-                        lottie =  uploadService.uploadToMinio(f1,animatedJson.getAbsolutePath().replaceAll("\\\\","/").replace(baseConfig.getBaseUploadPath(), "").substring(1),false);
+                        lottie =  IUploadService.uploadToMinio(f1,animatedJson.getAbsolutePath().replaceAll("\\\\","/").replace(baseConfig.getBaseUploadPath(), "").substring(1),false);
                     }
                     okCount++;
                     stickerItem = new StickerItem();
@@ -581,7 +581,7 @@ public class UploadStickerServiceImpl extends BaseServiceImpl<UploadMapper, Uplo
             FileUtils.deleteQuietly(zipFile);
             FileUtils.deleteDirectory(new File(targetPhysicalPath));
             FileUtils.deleteQuietly(new File(zipFile.getAbsolutePath().substring(0,zipFile.getAbsolutePath().lastIndexOf("."))));
-            stickerItemService.saveBatch(stickerItems);
+            IStickerItemService.saveBatch(stickerItems);
             return success(Kv.by("ok",okCount).set("error",errorCount));
         }catch (Exception e){
             log.error("批量导入动画贴纸异常", e);

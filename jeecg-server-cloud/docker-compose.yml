@@ -20,7 +20,7 @@ services:
     hostname: jeecg-boot-system
     restart: on-failure
     environment:
-      - TZ=Asia/Shanghai
+      - TZ=UTC
     networks:
       - jeecg-boot
 
@@ -33,7 +33,7 @@ services:
     hostname: jeecg-boot-demo
     restart: on-failure
     environment:
-      - TZ=Asia/Shanghai
+      - TZ=UTC
     networks:
       - jeecg-boot
 

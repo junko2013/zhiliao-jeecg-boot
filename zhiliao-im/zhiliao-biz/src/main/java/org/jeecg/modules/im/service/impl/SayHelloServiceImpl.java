@@ -31,25 +31,25 @@ import java.util.Objects;
  * @since 2021-01-26
  */
 @Service
-public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHello> implements SayHelloService {
+public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHello> implements ISayHelloService {
     @Autowired
     private SayHelloMapper sayHelloMapper;
     @Resource
-    private UserService userService;
+    private IUserService userService;
     @Resource
-    private UserInfoService userInfoService;
+    private IUserInfoService userInfoService;
     @Resource
-    private UserSettingService userSettingService;
+    private IUserSettingService userSettingService;
     @Resource
-    private ServerConfigService serverConfigService;
+    private IServerConfigService serverConfigService;
     @Resource
-    private SayHelloService sayHelloService;
+    private ISayHelloService sayHelloService;
     @Resource
-    private XMPPService xmppService;
+    private IXMPPService xmppService;
     @Resource
-    private FriendService friendService;
+    private IFriendService friendService;
     @Resource
-    private SayHelloReplyService sayHelloReplyService;
+    private ISayHelloReplyService sayHelloReplyService;
 
     @Override
     public IPage<SayHello> pagination(MyPage<SayHello> page, QSayHello q) {
@@ -66,31 +66,31 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
             //判断来源
             ServerConfig serverConfig = getServerConfig();
             if(resource==Friend.AddType.Account.getCode()){
-                if(!serverConfig.getAccountAdd()){
+                if(serverConfig.getAccountAdd()){
                     return fail("已关闭通过账号添加好友");
                 }
             }else if(resource==Friend.AddType.Mobile.getCode()){
-                if(!serverConfig.getAccountAdd()){
+                if(serverConfig.getAccountAdd()){
                     return fail("已关闭通过手机号添加好友");
                 }
             }else if(resource==Friend.AddType.Nickname.getCode()){
-                if(!serverConfig.getAccountAdd()){
+                if(serverConfig.getAccountAdd()){
                     return fail("已关闭通过昵称添加好友");
                 }
             }else if(resource==Friend.AddType.Username.getCode()){
-                if(!serverConfig.getAccountAdd()){
+                if(serverConfig.getAccountAdd()){
                     return fail("已关闭通过用户名添加好友");
                 }
             }else if(resource==Friend.AddType.Card.getCode()){
-                if(!serverConfig.getAccountAdd()){
+                if(serverConfig.getAccountAdd()){
                     return fail("已关闭通过名片添加好友");
                 }
             }else if(resource==Friend.AddType.Muc.getCode()){
-                if(!serverConfig.getAccountAdd()){
+                if(serverConfig.getAccountAdd()){
                     return fail("已关闭通过群聊添加好友");
                 }
             }else if(resource==Friend.AddType.Scan.getCode()){
-                if(!serverConfig.getAccountAdd()){
+                if(serverConfig.getAccountAdd()){
                     return fail("已关闭通过扫码添加好友");
                 }
             }
@@ -118,31 +118,31 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
             }
             //判断对方是否允许该来源方式添加
             if(resource==Friend.AddType.Account.getCode()){
-                if(!toUserSetting.getAccountAdd()){
+                if(toUserSetting.getAccountAdd()){
                     return fail("对方不允许通过账号添加");
                 }
             }else if(resource==Friend.AddType.Mobile.getCode()){
-                if(!toUserSetting.getMobileAdd()){
+                if(toUserSetting.getMobileAdd()){
                     return fail("对方不允许通过手机号添加");
                 }
             }else if(resource==Friend.AddType.Nickname.getCode()){
-                if(!toUserSetting.getNicknameAdd()){
+                if(toUserSetting.getNicknameAdd()){
                     return fail("对方不允许通过昵称添加");
                 }
             }else if(resource==Friend.AddType.Username.getCode()){
-                if(!toUserSetting.getUsernameAdd()){
+                if(toUserSetting.getUsernameAdd()){
                     return fail("对方不允许通过用户名添加");
                 }
             }else if(resource==Friend.AddType.Card.getCode()){
-                if(!toUserSetting.getCardAdd()){
+                if(toUserSetting.getCardAdd()){
                     return fail("对方不允许通过名片添加");
                 }
             }else if(resource==Friend.AddType.Muc.getCode()){
-                if(!toUserSetting.getMucAdd()){
+                if(toUserSetting.getMucAdd()){
                     return fail("对方不允许通过群聊添加");
                 }
             }else if(resource==Friend.AddType.Scan.getCode()){
-                if(!toUserSetting.getScanAdd()){
+                if(toUserSetting.getScanAdd()){
                     return fail("对方不允许通过扫码添加");
                 }
             }
@@ -162,11 +162,11 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
             Friend friend = friendService.findOne(userId, toUserId);
 
             //判断是否被对方拉黑
-            if(friend.getTsBeenBlack()>0){
+            if(friend.getTsBeenBlack()!=null){
                 return fail("对方已将你拉黑,无法添加");
             }
             //判断是否拉黑对方
-            if(friend.getTsBlack()>0){
+            if(friend.getTsBlack()!=null){
                 return fail("对方被你拉黑,请取消后再添加");
             }
             //判断对方是否发送过加好友请求
@@ -181,13 +181,13 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
                 }
                 friend.setStatus(Friend.Status.Friend.getCode());
                 friend.setAddType(sayHello.getResource());
-                friend.setTsFriend(getTs());
+                friend.setTsFriend(getDate());
                 if(!friendService.updateById(friend)){
                     throw new BusinessException("更新正向好友失败");
                 }
                 friend2.setStatus(Friend.Status.Friend.getCode());
                 friend2.setAddType(sayHello.getResource());
-                friend2.setTsFriend(getTs());
+                friend2.setTsFriend(getDate());
                 if(!friendService.updateById(friend2)){
                     throw new BusinessException("更新反向好友失败");
                 }
@@ -298,7 +298,7 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
             Friend friend = friendService.findOne(userId, toUserId);
             //判断是否被对方拉黑
             Friend friend2 = friendService.findOne(toUserId, userId);
-            if(friend.getTsBeenBlack()>0){
+            if(friend.getTsBeenBlack()!=null){
                 return fail("对方已将你拉黑，无法添加");
             }
             if (friend.getStatus() == Friend.Status.Friend.getCode()) {
@@ -307,9 +307,9 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
             //如果互为陌生人
             if (friend.getStatus()==Friend.Status.Stranger.getCode() && friend2.getStatus()==Friend.Status.Stranger.getCode()) {
                 friend.setStatus(Friend.Status.Follow.getCode());
-                friend.setTsFriend(getTs());//关注时间
+                friend.setTsFriend(getDate());//关注时间
                 friend2.setStatus(Friend.Status.Fans.getCode());
-                friend2.setTsFriend(getTs());//成为粉丝时间
+                friend2.setTsFriend(getDate());//成为粉丝时间
                 if(!friendService.updateById(friend)){
                     throw new BusinessException("更新关注失败");
                 }
@@ -398,14 +398,14 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
             if (isAccept) {
                 friend.setStatus(Friend.Status.Friend.getCode());
                 friend.setAddType(sayHello.getResource());
-                friend.setTsFriend(getTs());
+                friend.setTsFriend(getDate());
                 if(!friendService.updateById(friend)){
                     throw new BusinessException("更新正向好友失败");
                 }
 
                 friend2.setStatus(Friend.Status.Friend.getCode());
                 friend2.setAddType(sayHello.getResource());
-                friend2.setTsFriend(getTs());
+                friend2.setTsFriend(getDate());
                 if(!friendService.updateById(friend2)){
                     throw new BusinessException("更新反向好友失败");
                 }
@@ -423,14 +423,14 @@ public class SayHelloServiceImpl extends BaseServiceImpl<SayHelloMapper, SayHell
             //拒绝 变为陌生人
             friend.setStatus(Friend.Status.Stranger.getCode());
             friend.setAddType(Friend.AddType.Not.getCode());
-            friend.setTsFriend(0L);
+            friend.setTsFriend(null);
             if(!friendService.updateById(friend)){
                 throw new BusinessException("更新正向好友失败");
             }
 
             friend2.setStatus(Friend.Status.Stranger.getCode());
             friend2.setAddType(Friend.AddType.Not.getCode());
-            friend2.setTsFriend(0L);
+            friend2.setTsFriend(null);
             if(!friendService.updateById(friend2)){
                 throw new BusinessException("更新反向好友失败");
             }

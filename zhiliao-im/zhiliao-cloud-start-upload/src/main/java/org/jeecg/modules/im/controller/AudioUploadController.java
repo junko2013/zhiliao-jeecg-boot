@@ -2,10 +2,8 @@ package org.jeecg.modules.im.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.modules.im.anotation.NoNeedUserToken;
-import org.jeecg.modules.im.service.UploadService;
+import org.jeecg.modules.im.service.IUploadService;
 import org.jeecg.modules.im.service.base.BaseUploadCtrl;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,7 +19,7 @@ import javax.annotation.Resource;
 public class AudioUploadController extends BaseUploadCtrl {
 
     @Resource
-    private UploadService uploadService;
+    private IUploadService IUploadService;
 
 
     @GetMapping("/test")
@@ -36,7 +34,7 @@ public class AudioUploadController extends BaseUploadCtrl {
             return fail("请选择要上传的文件");
         }
         try {
-            return uploadService.saveAudio(getCurrentUserId(),getAdmin(),multipartFile);
+            return IUploadService.saveAudio(getCurrentUserId(),getAdmin(),multipartFile);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("文件上传失败", e);

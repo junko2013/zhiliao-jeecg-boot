@@ -45,7 +45,7 @@ public class JeecgEntity implements Serializable {
      */
     @ApiModelProperty(value = "创建时间")
     @Excel(name = "创建时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "UTC", pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private java.util.Date createTime;
 
@@ -61,7 +61,7 @@ public class JeecgEntity implements Serializable {
      */
     @ApiModelProperty(value = "更新时间")
     @Excel(name = "更新时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "UTC", pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private java.util.Date updateTime;
 

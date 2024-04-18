@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.base.constant.ConstantXmpp;
-import org.jeecg.modules.im.base.util.ThreadUtil;
 import org.jeecg.modules.im.base.util.UUIDTool;
 import org.jeecg.modules.im.base.xmpp.MessageBean;
 import org.jeecg.modules.im.config.XMPPConfig;
@@ -12,15 +11,14 @@ import org.jeecg.modules.im.entity.Muc;
 import org.jeecg.modules.im.entity.MucConfig;
 import org.jeecg.modules.im.entity.User;
 import org.jeecg.modules.im.mq.MQXmppMessageProducer;
-import org.jeecg.modules.im.service.MucService;
-import org.jeecg.modules.im.service.OfUserService;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.IMucService;
+import org.jeecg.modules.im.service.IOfUserService;
+import org.jeecg.modules.im.service.IUserService;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.StanzaIdFilter;
-import org.jivesoftware.smack.filter.StanzaTypeFilter;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
@@ -70,11 +68,11 @@ public class XMPPManager {
     @Autowired
     private MQXmppMessageProducer mqXmppMessageProducer;
     @Resource
-    private OfUserService ofUserService;
+    private IOfUserService ofUserService;
     @Resource
-    private MucService mucService;
+    private IMucService IMucService;
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
 
     @Value("${spring.profiles.active}")
     private String evn;
@@ -207,7 +205,7 @@ public class XMPPManager {
     public boolean deleteAccount(Integer userId) {
         XMPPTCPConnection conn = null;
         try {
-            conn = getUserConnection(userId,userService.getPassword(userId));
+            conn = getUserConnection(userId, IUserService.getPassword(userId));
             AccountManager accountManager = AccountManager.getInstance(conn);
             accountManager.deleteAccount();
             return true;
@@ -471,7 +469,7 @@ public class XMPPManager {
     public boolean createMuc(Integer masterUserId, Muc room, MucConfig mucConfig, String userIds) {
         XMPPTCPConnection conn = null;
         try {
-            conn = getUserConnection(masterUserId, userService.getPassword(masterUserId));
+            conn = getUserConnection(masterUserId, IUserService.getPassword(masterUserId));
             // 创建聊天室
             MultiUserChat muc = MultiUserChatManager.getInstanceFor(conn).getMultiUserChat(JidCreate.entityBareFrom(room.getId() + getMucChatServiceName(conn)));
             muc.create(Resourcepart.from(conn.getUser().getLocalpart().toString()));
@@ -684,7 +682,7 @@ public class XMPPManager {
     public boolean inviteUsers(Integer inviterId,Integer roomId,String userIds){
         XMPPTCPConnection conn = null;
         try {
-            User inviter = userService.getById(inviterId);
+            User inviter = IUserService.getById(inviterId);
             conn = getUserConnection(inviter.getId(), inviter.getPassword());
 
             MultiUserChat muc = MultiUserChatManager.getInstanceFor(conn).getMultiUserChat(JidCreate.entityBareFrom(roomId + getMucChatServiceName(conn)));
@@ -706,8 +704,8 @@ public class XMPPManager {
     public boolean kickMembers(Integer roomId,String userIds){
         XMPPTCPConnection conn = null;
         try {
-            Muc room = mucService.getById(roomId);
-            User master = userService.getById(room.getUserId());
+            Muc room = IMucService.getById(roomId);
+            User master = IUserService.getById(room.getUserId());
             conn = getUserConnection(master.getId(), master.getPassword());
             MultiUserChat muc = MultiUserChatManager.getInstanceFor(conn).getMultiUserChat(JidCreate.entityBareFrom(roomId + getMucChatServiceName(conn)));
             if(!StringUtils.isBlank(userIds)){
@@ -727,8 +725,8 @@ public class XMPPManager {
     public boolean revokeManagers(Integer roomId,String userIds){
         XMPPTCPConnection conn = null;
         try {
-            Muc room = mucService.getById(roomId);
-            User master = userService.getById(room.getUserId());
+            Muc room = IMucService.getById(roomId);
+            User master = IUserService.getById(room.getUserId());
             conn = getUserConnection(master.getId(), master.getPassword());
             System.out.println(conn.isConnected());
             System.out.println(conn.isAuthenticated());
@@ -753,8 +751,8 @@ public class XMPPManager {
     public boolean grantManagers(Integer roomId,String userIds){
         XMPPTCPConnection conn = null;
         try {
-            Muc room = mucService.getById(roomId);
-            User master = userService.getById(room.getUserId());
+            Muc room = IMucService.getById(roomId);
+            User master = IUserService.getById(room.getUserId());
             conn = getUserConnection(master.getId(), master.getPassword());
             System.out.println(conn.isConnected());
             System.out.println(conn.isAuthenticated());
@@ -779,8 +777,8 @@ public class XMPPManager {
     public boolean transferMuc(Integer roomId,Integer userId){
         XMPPTCPConnection conn = null;
         try {
-            Muc room = mucService.getById(roomId);
-            User master = userService.getById(room.getUserId());
+            Muc room = IMucService.getById(roomId);
+            User master = IUserService.getById(room.getUserId());
             conn = getUserConnection(master.getId(), master.getPassword());
             MultiUserChat muc = MultiUserChatManager.getInstanceFor(conn).getMultiUserChat(JidCreate.entityBareFrom(roomId + getMucChatServiceName(conn)));
             muc.grantOwnership(JidCreate.entityBareFrom(userId+"@"+getConfig().getXMPPServiceDomain()));
@@ -826,7 +824,7 @@ public class XMPPManager {
     public boolean destroyMuc(Integer userId,Integer mucId) {
         XMPPTCPConnection conn = null;
         try {
-            conn = getUserConnection(userId,userService.getPassword(userId));
+            conn = getUserConnection(userId, IUserService.getPassword(userId));
             MultiUserChat muc = MultiUserChatManager.getInstanceFor(conn).getMultiUserChat(JidCreate.entityBareFrom(mucId + getMucChatServiceName(conn)));
             if(!muc.isJoined()) {
                 muc.join(Resourcepart.from(conn.getUser().getLocalpart().toString()));
@@ -851,7 +849,7 @@ public class XMPPManager {
     public boolean joinMuc(Integer userId, Integer mucId) {
         XMPPTCPConnection conn = null;
         try {
-            String password = userService.getPassword(userId);
+            String password = IUserService.getPassword(userId);
             conn = getUserConnection(userId, password);
             MultiUserChat muc = MultiUserChatManager.getInstanceFor(conn).getMultiUserChat(JidCreate.entityBareFrom(mucId + getMucChatServiceName(conn)));
             if(!muc.isJoined()) {
@@ -894,8 +892,8 @@ public class XMPPManager {
      * A接受 <presence from="A" to="B" type="subscribed"/>
      */
     public boolean addFriend(Integer userId,Integer toUserId) {
-        XMPPTCPConnection userConn = getUserConnection(userId,userService.getPassword(userId));
-        XMPPTCPConnection toUserConn = getUserConnection(toUserId,userService.getPassword(toUserId));
+        XMPPTCPConnection userConn = getUserConnection(userId, IUserService.getPassword(userId));
+        XMPPTCPConnection toUserConn = getUserConnection(toUserId, IUserService.getPassword(toUserId));
         if(userConn==null||toUserConn==null){
             log.info("获取用户连接失败");
             return false;
@@ -923,8 +921,8 @@ public class XMPPManager {
         return false;
     }
     public boolean followUser(Integer userId,Integer toUserId) {
-        XMPPTCPConnection userConn = getUserConnection(userId,userService.getPassword(userId));
-        XMPPTCPConnection toUserConn = getUserConnection(toUserId,userService.getPassword(toUserId));
+        XMPPTCPConnection userConn = getUserConnection(userId, IUserService.getPassword(userId));
+        XMPPTCPConnection toUserConn = getUserConnection(toUserId, IUserService.getPassword(toUserId));
         if(userConn==null||toUserConn==null){
             log.info("获取用户连接失败");
             return false;

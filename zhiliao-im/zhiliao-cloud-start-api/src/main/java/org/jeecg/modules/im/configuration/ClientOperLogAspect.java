@@ -20,9 +20,9 @@ import org.jeecg.modules.im.entity.Device;
 import org.jeecg.modules.im.entity.ExceptionLog;
 import org.jeecg.modules.im.entity.User;
 import org.jeecg.modules.im.entity.UserLog;
-import org.jeecg.modules.im.service.DeviceService;
-import org.jeecg.modules.im.service.ExceptionLogService;
-import org.jeecg.modules.im.service.UserService;
+import org.jeecg.modules.im.service.IDeviceService;
+import org.jeecg.modules.im.service.IExceptionLogService;
+import org.jeecg.modules.im.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
@@ -48,11 +48,11 @@ public class ClientOperLogAspect {
 
 
     @Resource
-    private ExceptionLogService exceptionLogService;
+    private IExceptionLogService IExceptionLogService;
     @Resource
-    private DeviceService deviceService;
+    private IDeviceService IDeviceService;
     @Resource
-    private UserService userService;
+    private IUserService IUserService;
 
     @Autowired
     private RabbitMqClient rabbitMqClient;
@@ -121,7 +121,7 @@ public class ClientOperLogAspect {
             userLog.setIp(getIp(request)); // 请求IP
             userLog.setIpInfo(IPUtil.getCityInfo(userLog.getIp()));
             userLog.setUri(request.getRequestURI()); // 请求URI
-            userLog.setTsCreate(new Date().getTime());
+            userLog.setTsCreate(new Date());
             userLog.setDeviceNo(getDeviceNo(request));
             userLog.setDeviceName(getDeviceName(request));
             userLog.setDevicePlatform(getDevicePlatform(request));
@@ -130,14 +130,14 @@ public class ClientOperLogAspect {
             userLog.setDeviceClientVer(getDeviceClientVer(request));
             userLog.setServerId(getServerId(request));
             if(userLog.getUserId()!=null){
-                User user = userService.getById(userLog.getUserId());
+                User user = IUserService.getById(userLog.getUserId());
                 if(user!=null){
                     Device device = null;
                     if(StringUtils.isNotBlank(getDeviceDetail(request))){
-                        device = deviceService.findByDetail(getDeviceDetail(request),userLog.getUserId());
+                        device = IDeviceService.findByDetail(getDeviceDetail(request),userLog.getUserId());
                     }
                     if(device==null){
-                        device = deviceService.findByPlatform(getDeviceNo(request),getDevicePlatform(request),getDeviceDetail(request),user);
+                        device = IDeviceService.findByPlatform(getDeviceNo(request),getDevicePlatform(request),getDeviceDetail(request),user);
                     }
                     userLog.setDeviceId(device.getId());
                 }
@@ -239,8 +239,8 @@ public class ClientOperLogAspect {
             excepLog.setUri(request.getRequestURI()); // 操作URI
             excepLog.setIp(getIp(request)); // 请求IP
             excepLog.setIpInfo(IPUtil.getCityInfo(excepLog.getIp()));
-            excepLog.setTsCreate(new Date().getTime());
-            exceptionLogService.save(excepLog);
+            excepLog.setTsCreate(new Date());
+            IExceptionLogService.save(excepLog);
         } catch (Exception e2) {
             e2.printStackTrace();
         }

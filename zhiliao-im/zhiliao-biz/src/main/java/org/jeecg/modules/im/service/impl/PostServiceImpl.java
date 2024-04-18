@@ -8,10 +8,9 @@ import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.modules.im.base.vo.MyPage;
 import org.jeecg.modules.im.entity.Post;
-import org.jeecg.modules.im.entity.Post;
 import org.jeecg.modules.im.entity.query_helper.QPost;
 import org.jeecg.modules.im.mapper.PostMapper;
-import org.jeecg.modules.im.service.PostService;
+import org.jeecg.modules.im.service.IPostService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -30,7 +29,7 @@ import java.util.List;
  * @since 2021-11-13
  */
 @Service
-public class PostServiceImpl extends BaseServiceImpl<PostMapper, Post> implements PostService {
+public class PostServiceImpl extends BaseServiceImpl<PostMapper, Post> implements IPostService {
     @Autowired
     private PostMapper mapper;
 

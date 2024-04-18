@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.im.entity.MucMemberLevelConfig;
 import org.jeecg.modules.im.mapper.MucMemberLevelConfigMapper;
-import org.jeecg.modules.im.service.MucMemberLevelConfigService;
+import org.jeecg.modules.im.service.IMucMemberLevelConfigService;
 import org.jeecg.modules.im.service.base.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.Arrays;
  * @since 2021-01-20
  */
 @Service
-public class MucMemberLevelConfigServiceImpl extends BaseServiceImpl<MucMemberLevelConfigMapper, MucMemberLevelConfig> implements MucMemberLevelConfigService {
+public class MucMemberLevelConfigServiceImpl extends BaseServiceImpl<MucMemberLevelConfigMapper, MucMemberLevelConfig> implements IMucMemberLevelConfigService {
     @Autowired
     private MucMemberLevelConfigMapper mucMemberLevelConfigMapper;
     @Override

@@ -2,7 +2,7 @@ FROM anapsix/alpine-java:8_server-jre_unlimited
 
 MAINTAINER service@songguo.info
 
-RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
 RUN mkdir -p /jeecg-demo-cloud
 
